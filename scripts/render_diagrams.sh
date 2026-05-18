@@ -16,10 +16,17 @@ if ! command -v dot >/dev/null 2>&1; then
   exit 1
 fi
 
-shopt -s globstar nullglob
+# Prefer the repo-local venv if it exists; lets contributors install
+# Python deps via `python3 -m venv .venv && .venv/bin/pip install -r diagrams/python/requirements.txt`
+# without polluting the system Python.
+PYTHON="${PYTHON:-python3}"
+if [[ -x "$repo_root/.venv/bin/python3" ]]; then
+  PYTHON="$repo_root/.venv/bin/python3"
+fi
 
+# Use `find` for portability — macOS ships bash 3.2 which lacks globstar.
 count=0
-for src in diagrams/python/**/*.py; do
+while IFS= read -r src; do
   # Skip helper modules.
   case "$src" in
     diagrams/python/_shared/*) continue ;;
@@ -45,7 +52,7 @@ for src in diagrams/python/**/*.py; do
 
   (
     cd "$tmp_dir"
-    DIAGRAM_OUT_NAME="$name" python3 "$repo_root/$src"
+    DIAGRAM_OUT_NAME="$name" "$PYTHON" "$repo_root/$src"
   )
 
   # diagrams writes <Diagram name>.png — find the single new png and move it.
@@ -59,6 +66,6 @@ for src in diagrams/python/**/*.py; do
   trap - EXIT
 
   count=$((count + 1))
-done
+done < <(find diagrams/python -type f -name '*.py' | sort)
 
 echo "rendered $count diagram(s)"
