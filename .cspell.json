@@ -1,0 +1,38 @@
+{
+  "version": "0.2",
+  "language": "en-US",
+  "dictionaryDefinitions": [
+    {
+      "name": "aws-services",
+      "path": "./.cspell/aws-services.txt",
+      "addWords": true
+    },
+    {
+      "name": "project-terms",
+      "path": "./.cspell/project-terms.txt",
+      "addWords": true
+    }
+  ],
+  "dictionaries": ["aws-services", "project-terms"],
+  "ignoreRegExpList": [
+    "/\\b[A-Z0-9_]{3,}\\b/",
+    "/```mermaid[\\s\\S]*?```/",
+    "/```[\\s\\S]*?```/",
+    "/`[^`]*`/",
+    "/!\\[[^\\]]*\\]\\([^)]*\\)/",
+    "/\\[[^\\]]*\\]\\([^)]*\\)/",
+    "/\\bhttps?:\\/\\/\\S+/"
+  ],
+  "ignorePaths": [
+    "node_modules/**",
+    ".git/**",
+    "images/**",
+    "**/*.png",
+    "**/*.svg",
+    "**/*.jpg",
+    "**/*.jpeg",
+    "diagrams/python/**/*.py"
+  ],
+  "words": [],
+  "flagWords": []
+}

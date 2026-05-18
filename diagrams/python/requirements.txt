@@ -1,0 +1,5 @@
+# Python dependencies for code-as-diagrams.
+# Install with: pip install -r diagrams/python/requirements.txt
+# Also requires graphviz on the system (brew install graphviz / apt-get install graphviz).
+
+diagrams==0.24.4

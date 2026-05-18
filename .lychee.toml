@@ -1,0 +1,34 @@
+# lychee link-check configuration
+# https://lychee.cli.rs/usage/config/
+
+# Cache results to avoid hammering external hosts.
+cache = true
+max_cache_age = "7d"
+
+# Be polite.
+max_concurrency = 8
+max_retries = 3
+retry_wait_time = 2
+
+# Treat these HTTP codes as success — some doc hosts return them for HEAD requests.
+accept = [200, 203, 206, 301, 302, 304, 307, 308, 429]
+
+# Don't error on transient failures of well-known stable hosts.
+exclude = [
+  # AWS docs sometimes 403 HEAD requests; verify manually if a link goes stale.
+  "^https://docs\\.aws\\.amazon\\.com/.*",
+  "^https://aws\\.amazon\\.com/.*",
+  # GitHub raw links can be flaky in CI.
+  "^https://raw\\.githubusercontent\\.com/.*",
+]
+
+# Files and directories to skip.
+exclude_path = [
+  "node_modules",
+  ".git",
+  "images",
+  "diagrams/python",
+]
+
+# Follow http -> https redirects without warning.
+require_https = false

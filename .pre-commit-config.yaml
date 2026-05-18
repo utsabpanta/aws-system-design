@@ -1,0 +1,45 @@
+# Run with: pre-commit run --all-files
+# Install with: pre-commit install
+#
+# Mirrors the GitHub Actions lint workflow so failures show up locally first.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ["--maxkb=2048"]
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.45.0
+    hooks:
+      - id: markdownlint
+        args: ["--config", ".markdownlint.json"]
+
+  - repo: https://github.com/streetsidesoftware/cspell-cli
+    rev: v8.17.1
+    hooks:
+      - id: cspell
+        args: ["--config", ".cspell.json", "--no-progress", "--no-summary"]
+        files: \.md$
+
+  - repo: https://github.com/lycheeverse/lychee
+    rev: v0.18.1
+    hooks:
+      - id: lychee
+        args: ["--config", ".lychee.toml", "--no-progress"]
+        stages: [pre-push]
+
+  - repo: local
+    hooks:
+      - id: mermaid-validate
+        name: Validate Mermaid blocks
+        entry: scripts/validate_mermaid.sh
+        language: script
+        files: \.md$
+        pass_filenames: true

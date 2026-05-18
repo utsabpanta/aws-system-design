@@ -1,0 +1,56 @@
+name: Diagrams
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  mermaid-validate:
+    name: Validate Mermaid blocks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install mermaid-cli
+        run: npm install -g @mermaid-js/mermaid-cli@11.4.2
+      - name: Install puppeteer deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libdrm2 \
+            libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2t64
+      - name: Extract and validate Mermaid blocks
+        run: bash scripts/validate_mermaid.sh $(git ls-files '*.md')
+
+  python-diagrams-sync:
+    name: Re-render Python diagrams and verify images are committed
+    runs-on: ubuntu-latest
+    # Skip unless someone touched a Python diagram source or an image.
+    if: |
+      contains(github.event.pull_request.changed_files, 'diagrams/python/') ||
+      contains(github.event.pull_request.changed_files, 'images/') ||
+      github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+      - name: Install Python deps
+        run: pip install -r diagrams/python/requirements.txt
+      - name: Re-render all diagrams
+        run: bash scripts/render_diagrams.sh
+      - name: Fail if rendered images differ from committed
+        run: |
+          if ! git diff --quiet -- images/; then
+            echo "::error::Rendered images differ from what is committed."
+            echo "Run ./scripts/render_diagrams.sh locally and commit the result."
+            git diff --stat -- images/
+            exit 1
+          fi

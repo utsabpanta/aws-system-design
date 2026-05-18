@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Editors
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Claude Code local settings
+.claude/
+
+# Tool caches
+.lycheecache/
+.cspellcache
+.mypy_cache/
+
+# Diagram render scratch
+diagrams/python/**/*.png
+diagrams/python/**/*.svg
+# (rendered output should land in images/, not next to the .py source)
