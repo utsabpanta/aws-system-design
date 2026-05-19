@@ -1,5 +1,8 @@
 # aws-system-design
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Lint](https://github.com/utsabpanta/aws-system-design/actions/workflows/lint.yml/badge.svg)](https://github.com/utsabpanta/aws-system-design/actions/workflows/lint.yml)
+
 An open-source, version-controlled reference for **learning AWS services and system design**. Every page is markdown, every diagram is generated from source code, and the whole thing renders directly on GitHub — no build step, no hosted site, no signup.
 
 **Who it's for**
@@ -33,6 +36,27 @@ Then jump into whichever section answers your question:
 | Review a Well-Architected pillar | [`docs/05-well-architected/`](docs/05-well-architected/) |
 
 Every page has the same shape: **TL;DR → when to use / when NOT to use → details → trade-offs**. If you only read the first two sections, you're already 80% of the way there.
+
+---
+
+## Status
+
+This repo is actively maintained. Most of the content is in place; a couple of polish passes are still in flight.
+
+**What's in the repo today**
+- 3 getting-started pages + 6 [Well-Architected](docs/05-well-architected/) pillar deep-dives.
+- **132 AWS service pages** across 12 categories — compute, storage, database, networking, security & identity, integration & messaging, analytics, ML / AI, DevOps, observability, edge, migration & transfer.
+- **16 system design patterns** (caching, sharding, idempotency, sagas, CQRS, event sourcing, multi-region, …).
+- **25 interview design walkthroughs** (URL shortener through stock exchange — full capacity math + deep dives).
+- **12 reference architectures** (serverless API, three-tier, data lake, EKS, multi-region active-active, event-driven, hub-and-spoke network, …).
+- Code-rendered architecture diagrams for every design and reference architecture (Python [`diagrams`](https://github.com/mingrammer/diagrams) + Mermaid).
+
+**What's still being added**
+- More reference architectures (multi-region active-passive, ML inference, batch processing, IoT ingest, hybrid landing zones, …).
+- Cross-linking pass so every service page lists the patterns and architectures that use it, and vice versa.
+- A "🟢 New" badge convention to flag pages added in the last 30 days.
+
+If something you'd find useful is missing, [open an issue](https://github.com/utsabpanta/aws-system-design/issues/new/choose) or a PR. See [CONTRIBUTING.md](CONTRIBUTING.md) for the page template and conventions.
 
 ---
 

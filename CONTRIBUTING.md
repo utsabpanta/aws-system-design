@@ -10,7 +10,6 @@ Thanks for wanting to add a page. The goal of this repo is a consistent, opinion
 - [Adding a new page](#adding-a-new-page)
 - [Local checks before opening a PR](#local-checks-before-opening-a-pr)
 - [Commit sign-off (DCO)](#commit-sign-off-dco)
-- [Code of conduct](#code-of-conduct)
 
 ---
 
@@ -213,9 +212,3 @@ Signed-off-by: Your Name <your.email@example.com>
 ```
 
 By signing off you're asserting you wrote the change (or have the right to submit it) and agree it can be distributed under the project's [MIT license](LICENSE).
-
----
-
-## Code of conduct
-
-Be kind. Assume good intent. Critique pages and ideas, not people. We follow the spirit of the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). Report unacceptable behavior by opening an issue tagged `conduct`, or contacting the maintainers privately.
