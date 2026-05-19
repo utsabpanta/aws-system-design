@@ -170,6 +170,14 @@ The easiest path:
 
 If the page needs a `diagrams` Python rendering, also create the matching `.py` file under `diagrams/python/` and run `./scripts/render_diagrams.sh`.
 
+After adding, renaming, or removing a page, regenerate the README table of contents:
+
+```sh
+./scripts/build_toc.sh
+```
+
+CI runs `scripts/build_toc.py --check` and fails if the README is out of sync.
+
 ---
 
 ## Local checks before opening a PR
@@ -184,7 +192,7 @@ That runs (per `.pre-commit-config.yaml`):
 - `lychee` link check
 - Mermaid syntax validation on every ```` ```mermaid ```` block
 
-CI will run the same checks plus a diagram-sync check on PRs that touch `diagrams/python/`.
+CI will run the same checks plus a `README.md` TOC sync check, and a diagram-sync check on PRs that touch `diagrams/python/`.
 
 If your PR introduces a new word that trips cspell (an acronym, a service name, a person's name), add it to `.cspell.json` rather than ignoring the check.
 
