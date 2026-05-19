@@ -15,6 +15,7 @@ asg
 asgs
 autoscaler
 autoscalers
+autoscales
 backend
 backends
 backfill
@@ -24,6 +25,7 @@ bcrypt
 binlog
 bottleneck
 bottlenecks
+boto
 brokers
 bucketing
 canonicalize
@@ -35,6 +37,7 @@ checksum
 checksums
 chunked
 chunking
+chokepoint
 cidr
 cli
 codec
@@ -50,6 +53,7 @@ crashloop
 cron
 cronjob
 cronjobs
+cutover
 datacenter
 datacenters
 dataplane
@@ -91,6 +95,7 @@ failover
 failovers
 faq
 faqs
+fanout
 filesystem
 filesystems
 flink
@@ -105,12 +110,15 @@ geohashes
 geospatial
 github
 gitignore
+gbps
 graphql
 grpc
 gsi
 gsis
 gzip
 gzipped
+hairpinned
+hairpinning
 hardcode
 hardcoded
 hashring
@@ -200,6 +208,7 @@ otel
 overprovision
 overprovisioned
 overprovisioning
+palo
 parameterize
 parameterized
 parquet
@@ -241,6 +250,7 @@ rehydrated
 remediation
 repartition
 repartitioning
+replayable
 replication
 replicator
 repointing
@@ -267,6 +277,7 @@ sdks
 serializer
 serializers
 serverless
+sessionization
 shapelessness
 sharded
 sharding
@@ -306,8 +317,10 @@ subquery
 subscriber
 subscribers
 substring
+supernet
 superset
 supersets
+suricata
 syslog
 systemd
 tcp
