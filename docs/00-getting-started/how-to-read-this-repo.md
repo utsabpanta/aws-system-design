@@ -25,7 +25,7 @@ The other top-level folders aren't reading material:
 
 - `diagrams/python/` — Python source for code-rendered architecture diagrams.
 - `images/` — the rendered PNG outputs.
-- `scripts/` — `new_page.sh`, `render_diagrams.sh`, `validate_mermaid.sh`.
+- `scripts/` — `new_page.sh`, `render_diagrams.sh`, `validate_mermaid.sh`, `build_toc.sh`.
 - `.github/` — CI workflows and issue/PR templates.
 
 ## How to pick the right section

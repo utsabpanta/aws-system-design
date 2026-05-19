@@ -1,29 +1,38 @@
 # aws-system-design
 
-A version-controlled reference for AWS services and system design patterns. Every page is markdown, every diagram is generated from source code, and the whole thing renders directly on GitHub — no build step, no hosted site.
+An open-source, version-controlled reference for **learning AWS services and system design**. Every page is markdown, every diagram is generated from source code, and the whole thing renders directly on GitHub — no build step, no hosted site, no signup.
 
 **Who it's for**
-- Engineers preparing for system design interviews who want concrete AWS-mapped answers.
-- Practitioners looking for reference architectures to copy from on Monday morning.
+- Engineers and students who want to learn AWS services in depth — what each service does, when to reach for it, and the trade-offs that come with the choice.
+- Anyone studying for system design interviews who wants concrete AWS-mapped answers backed by reasoning, not memorization.
+- Self-taught learners building intuition for how real systems are designed: the patterns that show up everywhere, the failure modes that matter, and the AWS primitives that implement them.
 
 **What it is not**
-- An AWS certification cram sheet.
-- A code-tutorial repo — minimal CDK/Terraform/CLI snippets only, as illustration.
-- A vendor comparison ("AWS vs GCP").
+- An AWS certification cram sheet — explanations go deeper than exam dumps and don't optimize for question banks.
+- A code-tutorial repo — minimal CDK/Terraform/CLI snippets only, as illustration. The repo is design-first.
+- A vendor comparison — this is AWS-focused; "AWS vs GCP" pages are out of scope.
 
 ---
 
 ## How to navigate
 
-Start with [`docs/00-getting-started/how-to-read-this-repo.md`](docs/00-getting-started/how-to-read-this-repo.md), then jump into whichever section answers your question:
+New here? Read the three short pages in [`docs/00-getting-started/`](docs/00-getting-started/) first — in any order, but ideally:
+
+1. **[How to read this repo](docs/00-getting-started/how-to-read-this-repo.md)** — the directory map and how each page is structured.
+2. **[AWS mental model](docs/00-getting-started/aws-mental-model.md)** — Regions, AZs, IAM, VPCs, shared responsibility. The load-bearing concepts every other page assumes.
+3. **[System design primer](docs/00-getting-started/system-design-primer.md)** — the vocabulary (latency, throughput, CAP, PACELC, caches) you need for the rest of the repo.
+
+Then jump into whichever section answers your question:
 
 | You want to… | Go to |
 |---|---|
-| Understand a single AWS service | [`docs/01-services/`](docs/01-services/) |
-| Look up a reusable building block (caching, sharding, sagas…) | [`docs/02-patterns/`](docs/02-patterns/) |
-| Whiteboard a classic interview problem on AWS | [`docs/03-interview-designs/`](docs/03-interview-designs/) |
-| Find a production-ready blueprint | [`docs/04-reference-architectures/`](docs/04-reference-architectures/) |
-| Re-read a Well-Architected pillar | [`docs/05-well-architected/`](docs/05-well-architected/) |
+| Learn a single AWS service in depth | [`docs/01-services/`](docs/01-services/) |
+| Understand a reusable building block (caching, sharding, sagas…) | [`docs/02-patterns/`](docs/02-patterns/) |
+| Walk through a classic system design problem on AWS | [`docs/03-interview-designs/`](docs/03-interview-designs/) |
+| Study a full architecture end-to-end | [`docs/04-reference-architectures/`](docs/04-reference-architectures/) |
+| Review a Well-Architected pillar | [`docs/05-well-architected/`](docs/05-well-architected/) |
+
+Every page has the same shape: **TL;DR → when to use / when NOT to use → details → trade-offs**. If you only read the first two sections, you're already 80% of the way there.
 
 ---
 
