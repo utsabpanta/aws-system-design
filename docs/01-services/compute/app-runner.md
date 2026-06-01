@@ -75,7 +75,7 @@ For most workloads, equivalent Fargate (via ECS Express Mode) lands in the same 
 
 ## Migrating to ECS Express Mode
 
-AWS published [migration guidance](https://aws-news.com/article/2026-02-17-migrating-from-aws-app-runner-to-amazon-ecs-express-mode) when ECS Express Mode launched. The shape of the migration:
+Migrating off App Runner to ECS Express Mode follows a predictable shape:
 
 1. **Container image stays the same** — App Runner already runs containers; the same image runs on ECS Express Mode.
 2. **One `aws ecs create-service-express` call** creates the equivalent stack (Fargate task, ALB target group, autoscaling, security group, generated URL).
@@ -99,5 +99,4 @@ See [`ecs.md`](ecs.md) for ECS Express Mode specifics.
 ## Further reading
 - [AWS App Runner availability change](https://docs.aws.amazon.com/apprunner/latest/dg/apprunner-availability-change.html) — the official closure notice.
 - [Announcing Amazon ECS Express Mode](https://aws.amazon.com/about-aws/whats-new/2025/11/announcing-amazon-ecs-express-mode/).
-- [Migrating from AWS App Runner to Amazon ECS Express Mode](https://aws-news.com/article/2026-02-17-migrating-from-aws-app-runner-to-amazon-ecs-express-mode).
 - [AWS App Runner documentation](https://docs.aws.amazon.com/apprunner/) (still maintained for existing users).

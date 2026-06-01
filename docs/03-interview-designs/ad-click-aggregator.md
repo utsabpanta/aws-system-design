@@ -230,7 +230,7 @@ Levers:
 - **OpenSearch vs Druid / ClickHouse**: OpenSearch is AWS-managed; Druid / ClickHouse are purpose-built OLAP. OpenSearch is the path of least resistance.
 
 ## Further Reading
-- ["Lambda Architecture", Nathan Marz](http://lambda-architecture.net/).
+- "Lambda Architecture" — Nathan Marz (see his book *Big Data*, Manning).
 - ["Designing an ad-click aggregator", System Design Primer-style writeups](https://github.com/donnemartin/system-design-primer).
 - [Managed Apache Flink (formerly Kinesis Data Analytics) docs](https://docs.aws.amazon.com/managed-flink/).
 - [Click fraud detection patterns, AWS blog](https://aws.amazon.com/blogs/big-data/).
