@@ -285,7 +285,7 @@ Levers:
 ## Further Reading
 
 - [Uber engineering blog — many posts on dispatch, H3, real-time](https://www.uber.com/blog/engineering/).
-- ["H3: Uber's Hexagonal Hierarchical Spatial Index"](https://eng.uber.com/h3/).
+- ["H3: Uber's Hexagonal Hierarchical Spatial Index"](https://www.uber.com/blog/h3/).
 - ["Designing Uber", System Design Primer](https://github.com/donnemartin/system-design-primer).
-- ["Scaling Uber's Real-time Market Platform"](https://www.infoq.com/articles/uber-market-platform/).
+- ["Scaling Uber's Real-time Market Platform"](https://www.infoq.com/presentations/uber-market-platform/).
 - Related: [whatsapp-chat](whatsapp-chat.md) (WebSocket connection model), [airbnb-booking](airbnb-booking.md) (different matching shape), [payment-system](payment-system.md), [real-time-leaderboard](real-time-leaderboard.md) (Valkey hot-data pattern).

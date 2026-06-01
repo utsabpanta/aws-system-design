@@ -115,5 +115,5 @@ The previous Amplify CLI + JSON config approach. Still supported but Gen 2 is th
 - [AWS Amplify documentation](https://docs.amplify.aws/).
 - [Amplify Gen 2 (TypeScript-first)](https://docs.amplify.aws/react/build-a-backend/).
 - [Amplify Hosting](https://docs.aws.amazon.com/amplify/).
-- [Migrating from Gen 1 to Gen 2](https://docs.amplify.aws/react/start/migrate-from-gen1/).
+- [Migrating from Gen 1 to Gen 2](https://docs.amplify.aws/react/start/migrate-to-gen2/).
 - [Amplify libraries](https://docs.amplify.aws/react/build-a-backend/).

@@ -300,7 +300,7 @@ Levers:
 ## Further Reading
 
 - ["Designing Google Docs", System Design Primer](https://github.com/donnemartin/system-design-primer).
-- ["High-availability collaborative document editing", Google's foundational paper](https://research.google/pubs/pub37280/).
+- ["Differential Synchronization", Neil Fraser (Google)](https://research.google/pubs/differential-synchronization/).
 - ["CRDTs: Building Blocks for Eventually Consistent Distributed Systems"](https://crdt.tech/).
 - [Y.js (popular CRDT library)](https://yjs.dev/).
 - [Figma's CRDT walkthrough](https://www.figma.com/blog/how-figmas-multiplayer-technology-works/).

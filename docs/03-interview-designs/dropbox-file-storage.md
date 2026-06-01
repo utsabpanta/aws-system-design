@@ -245,7 +245,7 @@ Levers:
 
 ## Further Reading
 
-- ["Scaling to exabytes (and beyond)", Dropbox engineering blog](https://dropbox.tech/infrastructure/scaling-to-exabytes-and-beyond).
+- ["Scaling to exabytes (and beyond)", Dropbox engineering blog](https://dropbox.tech/infrastructure/magic-pocket-infrastructure).
 - ["Designing Dropbox", System Design Primer](https://github.com/donnemartin/system-design-primer).
 - [Content-defined chunking, Wikipedia](https://en.wikipedia.org/wiki/Rolling_hash#Content-based_slicing_using_a_rolling_hash).
 - Related: [pastebin](pastebin.md) (S3 blob storage shape), [url-shortener](url-shortener.md) (share-link mapping), [google-docs-collab](google-docs-collab.md) (collaborative editing on top of file storage).

@@ -290,7 +290,7 @@ Card fraud is unavoidable. Mitigations:
 
 - ["Designing a payment system", System Design Primer-style](https://github.com/donnemartin/system-design-primer).
 - ["Designing robust and predictable APIs with idempotency keys", Stripe blog](https://stripe.com/blog/idempotency).
-- ["How to design a double-entry ledger", Modern Treasury](https://www.moderntreasury.com/journal/the-anatomy-of-a-ledger).
+- ["What is Double-Entry Accounting?", Modern Treasury](https://www.moderntreasury.com/journal/what-is-double-entry-accounting).
 - [PCI DSS overview](https://www.pcisecuritystandards.org/).
 - [AWS Payment Cryptography](https://docs.aws.amazon.com/payment-cryptography/) — for the few cases where you do need direct card-data handling.
 - Related: [idempotency pattern](../02-patterns/idempotency.md), [saga pattern](../02-patterns/saga.md), [outbox pattern](../02-patterns/outbox.md).

@@ -87,7 +87,7 @@ Producers (**API Gateway** + Lambda, internal services, **SaaS partner event sou
 
 ### Long-running consumers (ECS)
 
-- Workloads exceeding Lambda's 15-min ceiling, needing big memory, or holding open connections (databases, MQTT, ftp) — run on **ECS Fargate** consuming SQS via the [SQS-driven scaler](https://github.com/awslabs/amazon-ecs-service-discovery).
+- Workloads exceeding Lambda's 15-min ceiling, needing big memory, or holding open connections (databases, MQTT, ftp) — run on **ECS Fargate** consuming SQS via [service auto scaling on queue depth](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-auto-scaling.html).
 - ECS target tracking on **`ApproximateNumberOfMessagesVisible`** scales the worker count up/down with queue depth.
 
 ### State (DynamoDB)

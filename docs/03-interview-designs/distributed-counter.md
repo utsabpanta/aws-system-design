@@ -232,5 +232,5 @@ Levers:
 - [DynamoDB best practices for counters](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-modeling-nosql-B.html).
 - ["Counting things — a lot of different things", Cloudflare blog](https://blog.cloudflare.com/counting-things-a-lot-of-different-things/).
 - [DAX](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.html).
-- [Distributed counters, Redis Labs](https://redis.io/docs/data-types/atomic-counters/).
+- [Redis atomic counters (INCR)](https://redis.io/docs/latest/commands/incr/).
 - Related: [data-partitioning-sharding pattern](../02-patterns/data-partitioning-sharding.md), [caching-strategies](../02-patterns/caching-strategies.md), [DynamoDB service page](../01-services/database/dynamodb.md).

@@ -297,7 +297,7 @@ Levers:
 ## Further Reading
 
 - ["Designing a stock exchange / matching engine", System Design Primer-style](https://github.com/donnemartin/system-design-primer).
-- [Nasdaq INET architecture (historical writeups)](https://www.nasdaq.com/solutions/market-infrastructure-technology).
+- [Nasdaq matching-engine technology](https://www.nasdaq.com/solutions/fintech/marketplace-technology/about-matching-engines).
 - [LMAX Disruptor pattern (high-perf single-thread)](https://lmax-exchange.github.io/disruptor/).
 - [FIX protocol](https://www.fixtrading.org/).
 - Related: [payment-system](payment-system.md) (settlement parallels), [real-time-leaderboard](real-time-leaderboard.md) (ZSET-style data structures), [idempotency pattern](../02-patterns/idempotency.md).
