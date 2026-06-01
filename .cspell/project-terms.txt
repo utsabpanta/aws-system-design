@@ -18,6 +18,7 @@ Apdex
 apigateway
 apigw
 appspec
+architecting
 asg
 asgs
 Authlib
@@ -118,10 +119,13 @@ deserializes
 deserializing
 diff
 diffs
+distro
 distroless
 dlq
 dlqs
 dns
+downsample
+downsampling
 downstreams
 Drata
 duplicative
@@ -139,6 +143,7 @@ enqueue
 enqueued
 enqueueing
 enqueues
+entra
 errno
 etls
 ets
@@ -238,6 +243,7 @@ keyspace
 keyspaces
 kibana
 Kleppmann
+knative
 ksqldb
 Kubeflow
 laggy
@@ -259,6 +265,7 @@ loopback
 lru
 lsi
 lsis
+mailgun
 Mapbox
 Marketo
 Marz
@@ -353,6 +360,7 @@ Plesk
 polyrepo
 posix
 postgres
+pprof
 prekey
 prekeys
 preprocess
@@ -374,6 +382,7 @@ pybreaker
 pygments
 qps
 quadtrees
+quantiles
 Querétaro
 quorum
 quorums
@@ -456,6 +465,7 @@ sidecars
 SIEMs
 signoff
 signoffs
+signup
 sigv
 slo
 slos
@@ -500,10 +510,12 @@ suricata
 syscall
 syslog
 systemd
+tailscale
 Tbps
 tcp
 teardown
 teardowns
+tekton
 telco
 telemedicine
 telemetry
