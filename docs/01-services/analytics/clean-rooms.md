@@ -3,6 +3,7 @@
 > **One-line summary.** Collaborate on combined datasets across companies without sharing the underlying data. Each party keeps their data in their own S3 / Glue Catalog; pre-approved SQL or ML jobs run against the join, returning only aggregate / differentially-private outputs.
 
 ## TL;DR
+
 - The right service for cross-company data collaboration where each side wants to learn from combined data without anyone seeing the raw records (advertising attribution, fraud-pattern sharing, healthcare research).
 - **Analysis rules** constrain what queries can run: only specific aggregations, only over allowed columns, with **differential privacy** budgets, **k-anonymity** thresholds, or **cryptographic computing** (encrypted joins where neither side decrypts the other's data).
 - **Clean Rooms ML** lets multiple parties train lookalike models on combined first-party data without sharing it.
@@ -10,6 +11,7 @@
 - Less essential for single-organization analytics — Lake Formation handles internal data governance.
 
 ## When to use it
+
 - Advertisers + publishers measuring campaign attribution on overlapping audiences without sharing audience PII.
 - Healthcare research consortia analyzing combined patient cohorts without breaking HIPAA boundaries.
 - Financial fraud-pattern sharing across institutions.
@@ -17,6 +19,7 @@
 - Lookalike modeling across first-party datasets (Clean Rooms ML).
 
 ## When NOT to use it
+
 - Single-organization data sharing — **Lake Formation** is the right tool.
 - Workloads where the parties can simply exchange aggregated data — Clean Rooms adds value when the join itself must remain private.
 - Tiny one-off collaborations — the setup cost (collaboration agreements, analysis rules, configured tables) only amortizes for ongoing projects.
@@ -30,6 +33,7 @@
 **Configured tables.** Each party registers their tables (Glue Catalog tables backed by S3) with permitted columns and join keys. The configured table is the "what we are willing to expose, and how."
 
 **Analysis rules.** Constrain what queries can run. Three rule types:
+
 - **Aggregation analysis rule** — only `SUM`, `COUNT`, `AVG`, etc.; minimum-group-size threshold (no group with fewer than N rows can be returned).
 - **List analysis rule** — return raw rows that match a join; useful for "show me users who overlap" — but each side controls which columns appear in the output.
 - **Custom analysis rule** — bring your own Cedar-style policy template for queries.
@@ -68,6 +72,7 @@
 - **Treating it as ETL.** Clean Rooms is for **collaboration**, not bulk data movement.
 
 ## Pairs well with
+
 - [Glue](glue.md) — Data Catalog for the configured tables.
 - [S3](../storage/s3.md) — underlying storage on each side.
 - [Lake Formation](lake-formation.md) — per-side governance of the source data.
@@ -75,9 +80,11 @@
 - [SageMaker](../ml-ai/) (forthcoming) — Clean Rooms ML modeling.
 
 ## Pairs well with these repo pages
+
 - [Lake Formation](lake-formation.md), [Data Exchange](data-exchange.md).
 
 ## Further reading
+
 - [AWS Clean Rooms documentation](https://docs.aws.amazon.com/clean-rooms/).
 - [Analysis rules](https://docs.aws.amazon.com/clean-rooms/latest/userguide/analysis-rules.html).
 - [Differential privacy in Clean Rooms](https://docs.aws.amazon.com/clean-rooms/latest/userguide/differential-privacy.html).

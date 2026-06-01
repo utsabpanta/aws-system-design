@@ -3,6 +3,7 @@
 > **One-line summary.** Serverless event bus. Producers send events; **rules** match them by JSON pattern and route to one or more AWS services (Lambda, Step Functions, SQS, SNS, ECS, Kinesis, API destinations, …) or another bus.
 
 ## TL;DR
+
 - The right answer for **event-bus routing** when you have many producers, many consumers, and complex content-based rules. Think "Kafka without partitions; routing without writing code."
 - Three bus types: **default bus** (AWS service events automatically; one per account per Region), **custom buses** (yours, for your own events), and **partner event buses** (third-party SaaS — Datadog, Auth0, MongoDB, etc. — publish directly).
 - Companion services: **EventBridge Pipes** (point-to-point with filter+enrich, see [`pipes.md`](pipes.md)), **EventBridge Scheduler** (cron-style scheduled invocations at massive scale, replacing CloudWatch Events Rules).
@@ -10,6 +11,7 @@
 - Pairs naturally with **Step Functions** (target for orchestration), **Lambda** (target for arbitrary handlers), **SQS** (target for buffering before processing).
 
 ## When to use it
+
 - Many-to-many event distribution with content-based routing.
 - Reacting to AWS service events (EC2 state changes, CodePipeline events, GuardDuty findings, etc.).
 - SaaS event integration without writing webhook handlers (via partner event buses).
@@ -18,6 +20,7 @@
 - Replacing per-target Lambda wrappers with declarative routing.
 
 ## When NOT to use it
+
 - High-throughput, ordered, replayable event streams — use **Kinesis Data Streams** or **MSK** (Kafka).
 - Single producer, single consumer with simple buffering — use **SQS** directly.
 - Pure fanout to known consumers — **SNS** is simpler.
@@ -26,6 +29,7 @@
 ## Key concepts
 
 **Event bus.** Logical container for events.
+
 - **Default bus** — AWS service events for the account/Region land here automatically (CloudTrail events, service-emitted notifications).
 - **Custom bus** — yours; PutEvents from any source.
 - **Partner bus** — SaaS-published events.
@@ -55,6 +59,7 @@
 **Archive + Replay.** Archive events from a bus and replay them back later — for debugging or recovering from a bad target deployment.
 
 **EventBridge Scheduler.** Separate service for scheduled invocations. Replaces older CloudWatch Events Rules cron / rate expressions with:
+
 - Higher quotas (millions of schedules per account).
 - Per-schedule throttling.
 - Built-in retries and DLQ.
@@ -96,6 +101,7 @@
 - **Cross-account event posting without IAM + bus policy.** Both ends must allow.
 
 ## Pairs well with
+
 - [SNS](sns.md), [SQS](sqs.md), [Lambda](../compute/lambda.md), [Step Functions](step-functions.md) — common targets.
 - [EventBridge Pipes](pipes.md) — single-source single-target with filter+enrich.
 - **API destinations** — send events to external HTTP endpoints.
@@ -103,10 +109,12 @@
 - **CloudTrail** — AWS API events flow naturally to the default bus.
 
 ## Pairs well with these repo pages
+
 - [Pipes](pipes.md), [Step Functions](step-functions.md), [SNS](sns.md), [SQS](sqs.md).
 - `docs/02-patterns/pub-sub.md`, `docs/02-patterns/event-sourcing.md` (forthcoming).
 
 ## Further reading
+
 - [Amazon EventBridge documentation](https://docs.aws.amazon.com/eventbridge/).
 - [EventBridge Pipes](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes.html).
 - [EventBridge Scheduler](https://docs.aws.amazon.com/scheduler/).

@@ -3,6 +3,7 @@
 > **One-line summary.** Managed Hadoop ecosystem on AWS — Spark, Hive, Presto / Trino, HBase, Flink, Hudi / Iceberg / Delta — running on EC2, EKS, Outposts, or **EMR Serverless**.
 
 ## TL;DR
+
 - The right answer for large-scale Spark / Hive / Presto / Trino workloads that need full control of the cluster, custom packages, or specialized configurations.
 - **Four deployment models**: **EC2 clusters** (classic), **EKS** (Kubernetes-managed pods), **Serverless** (no cluster — pay per job execution), **Outposts** (on-prem rack).
 - **EMR Serverless** is the modern default for most "Spark job" workloads — no cluster to manage; auto-scales per job.
@@ -10,6 +11,7 @@
 - Spot-friendly: EMR's task instance fleets pair beautifully with Spot for 60–90% cost reduction on batch.
 
 ## When to use it
+
 - Sustained, code-driven Spark / Hive / Presto / Trino workloads.
 - Custom Hadoop ecosystem requirements (HBase, JupyterHub-on-cluster, custom JARs).
 - ML preprocessing pipelines on tens of TB to PB datasets.
@@ -18,6 +20,7 @@
 - Existing on-prem Spark / Hadoop being lifted to AWS.
 
 ## When NOT to use it
+
 - Ad-hoc analytical SQL — **Athena**.
 - Pure serverless Spark with minimal config — **Glue Spark jobs** or **EMR Serverless** (which is closer to Glue in operational shape).
 - Real-time stream processing — **Managed Service for Apache Flink** (formerly Kinesis Data Analytics).
@@ -37,6 +40,7 @@
 **EMR on Outposts.** EMR clusters on your AWS Outposts hardware.
 
 ### Engines pre-bundled
+
 - **Spark** — the primary engine in 2026.
 - **Hive** — SQL on top of Hadoop.
 - **Presto / Trino** — distributed SQL.
@@ -47,25 +51,30 @@
 - **Tez, MapReduce** — legacy frameworks (still supported).
 
 ### Cluster topology (EMR on EC2)
+
 - **Primary (master) node** — coordinates the cluster.
 - **Core nodes** — run HDFS DataNodes (storage) and tasks.
 - **Task nodes** — task-only, no HDFS, ideal Spot candidates.
 
 ### Instance fleets
+
 - **Uniform instance groups** — fixed instance type per node group.
 - **Instance fleets** — mix multiple instance types and Spot/on-demand within one fleet; EMR picks optimally based on availability and price.
 
 Instance fleets + Spot for task nodes is the canonical cost-optimized pattern.
 
 ### Storage
+
 - **HDFS** on core nodes (lost on cluster termination) — for hot shuffle / intermediate data.
 - **EMRFS** — Spark / Hive reads/writes S3 directly (the production pattern). HDFS as scratch only.
 - **EBS volumes** attached to nodes for shuffle and OS.
 
 ### Auto-scaling
+
 EMR clusters can auto-scale task nodes based on YARN metrics. EMR Serverless auto-scales transparently per job.
 
 ### Security
+
 KMS encryption at rest (EBS, S3, HDFS), TLS in transit between cluster components, Kerberos auth optional. **Lake Formation** integration for fine-grained permissions.
 
 ## Pricing model
@@ -98,6 +107,7 @@ EMR on EC2 + Spot task nodes is the cheapest at sustained high utilization. EMR 
 - **No auto-termination.** A cluster left running overnight bills overnight. Set idle-timeout.
 
 ## Pairs well with
+
 - [S3](../storage/s3.md), **S3 Tables** — primary data lake.
 - [Glue](glue.md) — Catalog metastore for EMR.
 - [Lake Formation](lake-formation.md) — fine-grained perms.
@@ -106,10 +116,12 @@ EMR on EC2 + Spot task nodes is the cheapest at sustained high utilization. EMR 
 - **JupyterHub / SageMaker Studio** — notebook front-ends.
 
 ## Pairs well with these repo pages
+
 - [Glue](glue.md), [Athena](athena.md), [Lake Formation](lake-formation.md).
 - `docs/04-reference-architectures/batch-etl-glue.md`, `docs/04-reference-architectures/data-lake-on-s3.md` (forthcoming).
 
 ## Further reading
+
 - [Amazon EMR documentation](https://docs.aws.amazon.com/emr/).
 - [EMR Serverless](https://docs.aws.amazon.com/emr/latest/EMR-Serverless-UserGuide/).
 - [EMR on EKS](https://docs.aws.amazon.com/emr/latest/EMR-on-EKS-DevelopmentGuide/).

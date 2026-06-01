@@ -3,6 +3,7 @@
 > **One-line summary.** Managed computer vision API. Image and video analysis — object/scene detection, content moderation, text extraction, face analysis (with strict policies), celebrity recognition, custom models.
 
 ## TL;DR
+
 - Pre-trained vision API for images (sync) and video (async, on S3 video files or Kinesis Video Streams).
 - Common uses: **content moderation** (UGC platforms), **document / image text** (`DetectText`), **object & scene labels**, **face detection / analysis** for unlock-style UX, **face comparison** for identity verification, and **custom labels** via your own training data.
 - **Face features are restricted** — face-verification / face-comparison / face-search are governed by AWS's responsible-AI / Acceptable Use policy. Some use cases require additional review.
@@ -10,6 +11,7 @@
 - For real-time video streams, integrates with **Kinesis Video Streams**.
 
 ## When to use it
+
 - Moderating user-uploaded photos / videos at scale.
 - Cataloging media assets (objects, scenes, activities in video).
 - Lightweight document text extraction.
@@ -17,6 +19,7 @@
 - Custom image classification (train **Custom Labels** on your own dataset).
 
 ## When NOT to use it
+
 - Structured document understanding (forms, tables, key-value pairs) — use **Textract**.
 - Generic generative-vision tasks (caption images with rich natural language, answer questions about images) — use a vision-capable LLM on **Bedrock**.
 - Workloads where face features are required but Acceptable Use review hasn't been completed.
@@ -26,6 +29,7 @@
 ### APIs
 
 **Images:**
+
 - `DetectLabels` — objects, scenes, activities, with confidence scores.
 - `DetectModerationLabels` — content moderation taxonomy (explicit, suggestive, violence, etc.).
 - `DetectText` — text in images (signs, banners, screenshots).
@@ -34,6 +38,7 @@
 - `DetectProtectiveEquipment` — PPE detection.
 
 **Video (async, S3-based or Kinesis Video Streams):**
+
 - Same categories: labels, moderation, faces, persons (tracking), shots, segments.
 - Async pattern: start a job, get notified via SNS when done, retrieve results.
 
@@ -44,6 +49,7 @@
 **Face Liveness.** Detects whether the face presented to the camera is from a live person (vs photo, video replay, mask). Used in onboarding flows.
 
 ### Restricted use
+
 AWS's face-related APIs are restricted by Acceptable Use policy — particularly around use by law enforcement and unconstrained surveillance. Some use cases require pre-approval; new accounts have additional onboarding steps for face features.
 
 ## Pricing model
@@ -73,6 +79,7 @@ Pricing scales linearly with volume; bulk pricing tiers reduce per-unit cost at 
 - **Storing face IDs without lifecycle.** Indexed faces persist until deleted; for ephemeral verification, delete after use.
 
 ## Pairs well with
+
 - [S3](../storage/s3.md) — image / video storage.
 - [Kinesis Video Streams](../analytics/kinesis.md) — real-time video.
 - [Lambda](../compute/lambda.md), [Step Functions](../integration-messaging/step-functions.md) — orchestrate moderation pipelines.
@@ -80,9 +87,11 @@ Pricing scales linearly with volume; bulk pricing tiers reduce per-unit cost at 
 - [Bedrock](bedrock.md) — vision-capable LLMs for richer captioning / VQA.
 
 ## Pairs well with these repo pages
+
 - [Textract](textract.md), [Bedrock](bedrock.md), [SageMaker](sagemaker.md).
 
 ## Further reading
+
 - [Amazon Rekognition documentation](https://docs.aws.amazon.com/rekognition/).
 - [Custom Labels](https://docs.aws.amazon.com/rekognition/latest/customlabels-dg/what-is.html).
 - [Face Liveness](https://docs.aws.amazon.com/rekognition/latest/dg/face-liveness.html).

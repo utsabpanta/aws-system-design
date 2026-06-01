@@ -3,6 +3,7 @@
 > **One-line summary.** Pick the directory that matches your question, then read the file. Every page follows the same shape so you can skim consistently.
 
 ## TL;DR
+
 - Service pages tell you what a single AWS service is, when to use it, and what it costs you to misuse.
 - Pattern pages are vendor-neutral building blocks (caching, sharding, sagas) cast onto AWS.
 - Interview designs are full system design problems with capacity math and deep dives — written like a whiteboard session.
@@ -91,6 +92,7 @@ AWS deprecates and renames services often. Pages note status changes at the top 
 `scripts/new_page.sh <kind> <slug>` scaffolds a page from the right template. See `CONTRIBUTING.md` for the full process, the page template, diagram conventions, the local pre-commit setup, and the DCO sign-off requirement.
 
 ## Further reading
+
 - [System design primer](system-design-primer.md) — vocabulary you'll see on every page in this repo.
 - [AWS mental model](aws-mental-model.md) — Regions, AZs, edge, IAM, shared responsibility.
 - [`CONTRIBUTING.md`](../../CONTRIBUTING.md) — the canonical page template.

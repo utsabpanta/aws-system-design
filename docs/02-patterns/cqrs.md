@@ -3,6 +3,7 @@
 > **One-line summary.** Separate the model that writes data from the model that reads it. Optimize each independently — write model for business rules and consistency; read models for query shape and latency.
 
 ## TL;DR
+
 - Two distinct models, optionally two distinct stores. Commands mutate the write model; queries read from one or many read models (projections).
 - Strongest pairing: **CQRS + event sourcing** (write model emits events; read models project from the event stream). Also works without event sourcing — outbox + CDC keeps read models in sync.
 - The point: a single CRUD model serves writes (need consistency, validation) and reads (need denormalization, joins, search) badly. Splitting lets each be good at its job.
@@ -10,12 +11,14 @@
 - AWS-native: **DynamoDB** (write model with consistent writes) + **DynamoDB Streams** → projections in **OpenSearch / Aurora / Redshift / S3 + Athena**. Or **Aurora write** + **CDC via DMS** to read models.
 
 ## When to use it
+
 - Read and write workloads have very different shapes (write = small transactional updates, read = analytical or full-text search).
 - Multiple read use cases need different denormalizations (user-facing UI vs analytics vs compliance).
 - Domain has rich business logic on writes that benefits from a focused model.
 - Already adopting event sourcing — CQRS comes naturally.
 
 ## When NOT to use it
+
 - Simple CRUD workloads where one model serves both.
 - Read-mostly workloads where caching gets you 95% of the benefit.
 - Tight read-after-write consistency requirements (the eventual consistency of separate read models won't fit).
@@ -24,6 +27,7 @@
 ## How it works
 
 ### CQRS with event sourcing (the classic pairing)
+
 ```mermaid
 flowchart LR
   C[Client] -->|command| W[Write Model<br/>aggregates + business rules]
@@ -39,6 +43,7 @@ flowchart LR
 Write side: commands → aggregates → events. Read side: projections subscribe to the event stream and maintain denormalized read models.
 
 ### CQRS without event sourcing (lighter-weight)
+
 ```mermaid
 flowchart LR
   C[Client] -->|command| W[Write Model]
@@ -66,6 +71,7 @@ Write side: standard CRUD with a transactional outbox. Read models maintained fr
 **Eventual consistency window.** Between write commit and read-model update, there's a lag (ms to seconds). The system as a whole is eventually consistent; the write model is strongly consistent within itself.
 
 **Read-after-write.** A user makes a change and immediately queries the read model — and may see stale data. Mitigations:
+
 - Have the UI optimistically show the new state while the projection catches up.
 - For the same-user same-write read, query the write model directly (or wait for confirmation that the projection is up to date).
 - Use a session-bound "last write timestamp" to gate reads.
@@ -73,6 +79,7 @@ Write side: standard CRUD with a transactional outbox. Read models maintained fr
 ## AWS-native implementations
 
 ### DynamoDB + Streams + projections
+
 - **Write model:** DynamoDB with single-table design + conditional writes for transactional consistency per aggregate.
 - **Streams:** DynamoDB Streams capture every change.
 - **Projections (Lambda consumers):**
@@ -83,6 +90,7 @@ Write side: standard CRUD with a transactional outbox. Read models maintained fr
 - **Outbox pattern** for events to other bounded contexts.
 
 ### Aurora + DMS + projections
+
 - **Write model:** Aurora MySQL / PostgreSQL for the OLTP transactional model.
 - **DMS / Aurora Zero-ETL** ships changes to:
   - **Redshift** for analytics.
@@ -91,6 +99,7 @@ Write side: standard CRUD with a transactional outbox. Read models maintained fr
 - Operational reads still go to the Aurora write model (or read replicas) when consistency matters.
 
 ### Event-sourced CQRS on DynamoDB
+
 - **Event store table:** `(aggregate_id, sequence_number, payload)`.
 - **Streams + projections** as above.
 - Snapshot table for fast aggregate loading.
@@ -122,6 +131,7 @@ Write side: standard CRUD with a transactional outbox. Read models maintained fr
 - **Two databases without enforcing the asymmetry.** Devs write reads against the write model "for convenience," undermining the split. Make the write model unavailable for reads at the network / IAM layer.
 
 ## Further reading
+
 - ["CQRS", Martin Fowler](https://martinfowler.com/bliki/CQRS.html).
 - *Implementing Domain-Driven Design*, Vaughn Vernon.
 - ["Pattern: CQRS", microservices.io](https://microservices.io/patterns/data/cqrs.html).

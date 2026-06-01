@@ -3,6 +3,7 @@
 > **One-line summary.** Regions, AZs, edge, IAM, and the shared responsibility line — the load-bearing concepts every other page assumes you already understand.
 
 ## TL;DR
+
 - A **Region** is a city-sized blast radius; an **Availability Zone** is a campus-sized blast radius inside it. Almost all of your design decisions live at the AZ boundary.
 - The **shared responsibility model** decides who you can blame at 3 AM: AWS owns the cloud, you own *in* the cloud.
 - **IAM** is the only thing standing between your account and someone else's bitcoin miner. Least privilege is not optional.
@@ -12,24 +13,29 @@
 ## Geography
 
 ### Regions
+
 A Region is a geographically distinct cluster of data centers. Each Region has its own copy of most AWS services and is **isolated by default** — IAM roles, S3 buckets, KMS keys, VPCs, almost everything is Region-scoped. When you "make a service multi-Region," you're solving a cross-Region replication problem from scratch.
 
 There are 30+ public Regions (and growing). The Region code (`us-east-1`, `eu-west-2`, `ap-southeast-1`) shows up in every ARN and in every endpoint URL.
 
 A few Regions are special:
+
 - **`us-east-1` (N. Virginia)** — the oldest, the largest, and the only place several global services live (IAM, CloudFront distributions, Route 53 hosted zones). Outages here ripple wider than outages elsewhere.
 - **GovCloud and China Regions** — separate partitions with separate IAM and separate billing. Use a different ARN prefix (`aws-us-gov:`, `aws-cn:`).
 
 ### Availability Zones
+
 A Region has 3–6 AZs. Each AZ is one or more physically separate data centers, on independent power and network, within tens-of-kilometers latency of each other (single-digit-ms RTT inside a Region).
 
 The mental model: **AZ-level failures are the failure mode you design against**. AWS designs services so that any single AZ can fail without taking the service down — *if you've used the service correctly*. RDS Multi-AZ, S3 (always multi-AZ), DynamoDB (always multi-AZ), ELB across subnets in 2+ AZs. If you put everything in one AZ, you've opted out of the resilience you're paying for.
 
 Two AWS-specific quirks worth knowing:
+
 1. **AZ names are randomized per account.** `us-east-1a` in your account is not the same physical AZ as `us-east-1a` in someone else's. The stable identifier is the *Availability Zone ID* (`use1-az1`).
 2. **An AZ is not a single building.** It can be several data centers, scattered across a metro, networked as one logical unit.
 
 ### Local Zones, Wavelength, Outposts
+
 - **Local Zones** push compute and storage into specific metro areas (LA, Boston, Atlanta) for single-digit-ms latency to local users. Parent Region is still the source of truth.
 - **Wavelength Zones** sit inside telco 5G networks (Verizon, KDDI) for ultra-low-latency mobile workloads.
 - **Outposts** is an AWS rack you install in your own data center. Same APIs as the cloud, runs against your physical hardware.
@@ -37,6 +43,7 @@ Two AWS-specific quirks worth knowing:
 These exist for very specific latency or data-residency constraints. Most workloads don't need them.
 
 ### Edge locations
+
 **CloudFront** (CDN) and **Route 53** (DNS) run in 600+ edge locations worldwide — far more than there are Regions. The user's request hits the nearest edge, which terminates TLS, serves cache hits locally, and forwards cache misses to the origin in a Region. Anything user-facing belongs behind CloudFront, even if it's a single-Region origin.
 
 ## The shared responsibility model
@@ -66,6 +73,7 @@ The thing standing between your account and a stranger's crypto miner. Four conc
 The evaluation logic, simplified: **explicit deny > explicit allow > implicit deny.** No allow anywhere means denied. Permissions boundaries, SCPs, and resource-based policies layer on top — see the IAM service page for the full evaluation chart.
 
 Operational rules:
+
 - **Always use IAM roles, never long-lived access keys** for workloads. EC2 has instance profiles; ECS/Lambda have task/execution roles; humans should federate through IAM Identity Center (formerly SSO).
 - **Root account is for billing and the initial setup, then locked away.** Enable MFA, store the credentials offline, never use root for day-to-day work.
 - **Least privilege is the default, not the goal.** Start with no permissions, add what the workload actually needs. Use Access Analyzer to find unused permissions.
@@ -101,15 +109,18 @@ Going up the stack costs more per unit of compute/storage but less in engineerin
 ## Pricing models
 
 Three things AWS will sell you for compute:
+
 - **On-demand** — pay per hour/second. Highest unit price, zero commitment.
 - **Savings Plans / Reserved Instances** — commit to 1 or 3 years for 30–70% off.
 - **Spot** — bid on spare capacity for up to 90% off, with the catch that AWS can reclaim it with 2 minutes' notice. Excellent for stateless batch and fault-tolerant workloads.
 
 For storage and data transfer:
+
 - **Storage** is per GB-month, with tiered pricing (S3 Standard > Infrequent Access > Glacier).
 - **Data transfer *into* AWS is free.** Data transfer *between* AZs in the same Region is cheap-but-not-free. Data transfer *out* to the internet is the most expensive line on most bills. Cross-Region transfer is expensive. Plan your topology around this.
 
 Three habits that prevent surprise bills:
+
 1. **Tag everything** with cost-allocation tags from day one (`Owner`, `Service`, `Env`). Cost Explorer is only as useful as your tags.
 2. **Set Budgets and Anomaly Detection alerts** before anything is in production.
 3. **NAT Gateway and inter-AZ data transfer** are the two line items that surprise everyone. Audit them quarterly.
@@ -119,6 +130,7 @@ Three habits that prevent surprise bills:
 Every service has account-level quotas — many of them defaults that are far below what production needs. A 50-page service that runs fine in staging will fail at launch because the Lambda concurrency quota was 1,000 and you needed 10,000.
 
 Habits:
+
 - Check quotas for every service in your design *before* you commit to it.
 - Use **Service Quotas** (the AWS service) to view, request increases, and set CloudWatch alarms on quota usage.
 - Some quotas are hard (cannot be raised). Know which ones — they affect architecture.
@@ -146,6 +158,7 @@ The AWS Console is great for exploration, not for production. Production infrast
 A reasonable workflow: explore in the Console, codify in IaC, then forget the Console exists for that resource. Use `aws cloudformation drift-detection` (or Terraform `plan`) to detect when someone snuck in via the Console.
 
 ## Further reading
+
 - [System design primer](system-design-primer.md) — vocabulary that applies regardless of cloud.
 - [Well-Architected Framework deep-dives](../05-well-architected/) — six pillars, one page each.
 - AWS Well-Architected Framework whitepaper (the canonical source for the pillars).

@@ -3,6 +3,7 @@
 > **One-line summary.** Centralized, policy-driven backup orchestration for most stateful AWS services — EBS, RDS, Aurora, DynamoDB, EFS, FSx, S3, Storage Gateway, Neptune, DocumentDB, EKS, and more.
 
 ## TL;DR
+
 - One place to define backup schedules, retention, cross-Region copy, and cross-account copy across every backup-able AWS service. Replaces the per-service snapshot-cron sprawl.
 - **Vault Lock** + **Compliance mode** + **logically air-gapped vaults** are the cyber-resilience trifecta — backups that even a compromised root account can't delete.
 - **Restore testing** automatically validates that recovery actually works, on a schedule. A backup that's never been restored is not a backup.
@@ -10,6 +11,7 @@
 - Costs are charged per GB of backup storage (warm + cold tiered) plus cross-Region transfer. Centralizing in a separate backup account is the canonical pattern.
 
 ## When to use it
+
 - You operate any of the supported services and want a single backup policy plane.
 - You need cross-Region and/or cross-account backup copies for DR or ransomware resilience.
 - You have compliance requirements that demand WORM retention or air-gapped backups.
@@ -17,6 +19,7 @@
 - You need to centralize backup audit/reporting across an AWS Organization.
 
 ## When NOT to use it
+
 - Continuous data replication (real-time, sub-second RPO) — AWS Backup is point-in-time snapshots, not streaming replication. Use service-native replication (Aurora Global, DynamoDB Global Tables, S3 Replication).
 - Backup of services AWS Backup doesn't support (third-party SaaS, custom on-prem workloads not on Storage Gateway). Look at service-native tools.
 - Application-consistent backups for unsupported applications — Backup uses crash-consistent snapshots for many sources; ensure your app tolerates that or quiesce before backup.
@@ -28,6 +31,7 @@
 **Backup vault** — the destination. KMS-encrypted; access controlled via vault access policies.
 
 **Vault Lock** — once enabled, the vault's retention policy (min/max retention) cannot be relaxed. Two modes:
+
 - **Governance** — IAM users with `vaultlock:DeleteBackupVaultLockConfiguration` can override.
 - **Compliance** — nobody can override or disable for the lock's lifetime, including root. Required for regulated workloads.
 
@@ -74,6 +78,7 @@ The numbers are competitive with rolling your own snapshot cron, and the operati
 - **Backup Audit Manager not turned on.** Without it, "are we actually backing up everything we said we'd back up?" has no automated answer. Turn it on; ship reports to a central S3 bucket.
 
 ## Pairs well with
+
 - [S3](s3.md) — backups for S3 buckets; also where Backup Audit Manager reports land.
 - [Glacier tiers](glacier.md) — Backup's cold storage uses Glacier-class durability.
 - **AWS Organizations + RAM** — share backup vaults across accounts.
@@ -82,10 +87,12 @@ The numbers are competitive with rolling your own snapshot cron, and the operati
 - **CloudWatch** — backup job metrics and alarms.
 
 ## Pairs well with these repo pages
+
 - `docs/02-patterns/disaster-recovery-strategies.md` — where AWS Backup fits in the DR pattern catalog (forthcoming).
 - [Reliability pillar](../../05-well-architected/reliability.md) — the operational practices behind making backups credible.
 
 ## Further reading
+
 - [AWS Backup documentation](https://docs.aws.amazon.com/aws-backup/).
 - [AWS Backup logically air-gapped vault](https://docs.aws.amazon.com/aws-backup/latest/devguide/logicallyairgappedvault.html).
 - [Restore testing](https://docs.aws.amazon.com/aws-backup/latest/devguide/restore-testing.html).

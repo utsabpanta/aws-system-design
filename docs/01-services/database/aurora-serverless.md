@@ -3,6 +3,7 @@
 > **One-line summary.** Aurora that auto-scales capacity in fine-grained units (Aurora Capacity Units, ACUs) without you running it as a fleet of fixed instances. **Renamed from "Aurora Serverless v2" to "Aurora Serverless" in April 2026.**
 
 ## TL;DR
+
 - The serverless flavor of Aurora MySQL and Aurora PostgreSQL. Capacity scales between a min and max in **0.5-ACU steps** based on live load.
 - Now scales **all the way down to 0 ACUs** with an automatic pause-and-resume — set a min of 0 ACUs and an idle timeout, and you pay nothing for compute during inactivity. Scale-up after pause is on the order of seconds.
 - Max **256 ACUs** per writer. AWS recently bumped default scaling rate ~45% faster across all clusters.
@@ -10,12 +11,14 @@
 - Right for **spiky** or **uncertain** workloads, multi-tenant SaaS isolation per tenant, dev/test environments, and any workload where a fixed-size instance overprovisions most of the time.
 
 ## When to use it
+
 - Bursty workloads that idle for long stretches between peaks (B2B SaaS, internal tools, dev/test environments).
 - Multi-tenant SaaS where you want database-per-tenant isolation but can't afford a fixed instance per tenant.
 - Unpredictable or new workloads where you'd rather autoscale than guess instance size.
 - Workloads where you want to scale to zero overnight or weekends with **min ACU = 0**.
 
 ## When NOT to use it
+
 - Steady, predictable, high-utilization workloads — fixed Aurora provisioned instances on Reserved Instances are typically cheaper at ≳60% utilization.
 - Very-low-latency cold-path scenarios — scaling up from a paused state takes seconds; pre-warming with `min ACU > 0` avoids it but costs more.
 - Workloads needing very large per-writer capacity (> 256 ACUs ≈ very large vCPU/memory) — provisioned Aurora has bigger instance options.
@@ -67,6 +70,7 @@ The economic argument: for workloads at < ~60% steady-state utilization, Aurora 
 - **Forgetting the rename.** Documentation and tooling will straddle "Aurora Serverless v2" and "Aurora Serverless" for a while; they're the same service post-April-2026.
 
 ## Pairs well with
+
 - [Aurora](aurora.md) — the provisioned counterpart.
 - [RDS Proxy](rds.md) — connection pooling.
 - **AWS Backup** — vault-locked retention.
@@ -74,10 +78,12 @@ The economic argument: for workloads at < ~60% steady-state utilization, Aurora 
 - **AppConfig + feature flags** — quietly dial workloads on/off, letting Serverless scale accordingly.
 
 ## Pairs well with these repo pages
+
 - [Aurora](aurora.md), [RDS](rds.md), [DynamoDB](dynamodb.md).
 - [Cost Optimization pillar](../../05-well-architected/cost-optimization.md) — Aurora Serverless's scale-to-0 is one of the cleanest cost optimizations available.
 
 ## Further reading
+
 - [Aurora Serverless documentation](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.html).
 - [Scaling to 0 ACUs with auto-pause and resume](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2-auto-pause.html).
 - [How ACU min/max ranges affect scaling](https://aws.amazon.com/blogs/database/understanding-how-acu-minimum-and-maximum-range-impacts-scaling-in-amazon-aurora-serverless-v2/).

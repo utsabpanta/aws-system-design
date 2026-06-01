@@ -3,6 +3,7 @@
 > **One-line summary.** Managed SaaS-to-AWS (and AWS-to-SaaS) data transfer service. 50+ pre-built connectors (Salesforce, ServiceNow, Slack, Zendesk, SAP, Marketo, Google Analytics, …) and a custom-connector SDK.
 
 ## TL;DR
+
 - The right answer for "we need data from a SaaS into S3 / Redshift / S3 Tables and we don't want to write yet another integration."
 - Connector library covers the major enterprise SaaS systems. Custom connector SDK (Java / Python) for what's not in the box.
 - **Flows** run on schedule, on demand, or in response to events (e.g., a new opportunity in Salesforce).
@@ -10,12 +11,14 @@
 - Integrates with **AWS Glue Data Catalog** for downstream analytics; **PrivateLink** for keeping data off the public internet; KMS for at-rest encryption.
 
 ## When to use it
+
 - Pulling SaaS data into a data lake (S3) or warehouse (Redshift) for analytics.
 - Syncing a SaaS to / from AWS storage on a schedule (CRM data to Redshift nightly; analytics back to Salesforce custom objects).
 - Event-driven SaaS automation (Salesforce opportunity created → S3 + downstream pipeline).
 - Replacing brittle custom ETL scripts written against SaaS APIs.
 
 ## When NOT to use it
+
 - High-frequency, low-latency event streams from SaaS — AppFlow is batch / scheduled, not real-time pub/sub.
 - Workloads needing complex multi-step ETL transformations (joins, aggregations) — use **Glue** or **Step Functions** downstream of AppFlow.
 - SaaS without an AppFlow connector and where a custom connector isn't worth the effort — direct API integration may be simpler.
@@ -31,6 +34,7 @@
 **Sources and destinations.** AWS-side: S3, Redshift, EventBridge, Lookout for Metrics, S3 Tables. SaaS-side: any supported connector.
 
 **Triggers.**
+
 - **On-demand** — manual or API-invoked.
 - **Schedule** — cron-style.
 - **Event** — listen to SaaS events (e.g., Salesforce CDC, ServiceNow notifications). Connector-dependent.
@@ -70,6 +74,7 @@
 - **Custom connector built before checking the catalog.** AWS ships new connectors regularly; check before investing in a custom one.
 
 ## Pairs well with
+
 - [S3](../storage/s3.md) and [Redshift](../database/redshift.md) — common destinations.
 - **AWS Glue Data Catalog** — register output for analytics.
 - **EventBridge** — chain SaaS data ingest into broader workflows.
@@ -77,10 +82,12 @@
 - **PrivateLink** — keep SaaS traffic off the public internet.
 
 ## Pairs well with these repo pages
+
 - [S3](../storage/s3.md), [Redshift](../database/redshift.md), [EventBridge](eventbridge.md).
 - `docs/04-reference-architectures/data-lake-on-s3.md` (forthcoming).
 
 ## Further reading
+
 - [Amazon AppFlow documentation](https://docs.aws.amazon.com/appflow/).
 - [Supported connectors](https://aws.amazon.com/appflow/integrations/).
 - [AppFlow Custom Connector SDK](https://github.com/awslabs/aws-appflow-custom-connector-java).

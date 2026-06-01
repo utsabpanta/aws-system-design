@@ -3,6 +3,7 @@
 > **One-line summary.** Decouple producers from consumers. Producers publish messages to a topic; subscribers (zero, one, or many) receive copies. The fundamental fanout primitive.
 
 ## TL;DR
+
 - The right shape when one event needs to reach many independent consumers without producers knowing who they are.
 - Three AWS-native flavors: **SNS** (lightweight pub/sub with filtering, mostly stateless), **EventBridge** (event bus with content-based rules and rich AWS-service targets), **Kinesis / MSK** (streaming pub/sub with offsets and replay).
 - **SNS-to-SQS** is the canonical AWS pattern — SNS does fanout, each subscriber gets its own SQS queue for durable buffering and independent consumption.
@@ -10,6 +11,7 @@
 - Pub/sub doesn't *eliminate* coupling — it shifts it from sync API contracts to async message schemas. Schema governance (Glue Schema Registry, EventBridge Schema Registry) matters.
 
 ## When to use it
+
 - One event has multiple interested consumers (order placed → fulfillment, billing, notification, analytics).
 - You want producers to be unaware of consumers (add a new consumer without changing producer code).
 - Cross-service async integration where sync coupling would create cascading failures.
@@ -17,6 +19,7 @@
 - Cross-account / cross-Region event distribution.
 
 ## When NOT to use it
+
 - One producer, one consumer with simple buffering — use **SQS** directly.
 - Workflows requiring state and branching — use **Step Functions**.
 - Single-Region request-response — use direct API calls (with backpressure / circuit breakers).
@@ -25,6 +28,7 @@
 ## How it works
 
 ### Canonical SNS-to-SQS fanout
+
 ```mermaid
 flowchart LR
   P[Producer] -->|publish| T((SNS Topic))
@@ -34,12 +38,14 @@ flowchart LR
   Q1 --> C1[Consumer A]
   Q2 --> C2[Consumer B]
 ```
+
 - Producer publishes one message to SNS.
 - SNS delivers to N subscribers (here: 2 SQS queues + 1 Lambda).
 - Each consumer reads from its own queue / receives its own invocation — fully decoupled.
 - If consumer B is down, SNS doesn't care; messages accumulate in queue B until B comes back.
 
 ### EventBridge bus with content-based routing
+
 ```mermaid
 flowchart LR
   P[Producer] -->|PutEvents| B((EventBridge Bus))
@@ -47,6 +53,7 @@ flowchart LR
   B -->|rule: order_paid AND region=US| L2[Lambda US-fulfillment]
   B -->|rule: order_*| K[Kinesis Firehose -> S3]
 ```
+
 - Producer publishes JSON events to a custom EventBridge bus.
 - Rules match on `source` / `detail-type` / arbitrary `detail` fields.
 - One event can trigger many targets via separate rules.
@@ -61,16 +68,19 @@ flowchart LR
 **Message attributes vs body.** SNS filters on attributes only; EventBridge filters on full event content. EventBridge is more flexible for routing.
 
 **Delivery semantics.**
+
 - **At-least-once** — every message eventually delivered, may duplicate. The AWS default for SNS, EventBridge, SQS, Kinesis.
 - **At-most-once** — delivered ≤ 1 time; can lose. Rarely what you want.
 - **Exactly-once** — impossible in general; achievable via at-least-once + idempotent consumers within a dedup window (FIFO SQS, Kafka EOS, Step Functions Standard).
 
 **Ordering.**
+
 - **Unordered** — SNS Standard, EventBridge, Kinesis across shards.
 - **Per-key ordered** — SQS FIFO (per MessageGroupId), Kinesis (per partition key), Kafka (per partition).
 - **Global ordering** — generally impossible at scale; available in single-partition Kinesis (limits throughput).
 
 **Persistence and replay.**
+
 - **Ephemeral notifications** — SNS / EventBridge default. If subscriber misses it (down, slow), it's gone (unless using DLQ).
 - **Durable logs with offsets** — Kinesis / MSK / Kafka. Subscribers replay from past offsets.
 - **EventBridge Archive + Replay** — bridge: archive events on a bus and replay later for debugging or recovery.
@@ -120,6 +130,7 @@ See the individual service pages for depth: [SNS](../01-services/integration-mes
 - **No event audit log.** Pub/sub is fire-and-forget; without an audit log (Firehose → S3, CloudTrail, EventBridge Archive), you can't reconstruct "what events did consumer C see last Tuesday at 3 AM?"
 
 ## Further reading
+
 - ["Avoiding fallback in distributed systems", Amazon Builders' Library](https://aws.amazon.com/builders-library/avoiding-fallback-in-distributed-systems/).
 - *Designing Event-Driven Systems*, Ben Stopford.
 - [EventBridge architecture patterns](https://serverlessland.com/event-driven-architecture/).

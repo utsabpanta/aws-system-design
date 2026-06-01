@@ -3,6 +3,7 @@
 > **One-line summary.** Fully managed SFTP, FTPS, FTP, AS2, and web file transfer service. Replaces self-managed SFTP / B2B EDI servers; lands files directly in S3 or EFS.
 
 ## TL;DR
+
 - The right service when "we need to receive files from partners / vendors / suppliers" or "we need to expose an SFTP endpoint to a customer."
 - Five protocols supported: **SFTP** (most common), **FTPS**, **FTP** (legacy), **AS2** (B2B EDI for retail / healthcare / logistics), and **web browser-based transfers**.
 - Files land in **S3** or **EFS**; pricing is per-protocol-endpoint-hour + per-GB transferred.
@@ -10,6 +11,7 @@
 - **SFTP Connectors** are the inverse direction — outbound SFTP to a partner's server, no always-on infra.
 
 ## When to use it
+
 - Replacing a self-hosted SFTP server (cron + sshd + cleanup scripts) with managed.
 - Partner / vendor / customer file exchange (orders, invoices, logs, batch data).
 - B2B EDI exchange via AS2 (the protocol most of retail / healthcare / pharma uses).
@@ -17,6 +19,7 @@
 - One-off outbound SFTP transfers to partner systems (SFTP Connectors).
 
 ## When NOT to use it
+
 - Sync / migration between AWS and on-prem — use **DataSync**.
 - Database migration — use **DMS**.
 - Live file-share access by applications — use **EFS** / **FSx** with native mounts.
@@ -25,6 +28,7 @@
 ## Key concepts
 
 ### Protocols
+
 - **SFTP** — most common; SSH-tunneled file transfer.
 - **FTPS** — FTP over TLS.
 - **FTP** — plaintext FTP (legacy; not recommended for sensitive data).
@@ -32,6 +36,7 @@
 - **Web browser transfers** — upload via web UI.
 
 ### Servers and endpoints
+
 - **Server** — the Transfer Family resource that exposes one or more protocol endpoints.
 - **Endpoint type**:
   - **Public** — internet-facing.
@@ -39,34 +44,41 @@
   - **VPC with internet access** — VPC endpoint with public IPs.
 
 ### Storage destinations
+
 - **Amazon S3** — most common destination.
 - **Amazon EFS** — for legacy apps that expect POSIX file access.
 
 ### Identity providers
+
 - **Service-managed** — Transfer Family stores user records and SSH keys.
 - **AWS Directory Service** — Active Directory authentication.
 - **Custom (Lambda)** — your own auth logic (e.g., authenticate against an external IdP, look up credentials in Secrets Manager).
 
 ### Managed File Transfer Workflows
+
 - Trigger on file upload.
 - Steps: copy, tag, decrypt, decompress, scan (via Lambda or container), filter, transform, archive.
 - Serverless — no Lambda + EventBridge plumbing to build.
 
 ### SFTP Connectors
+
 - **Outbound** SFTP connections.
 - Connect on demand to a partner's SFTP server, send / receive files, disconnect.
 - Pay per call + per GB — no always-on cost (unlike Transfer Family servers).
 - The right pattern for "we need to push files to a partner's SFTP" without standing up our own server.
 
 ### AS2
+
 - **Connectors** for AS2 outbound to partners; **servers** for AS2 inbound.
 - Manage **profiles** (your AS2 ID + cert), **certificates** (signing / encryption), **partnerships** (your-to-their pairing).
 - Supports MDN (receipt) acknowledgments.
 
 ### Custom hostnames
+
 - Bring your own DNS name (and TLS cert via ACM) for the server endpoint.
 
 ### Logging & monitoring
+
 - CloudWatch Logs for transfer activity.
 - CloudWatch Metrics for connection / file-count / byte counts.
 
@@ -100,6 +112,7 @@ For always-on SFTP servers, baseline is several hundred dollars / month. For occ
 - **Default unencrypted FTP.** Don't.
 
 ## Pairs well with
+
 - [S3](../storage/s3.md), [EFS](../storage/efs.md) — file destinations.
 - [Lambda](../compute/lambda.md), [Step Functions](../integration-messaging/step-functions.md) — custom processing.
 - [Secrets Manager](../security-identity/secrets-manager.md) — credentials for custom IdPs.
@@ -108,9 +121,11 @@ For always-on SFTP servers, baseline is several hundred dollars / month. For occ
 - [DataSync](datasync.md) — sibling for sync / migration; different use case.
 
 ## Pairs well with these repo pages
+
 - [S3](../storage/s3.md), [Lambda](../compute/lambda.md), [Step Functions](../integration-messaging/step-functions.md), [DataSync](datasync.md).
 
 ## Further reading
+
 - [AWS Transfer Family documentation](https://docs.aws.amazon.com/transfer/).
 - [Managed File Transfer Workflows](https://docs.aws.amazon.com/transfer/latest/userguide/transfer-workflows.html).
 - [SFTP Connectors](https://docs.aws.amazon.com/transfer/latest/userguide/creating-server.html#sftp-connectors-overview).

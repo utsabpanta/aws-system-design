@@ -3,6 +3,7 @@
 > **One-line summary.** Fully managed message queue. Decouples producers from consumers; absorbs traffic bursts; provides at-least-once (Standard) or exactly-once / strict-order (FIFO) delivery.
 
 ## TL;DR
+
 - The default messaging primitive on AWS. Every event-driven system uses SQS somewhere.
 - Two queue types: **Standard** (very high throughput, at-least-once delivery, best-effort ordering) and **FIFO** (300 messages/sec by default per group, exactly-once, strict order).
 - **Visibility timeout** is the most-misconfigured setting — make it longer than your worker's processing time + safety margin; otherwise messages re-deliver and you double-process.
@@ -10,6 +11,7 @@
 - Pair with **SNS** (fanout) or **EventBridge Pipes** (filter+enrich) for event distribution; pair with **Lambda** (event source mapping) or **ECS / EC2** for consumption.
 
 ## When to use it
+
 - Decouple any two services where one can run faster or slower than the other.
 - Absorb traffic bursts so downstream services don't have to scale instantly.
 - Async work — order processing, image / video transcoding, ML inference jobs.
@@ -17,6 +19,7 @@
 - Dead-letter handling for failed messages from SNS / Step Functions / Lambda async.
 
 ## When NOT to use it
+
 - Strict pub/sub fanout to multiple consumers — use **SNS** (or SNS → multiple SQS queues).
 - Event-bus routing with content-based rules to many AWS service targets — use **EventBridge**.
 - Streaming, time-ordered, replayable event logs — use **Kinesis Data Streams** or **MSK** (Kafka).
@@ -25,6 +28,7 @@
 ## Key concepts
 
 **Queue types:**
+
 - **Standard** — at-least-once, best-effort ordering, very high throughput (thousands per second per queue, more via partitioning).
 - **FIFO** — exactly-once delivery, strict per-`MessageGroupId` ordering. Default throughput 300 messages/sec per group, raisable to 3,000+ with high-throughput mode.
 
@@ -45,6 +49,7 @@
 **Lambda event source mapping.** Built-in poller pulls from SQS and invokes Lambda. Batch size up to 10 (Standard, 10,000 with batching window) or 10,000 (FIFO). Scales Lambda concurrency with queue depth.
 
 **FIFO specifics.**
+
 - **`MessageGroupId`** orders messages within the group (parallel groups process in parallel).
 - **`MessageDeduplicationId`** dedupes over 5 minutes.
 - **High-throughput FIFO** — per-MessageGroupId throughput, not per-queue.
@@ -79,6 +84,7 @@
 - **Large payloads inline.** > 256 KB doesn't fit. Use Extended Client (transparent S3-offload) or send a reference and have the consumer fetch the body.
 
 ## Pairs well with
+
 - [SNS](sns.md) — SNS → SQS fanout is the canonical event distribution pattern.
 - [EventBridge Pipes](pipes.md) — filter and enrich SQS messages before delivering.
 - [Lambda](../compute/lambda.md) — event source mapping for serverless consumers.
@@ -86,10 +92,12 @@
 - [DynamoDB Streams](../database/dynamodb.md), [Kinesis Data Streams](../analytics/) (forthcoming) — alternative event sources.
 
 ## Pairs well with these repo pages
+
 - [SNS](sns.md), [Lambda](../compute/lambda.md), [Step Functions](step-functions.md).
 - `docs/02-patterns/idempotency.md` (forthcoming).
 
 ## Further reading
+
 - [Amazon SQS documentation](https://docs.aws.amazon.com/sqs/).
 - [SQS visibility timeout](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html).
 - [SQS DLQs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html).

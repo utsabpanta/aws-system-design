@@ -3,6 +3,7 @@
 > **One-line summary.** Serverless SQL on top of data in S3 (and other federated sources). Pay per TB scanned; no cluster to manage.
 
 ## TL;DR
+
 - The right answer for ad-hoc / on-demand analytical SQL over data lakes — especially Parquet / ORC / Iceberg files in S3.
 - **Two engines:** **Athena SQL** (Trino-based; the default, query data with standard SQL) and **Athena for Spark** (managed Spark notebooks for code-first analytics).
 - Pricing is **per TB scanned** by default — making columnar formats (Parquet) and **partitioning** the load-bearing optimizations. A query against partitioned Parquet costs orders of magnitude less than the same query against unpartitioned JSON.
@@ -10,6 +11,7 @@
 - **Apache Iceberg** and **S3 Tables** are first-class — Athena reads (and writes) them natively.
 
 ## When to use it
+
 - Ad-hoc analytical queries over data lake / S3 (logs, exports, raw data).
 - BI tools (QuickSight, Tableau, Looker) querying S3 without a warehouse.
 - One-off investigations / forensics over CloudTrail, VPC Flow Logs, ELB logs.
@@ -17,6 +19,7 @@
 - Federated SQL across multiple data sources without ETL.
 
 ## When NOT to use it
+
 - High-throughput, low-latency point lookups — that's a key-value store.
 - Sustained heavy BI dashboards with consistent traffic — **Redshift** or **Athena Provisioned Capacity** is cheaper at steady state.
 - Transactional workloads — Athena is read-mostly analytics; it can write to Iceberg / S3 Tables but isn't an OLTP engine.
@@ -35,12 +38,14 @@
 **Athena for Spark.** Serverless Spark notebooks; pay per DPU-hour. PySpark / Scala notebooks against the same Glue Data Catalog tables.
 
 **Capacity modes:**
+
 - **On-demand** (default) — per-TB-scanned pricing.
 - **Provisioned Capacity** (Athena Capacity Reservations) — reserve DPUs by the hour for predictable workloads; pay flat hourly even with idle capacity. Cheaper at sustained heavy use.
 
 **Partitioning.** Subdirectory-based partition keys (`/year=2026/month=05/day=18/`) let Athena prune to just the relevant directories. **Partition projection** removes the need to register partitions in Glue at all — Athena computes them from a template.
 
 **File formats.**
+
 - **Parquet / ORC** — columnar; column pruning + compression. The right default for analytics.
 - **Apache Iceberg** / **S3 Tables** — table format on top of Parquet with ACID transactions, schema evolution, time travel.
 - **JSON / CSV** — row-oriented, no column pruning. Convert to Parquet for production.
@@ -83,6 +88,7 @@ The optimization most teams skip until the bill arrives: **switch from JSON to P
 - **No Iceberg / S3 Tables for high-churn data lakes.** Mutable data on plain Parquet means rewriting partitions on every update; Iceberg's ACID makes this manageable.
 
 ## Pairs well with
+
 - [S3](../storage/s3.md), **S3 Tables** — primary data location.
 - [Glue](glue.md) — catalog + ETL to convert formats.
 - [Lake Formation](lake-formation.md) — fine-grained permissions.
@@ -91,10 +97,12 @@ The optimization most teams skip until the bill arrives: **switch from JSON to P
 - [Redshift](../database/redshift.md) — for the "queries that justify a warehouse" half of workloads.
 
 ## Pairs well with these repo pages
+
 - [Glue](glue.md), [Lake Formation](lake-formation.md), [Redshift](../database/redshift.md), [S3](../storage/s3.md).
 - `docs/04-reference-architectures/data-lake-on-s3.md` (forthcoming).
 
 ## Further reading
+
 - [Amazon Athena documentation](https://docs.aws.amazon.com/athena/).
 - [Athena for Spark](https://docs.aws.amazon.com/athena/latest/ug/notebooks-spark.html).
 - [Athena federated query](https://docs.aws.amazon.com/athena/latest/ug/connect-to-a-data-source.html).

@@ -3,6 +3,7 @@
 > **One-line summary.** Serverless, Cassandra-compatible wide-column store. Speaks CQL; pay per request (on-demand) or per provisioned capacity. Multi-AZ, single- or multi-Region.
 
 ## TL;DR
+
 - The right service when you have an existing Cassandra workload (or app code written for Cassandra) and want it managed on AWS without operating a Cassandra ring.
 - Speaks the CQL wire protocol — most Cassandra drivers and tools work unchanged. AWS has not implemented every CQL feature; verify against the [supported APIs list](https://docs.aws.amazon.com/keyspaces/latest/devguide/cassandra-apis.html).
 - **On-demand** capacity mode for spiky / unknown workloads; **provisioned** mode with autoscaling for steady workloads (much cheaper at scale).
@@ -10,11 +11,13 @@
 - Multi-Region replication via Keyspaces' built-in multi-Region replication (eventual consistency across Regions, similar to DynamoDB Global Tables Standard).
 
 ## When to use it
+
 - Existing Cassandra apps lifting to AWS without rewriting against DynamoDB.
 - Workloads built against the CQL surface (open-source Cassandra drivers, ORMs that expect Cassandra) that the team doesn't want to refactor.
 - Cassandra-shaped workloads (wide rows, time-series at scale, IoT telemetry) that have proven the model.
 
 ## When NOT to use it
+
 - New workloads on AWS where you have a free choice — try DynamoDB first.
 - Workloads needing strongly-consistent multi-Region writes — DynamoDB MRSC Global Tables fits better.
 - Workloads that depend on Cassandra features Keyspaces doesn't implement.
@@ -27,6 +30,7 @@
 **Table.** Wide-column table with a partition key (PK), optional clustering keys (CK), and arbitrary regular columns. Partition keys distribute data; clustering keys order rows within a partition.
 
 **Capacity modes.**
+
 - **On-demand** — pay per request (read / write request units, similar shape to DynamoDB On-Demand). Auto-scales. Right for spiky / new workloads.
 - **Provisioned** — set RCU/WCU with auto-scaling. Cheaper at sustained load.
 
@@ -71,16 +75,19 @@ The economic comparison vs DynamoDB depends on workload shape. DynamoDB tends to
 - **Tooling differences.** Some Cassandra ops tools (nodetool, repair, compaction) don't apply — Keyspaces is serverless. Operational habits from on-prem Cassandra need adjustment.
 
 ## Pairs well with
+
 - **AWS DMS** — migrate from on-prem Cassandra (with caveats; verify schema compatibility).
 - **AWS Backup** — PITR + vault-locked retention.
 - **Secrets Manager** — credentials (or use IAM-based SigV4 auth).
 - **CloudWatch** — request metrics, throttle counts, partition heat metrics.
 
 ## Pairs well with these repo pages
+
 - [DynamoDB](dynamodb.md) — the recommended-first NoSQL on AWS for greenfield workloads.
 - [Aurora](aurora.md) / [RDS](rds.md) — when the data actually wants to be relational.
 
 ## Further reading
+
 - [Amazon Keyspaces documentation](https://docs.aws.amazon.com/keyspaces/).
 - [Supported Cassandra APIs](https://docs.aws.amazon.com/keyspaces/latest/devguide/cassandra-apis.html).
 - [Keyspaces multi-Region replication](https://docs.aws.amazon.com/keyspaces/latest/devguide/multiRegion-replication.html).

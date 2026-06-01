@@ -3,6 +3,7 @@
 > **One-line summary.** Four canonical AWS DR tiers — backup-and-restore, pilot light, warm standby, multi-Region active-active — trading cost against RTO/RPO. Pick the tier whose recovery times match the business need.
 
 ## TL;DR
+
 - **RTO** (Recovery Time Objective) = how long you're allowed to be down. **RPO** (Recovery Point Objective) = how much data you're allowed to lose.
 - Four tiers, each ~10× more expensive than the previous and ~10× lower RTO/RPO: **backup-and-restore** (RTO: hours–days), **pilot light** (RTO: tens of minutes), **warm standby** (RTO: minutes), **multi-Region active-active** (RTO: seconds).
 - The right tier comes from the business — what does an hour of downtime cost? What does losing the last 5 minutes of data mean?
@@ -10,11 +11,13 @@
 - **Untested DR is fiction.** Schedule drills; without them, the runbook fails on first use.
 
 ## When to use it
+
 - Every production workload. The question isn't "do we need DR?" — it's "what RTO/RPO do we need?"
 - Compliance regimes mandating DR (financial, healthcare, government).
 - Workloads where Region-level events would be business-impacting.
 
 ## When NOT to use it
+
 - True dev / test workloads where loss is acceptable — backup may be all you need.
 - One-off scripts / prototypes.
 - Workloads where multi-AZ within one Region satisfies the RTO (AZ failures handled by multi-AZ databases / multi-AZ ELB / etc. — Region-level DR isn't always required).
@@ -31,6 +34,7 @@ flowchart LR
 Each tier is one step up the trade-off curve.
 
 ### 1. Backup-and-restore
+
 - Backups continuously / scheduled to a target Region (AWS Backup cross-Region copy, S3 CRR).
 - No standby infrastructure pre-built — recreate from IaC on failure.
 - Restore from backup.
@@ -40,6 +44,7 @@ Each tier is one step up the trade-off curve.
 - **Right for**: non-critical workloads, compliance backups, "we'll deal with it if it happens" workloads.
 
 ### 2. Pilot light
+
 - Data continuously replicated to the standby Region.
 - Compute in the standby Region scaled to near-zero (minimum capacity).
 - On failover: scale up compute, redirect traffic, promote standby DB.
@@ -49,6 +54,7 @@ Each tier is one step up the trade-off curve.
 - **Right for**: medium-priority workloads where minutes-to-an-hour of downtime is acceptable.
 
 ### 3. Warm standby
+
 - Full stack running in the standby Region at reduced capacity.
 - Replication continuous.
 - On failover: scale up to peak; redirect traffic.
@@ -58,6 +64,7 @@ Each tier is one step up the trade-off curve.
 - **Right for**: business-critical workloads where downtime is measured in minutes.
 
 ### 4. Multi-Region active-active
+
 - Full stack in N Regions, all serving traffic.
 - On Region failure: routing layer steers traffic away; surviving Regions handle the full load.
 - **RTO**: seconds (failover is a routing change).
@@ -87,6 +94,7 @@ Each tier is one step up the trade-off curve.
 ## AWS-native primitives by tier
 
 ### Backup-and-restore
+
 - **AWS Backup** with cross-Region copy + Vault Lock + Object Lock (for ransomware resilience).
 - **S3 Cross-Region Replication**.
 - **EBS snapshot cross-Region copy**.
@@ -94,24 +102,29 @@ Each tier is one step up the trade-off curve.
 - **CloudFormation / CDK / Terraform** to recreate infra.
 
 ### Pilot light
+
 - Data layer: **Aurora Global Database** (replica scaled small), **DynamoDB Global Tables**, **S3 CRR**, **ElastiCache Global Datastore**.
 - Compute layer: Lambda (scale-to-zero), ECS / EKS at minimum replicas, EC2 ASG at min=0 or min=1.
 - Routing: **Route 53** with health-check-driven failover or **ARC routing controls**.
 
 ### Warm standby
+
 - All pilot-light primitives, plus standby compute kept at meaningful capacity.
 - **MGN / DRS** for VM-level continuous replication of stateful workloads.
 - **Auto Scaling** policies that ramp up standby on failover trigger.
 
 ### Multi-Region active-active
+
 - See [multi-region-active-active](multi-region-active-active.md).
 
 ### Failover orchestration
+
 - **Route 53 ARC** (recommended) — routing controls + safety rules + readiness checks + Region switch.
 - **Route 53 failover routing** (DNS-based — slower failover due to TTL).
 - **Global Accelerator** — anycast IP failover in seconds.
 
 ### Cyber-resilience layer
+
 - **AWS Backup logically air-gapped vaults** — backups even a compromised root can't delete.
 - **S3 Object Lock** — WORM retention on backups.
 - **Cross-account** backup destination — compromised production can't touch the backup account.
@@ -144,6 +157,7 @@ Each tier is one step up the trade-off curve.
 - **Skipping cyber-resilience.** Ransomware can hit AWS accounts. Air-gapped vaults + cross-account backup + restore testing.
 
 ## Further reading
+
 - [Disaster Recovery Workloads on AWS whitepaper](https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html).
 - ["Reliability, constant work, and a good cup of coffee", Amazon Builders' Library](https://aws.amazon.com/builders-library/reliability-and-constant-work/).
 - [AWS Resilience Hub](https://docs.aws.amazon.com/resilience-hub/) — assess workloads against RTO/RPO targets.

@@ -3,6 +3,7 @@
 > **One-line summary.** Fully managed pub/sub messaging — fan-out one message to many subscribers (SQS queues, Lambda, HTTP endpoints, email, SMS, mobile push, Kinesis Data Firehose).
 
 ## TL;DR
+
 - The "fanout" primitive on AWS. Publishers send messages to a **topic**; subscribers (zero, one, or many) get a copy. Default delivery is one-to-many at-least-once.
 - Two topic types: **Standard** (high throughput, best-effort ordering, at-least-once) and **FIFO** (strict ordering and exactly-once delivery within a message group, lower throughput).
 - **Message filtering** lets each subscriber receive only the messages matching a JSON filter policy — replaces N topics with one + per-subscriber filters.
@@ -10,6 +11,7 @@
 - Pairs naturally with **SQS** (the "SNS-to-SQS-to-consumer" pattern is the canonical AWS fanout architecture) — SNS for fanout, SQS for buffering / decoupling each consumer.
 
 ## When to use it
+
 - Fan-out a single event to multiple SQS queues, Lambda functions, or HTTP endpoints.
 - Mobile push notifications (iOS APNs, Android FCM, Amazon Device Messaging).
 - SMS / email alerts (e.g., CloudWatch alarm notifications).
@@ -17,6 +19,7 @@
 - Delivering events to Kinesis Data Firehose for streaming pipelines.
 
 ## When NOT to use it
+
 - Point-to-point queueing — use **SQS** directly.
 - Event-bus routing with complex rule patterns and many AWS service targets — **EventBridge** is purpose-built for that.
 - Long-lived persistent storage — SNS has retention windows (in the tens of seconds for stored undelivered messages); use SQS / DynamoDB Streams for durable buffering.
@@ -27,6 +30,7 @@
 **Topic.** Named entity that publishers publish to and subscribers subscribe to. Standard or FIFO.
 
 **Subscription.** Per-subscriber binding to a topic. Subscriber types:
+
 - **SQS queue.**
 - **Lambda function.**
 - **HTTP / HTTPS endpoint.**
@@ -80,6 +84,7 @@ SQS-subscribed deliveries are inexpensive; SMS deliveries are the line item that
 - **SMS at scale without budget controls.** SMS pricing varies widely by destination country; one bug can ring up a four-figure bill in a day.
 
 ## Pairs well with
+
 - [SQS](sqs.md) — the canonical SNS→SQS→consumer fanout pattern.
 - [Lambda](../compute/lambda.md) — function subscription for serverless processing.
 - [Kinesis Data Firehose](../analytics/) (forthcoming) — stream events to S3 / Redshift / OpenSearch.
@@ -87,10 +92,12 @@ SQS-subscribed deliveries are inexpensive; SMS deliveries are the line item that
 - **Mobile Hub / Pinpoint** — for mobile push at scale.
 
 ## Pairs well with these repo pages
+
 - [SQS](sqs.md), [EventBridge](eventbridge.md), [Step Functions](step-functions.md).
 - `docs/02-patterns/pub-sub.md` (forthcoming).
 
 ## Further reading
+
 - [Amazon SNS documentation](https://docs.aws.amazon.com/sns/).
 - [SNS message filtering](https://docs.aws.amazon.com/sns/latest/dg/sns-message-filtering.html).
 - [FIFO topics](https://docs.aws.amazon.com/sns/latest/dg/sns-fifo-topics.html).

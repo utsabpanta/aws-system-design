@@ -3,6 +3,7 @@
 > **One-line summary.** MongoDB-compatible document database with the Aurora-style distributed storage layer underneath.
 
 ## TL;DR
+
 - Speaks the MongoDB wire protocol (currently 5.0 compatibility tier) — your MongoDB drivers and tools (mongosh, mongoexport, ODMs) mostly just work.
 - It is **not MongoDB**; AWS reimplemented the protocol on top of its own engine and the Aurora storage layer. Some MongoDB features aren't supported, and behavior in edge cases differs.
 - Up to 15 read replicas, multi-AZ storage, up to 64 TiB of storage, automatic failover in seconds.
@@ -10,11 +11,13 @@
 - Don't use it as your first NoSQL on AWS unless you specifically need the MongoDB API.
 
 ## When to use it
+
 - Lifting and shifting existing MongoDB applications to AWS without rewriting against DynamoDB.
 - Document workloads where the team already speaks Mongo and the application is MongoDB-API-bound.
 - Workloads that fit the MongoDB feature subset DocumentDB supports.
 
 ## When NOT to use it
+
 - Greenfield document workloads on AWS — try **DynamoDB** first; it's cheaper, scales further, and integrates more deeply with the rest of AWS.
 - Workloads needing a MongoDB feature DocumentDB doesn't implement (some aggregation operators, change-streams nuances, certain index types). Verify your usage against the [compatibility matrix](https://docs.aws.amazon.com/documentdb/latest/developerguide/mongo-apis.html).
 - Workloads that need horizontal write scale across many writers — DocumentDB is single-writer like Aurora.
@@ -67,6 +70,7 @@ DocumentDB is typically **more expensive than DynamoDB** for equivalent workload
 - **Major version upgrades treated as routine.** Verify your app's actual query surface still works on the new wire-protocol tier; minor versions of "MongoDB compatibility" can subtly change behavior.
 
 ## Pairs well with
+
 - [DynamoDB](dynamodb.md) — the AWS-native alternative for new document workloads.
 - **AWS DMS** — migrate from on-prem MongoDB into DocumentDB.
 - **AWS Backup** — managed retention.
@@ -74,10 +78,12 @@ DocumentDB is typically **more expensive than DynamoDB** for equivalent workload
 - **CloudWatch + Performance Insights** — observability.
 
 ## Pairs well with these repo pages
+
 - [DynamoDB](dynamodb.md), [Aurora](aurora.md).
 - `docs/04-reference-architectures/serverless-rest-api.md` (forthcoming) — when picking between DynamoDB and DocumentDB for the document tier.
 
 ## Further reading
+
 - [Amazon DocumentDB documentation](https://docs.aws.amazon.com/documentdb/).
 - [MongoDB API compatibility](https://docs.aws.amazon.com/documentdb/latest/developerguide/mongo-apis.html).
 - [DocumentDB Elastic Clusters](https://docs.aws.amazon.com/documentdb/latest/developerguide/docdb-using-elastic-clusters.html).

@@ -3,6 +3,7 @@
 Thanks for wanting to add a page. The goal of this repo is a consistent, opinionated, GitHub-renderable reference. The conventions below exist to keep new pages indistinguishable from the ones already here.
 
 ## Table of contents
+
 - [Ground rules](#ground-rules)
 - [Page template](#page-template)
 - [Service page template (condensed)](#service-page-template-condensed)
@@ -123,10 +124,12 @@ Other AWS services this is typically deployed alongside, and why.
 ## Diagram conventions
 
 The diagram tool selection rule:
+
 - **Mermaid** for flows, sequence, state machines, ERDs, simple block diagrams. Inline in the markdown — GitHub renders it natively.
 - **Python `diagrams`** (mingrammer/diagrams) for AWS architecture diagrams that need the official AWS icons. Commit both the `.py` source and the rendered `.png`.
 
 ### Mermaid
+
 - Use ```` ```mermaid ```` fenced blocks.
 - Prefer `flowchart LR` for request flows, `sequenceDiagram` for interactions, `stateDiagram-v2` for state machines, `erDiagram` for data models.
 - Label nodes with the AWS service name in brackets: `APIGW[API Gateway]`.
@@ -134,6 +137,7 @@ The diagram tool selection rule:
 - Cap at ~25 nodes per diagram. Split larger ones.
 
 ### Python `diagrams`
+
 - Source lives in `diagrams/python/<category>/<slug>.py`, mirroring the markdown path.
   Example: `docs/03-interview-designs/url-shortener.md` → `diagrams/python/interview-designs/url_shortener.py`.
 - Rendered output lives in `images/<category>/<slug>.png`.
@@ -143,7 +147,9 @@ The diagram tool selection rule:
 - Run `./scripts/render_diagrams.sh` to regenerate all diagrams. Commit both source and output.
 
 ### Diagram self-review checklist
+
 Before committing a diagram, confirm:
+
 1. Every box has a service name (no orphan labels).
 2. Arrow direction conveys data flow, not just dependency.
 3. Sync vs async paths are visually distinguished (solid vs dashed in Mermaid; comment in `diagrams` Python).
@@ -186,6 +192,7 @@ pre-commit run --all-files
 ```
 
 That runs (per `.pre-commit-config.yaml`):
+
 - `markdownlint` over all `.md` files
 - `cspell` over all `.md` files (project dictionary is `.cspell.json`)
 - `lychee` link check

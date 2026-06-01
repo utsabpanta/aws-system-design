@@ -9,6 +9,7 @@
 > The rest of this page documents App Runner for existing users and for understanding what shipped before the closure. If you're starting fresh, jump to ECS Express Mode in [`ecs.md`](ecs.md).
 
 ## TL;DR
+
 - A PaaS-style runtime for containers and source-code apps. Hand it an ECR image or a GitHub repo with a runtime config; it builds, deploys, and runs.
 - Auto-scales from 0 to N instances on request rate. Built-in HTTPS endpoint, custom domains, VPC connector for private downstream access.
 - **Closed to new customers since 2026-04-30.** Use ECS Express Mode for the equivalent experience on a service AWS is actively investing in.
@@ -16,10 +17,12 @@
 - Pricing is per active-instance vCPU-second and GB-second plus a flat per-month per-app fee for automated deploys; not always cheaper than equivalent Fargate.
 
 ## When to use it
+
 - You're already using App Runner and want to understand it better. (Otherwise, see below.)
 - Documenting an existing architecture or migrating off it.
 
 ## When NOT to use it
+
 - **Any new project.** Use [ECS Express Mode](ecs.md) instead — it's the AWS-recommended successor, has no service closure risk, and is actively gaining features.
 - Workloads needing GPU, sub-second cold-start guarantees, or fine-grained networking.
 - Long-running compute, batch, or anything that doesn't fit the "stateless HTTP service" mold.
@@ -29,6 +32,7 @@
 **Service** — the top-level App Runner resource. One service = one app = one HTTPS endpoint.
 
 **Source.**
+
 - **Container image source** — pulls from ECR (private or public). Deploys triggered manually, by webhook, or by image update notification.
 - **Source-code source** — connects to a GitHub repo via a CodeStar connection. App Runner builds the container in a managed pipeline based on a runtime config (Python, Node.js, Java, .NET, Go, Ruby, PHP).
 
@@ -86,17 +90,20 @@ Migrating off App Runner to ECS Express Mode follows a predictable shape:
 See [`ecs.md`](ecs.md) for ECS Express Mode specifics.
 
 ## Pairs well with
+
 - **ECR** — the container source.
 - **VPC connector + RDS / ElastiCache** — private downstream access.
 - **Route 53 + ACM** — custom domain and TLS.
 - **CloudWatch Logs / Metrics / X-Ray** — observability.
 
 ## Pairs well with these repo pages
+
 - [ECS](ecs.md) — the recommended successor (ECS Express Mode).
 - [Fargate](fargate.md) — what runs underneath ECS Express Mode.
 - [Lightsail](lightsail.md) — adjacent "easy mode" container hosting for personal-scale workloads.
 
 ## Further reading
+
 - [AWS App Runner availability change](https://docs.aws.amazon.com/apprunner/latest/dg/apprunner-availability-change.html) — the official closure notice.
 - [Announcing Amazon ECS Express Mode](https://aws.amazon.com/about-aws/whats-new/2025/11/announcing-amazon-ecs-express-mode/).
 - [AWS App Runner documentation](https://docs.aws.amazon.com/apprunner/) (still maintained for existing users).

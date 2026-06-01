@@ -3,6 +3,7 @@
 > **One-line summary.** Managed workflow orchestration. Defines a state machine in JSON / YAML / Workflow Studio; integrates natively with 220+ AWS services. Two flavors: **Standard** (long-running, exactly-once) and **Express** (high-throughput, at-least-once).
 
 ## TL;DR
+
 - The right answer for any workflow with state, retries, parallel branches, error handling, or human-in-the-loop steps that you'd otherwise glue together with Lambda+SQS+DynamoDB by hand.
 - **Standard workflows** run up to a year, billed per state transition, exactly-once execution semantics. Right for human approvals, long-running orchestration, business workflows.
 - **Express workflows** run up to 5 minutes, billed per million transitions + duration, at-least-once semantics, much higher throughput. Right for high-RPS event processing, IoT data flows, microservice orchestration.
@@ -10,6 +11,7 @@
 - Native AWS service integrations (`arn:aws:states:::aws-sdk:<service>:<action>` — every AWS SDK action available without a Lambda wrapper).
 
 ## When to use it
+
 - Multi-step business workflows: order processing, KYC, content moderation pipelines.
 - Distributed transactions / **sagas** with compensating actions on failure.
 - ETL orchestration (Glue jobs, Athena queries, EMR steps).
@@ -19,6 +21,7 @@
 - Fan-out with **Distributed Map** for large-scale parallel processing.
 
 ## When NOT to use it
+
 - Single-Lambda, single-purpose work — overkill.
 - Pure pub/sub fanout — EventBridge / SNS.
 - Streaming with offsets — Kinesis / MSK.
@@ -27,13 +30,16 @@
 ## Key concepts
 
 ### Workflow types
+
 - **Standard** — durable, audit-logged, executions retained for 90 days. Billed per state transition (~$0.025 per 1,000 transitions). Up to 1-year execution duration. **Exactly-once** state transitions. Right for business workflows, sagas, human-in-the-loop.
 - **Express** — in-memory, no per-execution audit trail in the Step Functions console (logs go to CloudWatch). Billed per million invocations + duration (much cheaper per execution at high RPS). Up to 5-minute execution. **At-least-once** semantics — design for idempotency. Two sub-flavors:
   - **Synchronous** — caller waits for the response (API-style).
   - **Asynchronous** — fire-and-forget.
 
 ### States
+
 The building blocks (in Amazon States Language, ASL):
+
 - **Task** — invokes a Lambda, an AWS service, an HTTP endpoint, or an Activity worker.
 - **Pass** — passes input to output, optionally transformed.
 - **Choice** — branching on input.
@@ -43,26 +49,32 @@ The building blocks (in Amazon States Language, ASL):
 - **Succeed / Fail** — terminal states.
 
 ### Distributed Map
+
 A Map state that processes thousands-to-millions of items by spawning **child executions** in parallel (up to 10,000 concurrent). Reads from S3 (CSV / JSON / Parquet objects) or from an in-memory array. Useful for:
+
 - Processing millions of S3 objects (ML preprocessing, data conversion, batch validation).
 - Per-customer fanout in multi-tenant batch jobs.
 - A serverless alternative to AWS Batch for embarrassingly parallel work.
 
 ### Service integrations
+
 - **Lambda invocation** (synchronous, asynchronous, callback).
 - **AWS SDK integrations** — directly call any AWS SDK action without a Lambda wrapper using `arn:aws:states:::aws-sdk:<service>:<action>` (e.g., `aws-sdk:dynamodb:putItem`, `aws-sdk:s3:getObject`).
 - **Optimized integrations** — purpose-built for common patterns (ECS RunTask with wait-for-completion, EMR add-step with wait, SageMaker train with wait, etc.).
 - **HTTP Task** — call any HTTPS endpoint with managed authentication (EventBridge connection).
 
 ### Patterns
+
 - **Request/Response** — invoke and return immediately.
 - **Run a Job (.sync)** — invoke and wait for completion (works for many services).
 - **Wait for Callback (.waitForTaskToken)** — invoke, get a callback token, pause until your worker / human sends back the token. The primitive for human-in-the-loop.
 
 ### Error handling
+
 Per-state `Retry` (with backoff and jitter) and `Catch` (route to a recovery branch on specific errors). The error-handling primitive that replaces hand-rolled try/catch loops in Lambda functions.
 
 ### Observability
+
 - **Execution history** with input/output per state.
 - **CloudWatch Logs** for Express workflows.
 - **X-Ray tracing** end-to-end.
@@ -99,6 +111,7 @@ For high-volume event-driven workloads (10s of thousands of executions/day), Exp
 - **Synchronous Express for long-running tasks.** Express maxes at 5 minutes; longer needs Standard or async patterns.
 
 ## Pairs well with
+
 - [Lambda](../compute/lambda.md), [ECS](../compute/ecs.md), [Batch](../compute/batch.md) — common task targets.
 - [EventBridge](eventbridge.md), [SQS](sqs.md), [SNS](sns.md) — triggers and async coupling.
 - [DynamoDB](../database/dynamodb.md), [S3](../storage/s3.md) — state persistence and Distributed Map input.
@@ -106,10 +119,12 @@ For high-volume event-driven workloads (10s of thousands of executions/day), Exp
 - **CloudWatch + X-Ray** — observability.
 
 ## Pairs well with these repo pages
+
 - [Lambda](../compute/lambda.md), [EventBridge](eventbridge.md), [SQS](sqs.md).
 - `docs/02-patterns/saga.md`, `docs/02-patterns/outbox.md` (forthcoming).
 
 ## Further reading
+
 - [AWS Step Functions documentation](https://docs.aws.amazon.com/step-functions/).
 - [Standard vs Express workflows](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-standard-vs-express.html).
 - [Distributed Map](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-asl-use-map-state-distributed.html).

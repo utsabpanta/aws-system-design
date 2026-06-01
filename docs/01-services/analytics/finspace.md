@@ -16,6 +16,7 @@
 > This page documents FinSpace for existing users and migration reference.
 
 ## TL;DR
+
 - FinSpace launched as the AWS-managed home for **kdb+/q** workloads (the dominant tick-data / time-series engine in capital markets) and a dataset-browser product for cross-organization financial data sharing.
 - AWS is **discontinuing FinSpace** on October 7, 2026.
 - For existing customers, the migration is non-trivial — kdb+ runs on specific licensed software, and the workloads tend to be tightly-coupled financial-analytics pipelines. Plan early.
@@ -24,6 +25,7 @@
 ## What it was
 
 FinSpace targeted financial-services-specific needs:
+
 - **Managed kdb Insights** — AWS-managed kdb+/q clusters with KX's commercial Insights distribution.
 - **Dataset Browser** — a catalog and access-management tool for sharing curated financial datasets within an organization.
 - Compliance-aligned features (audit trail, attribute-level access control).
@@ -33,7 +35,9 @@ It addressed the operational toil of running kdb+ at scale: cluster sizing, data
 ## Migration paths
 
 ### For kdb workloads
+
 AWS-published guidance:
+
 1. Extract database contents (HDB, RDB) and application code to S3.
 2. Set up kdb+ on AWS compute of your choice — EC2 (Graviton supported), EKS, or Outposts.
 3. Use your own KX commercial license (FinSpace bundled this).
@@ -43,6 +47,7 @@ AWS-published guidance:
 Self-managed kdb on AWS is well-trodden territory — many financial firms ran kdb on AWS before FinSpace existed.
 
 ### For non-kdb / dataset-browser workloads
+
 - **Lake Formation + Glue Data Catalog** for centralized governance.
 - **AWS Data Exchange** for cross-organization data sharing (if relevant).
 - **QuickSight, Athena, Redshift** for the analytics layer.
@@ -62,11 +67,13 @@ No future pricing relevance; new subscriptions are not accepted.
 - **Skipping a "what should we even do with this data going forward" review.** Some workloads might fit a different stack (Timestream for InfluxDB for telemetry-style time-series; managed Spark / Snowflake for batch analytics) than a like-for-like kdb migration.
 
 ## Pairs well with these repo pages
+
 - [Lake Formation](lake-formation.md), [Data Exchange](data-exchange.md) — alternative governance / sharing primitives.
 - [Timestream](../database/timestream.md) — managed time-series for non-kdb use cases.
 - [EC2](../compute/ec2.md), [EKS](../compute/eks.md) — hosts for self-managed kdb after migration.
 
 ## Further reading
+
 - [Amazon FinSpace end-of-support notice](https://docs.aws.amazon.com/finspace/latest/userguide/amazon-finspace-end-of-support.html).
 - [AWS Data Exchange documentation](https://docs.aws.amazon.com/data-exchange/) — for the dataset-sharing replacement path.
 - [Migrate kdb Insights to self-managed kdb on AWS](https://docs.aws.amazon.com/finspace/latest/userguide/amazon-finspace-end-of-support.html) (AWS-published guidance).

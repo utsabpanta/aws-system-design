@@ -3,6 +3,7 @@
 > **One-line summary.** Run, monitor, and continuously improve workloads — and make the system tell you when something is wrong before a customer does.
 
 ## TL;DR
+
 - Operations is code. Runbooks, deployments, infra, and dashboards all live in a repo.
 - You can't operate what you can't observe. Logs, metrics, traces, and events are first-class system inputs, not afterthoughts.
 - Small, frequent, reversible changes beat big infrequent ones. The unit of progress is "the next safe deploy," not "the next release."
@@ -29,33 +30,42 @@ Per the AWS Well-Architected Framework, the Operational Excellence pillar rests 
 ## Key practices
 
 ### Deployment safety
+
 - **CI/CD on a trunk-based branch model.** Pull request → CI → auto-deploy to staging → gated promotion to prod. CodePipeline, CodeBuild, CodeDeploy are the AWS-native answer; GitHub Actions + a cloud runner is equally common.
 - **Progressive delivery** (canary, blue/green, linear). Route a small slice of traffic to the new version; promote only if metrics hold. CodeDeploy supports this for ECS, Lambda, and EC2; for stricter SLOs, App Mesh or service mesh handles weighted routing.
 - **Automatic rollback** on regression. Define the alarm that defines "broken" (error rate, p99 latency, custom KPI). The deploy system rolls back automatically when the alarm fires.
 
 ### Observability
+
 Three pillars (overloaded word):
+
 - **Logs** — high-cardinality, lossless, human-readable. CloudWatch Logs, OpenSearch, or a third-party (Datadog, Honeycomb).
 - **Metrics** — low-cardinality, aggregated, cheap. CloudWatch Metrics, Managed Prometheus.
 - **Traces** — request-scoped, sampled, show end-to-end flow across services. X-Ray, OpenTelemetry into X-Ray or third-party.
 
 Add the fourth, increasingly first-class:
+
 - **Events** — discrete, business-relevant things that happened (order placed, deploy started). EventBridge or a Kafka/Kinesis topic. The audit log your CFO will eventually need.
 
 Use **CloudWatch Application Signals** to get USE/RED metrics auto-instrumented without writing manual code. Use **synthetics** (CloudWatch Synthetics) for "is the user flow working" checks separate from infrastructure health.
 
 ### Alerting
+
 The rule: **page on user-visible symptoms, not on causes.** "p99 latency over 1s for 5 minutes" pages someone. "CPU at 80%" might be normal; suppress it unless it correlates to a symptom.
 
 Two on-call habits that compound:
+
 - Every alarm has a runbook link in the description. If you can't write the runbook, the alarm probably shouldn't page.
 - Every alarm has an owner. CloudWatch alarm tags (`Service`, `OncallTeam`) make this enforceable.
 
 ### Runbooks as code
+
 SSM **Automation documents** and SSM **Run Command** let you codify ops procedures (restart a service, rotate a key, drain a node) so anyone on call can execute them safely. The doc is reviewed, tested, audited — none of that is true of a text doc in Confluence titled "How to restart the worker."
 
 ### Postmortems
+
 Blameless, mechanical, written. The format that survives organizational change:
+
 1. Timeline (UTC, second-level precision where possible).
 2. Customer impact.
 3. Contributing factors (plural — there's never just one).
@@ -87,12 +97,14 @@ The action items are the only part that matters. A postmortem that doesn't produ
 - **Single-account everything.** AWS Organizations + multi-account (per `multi-account-organization` reference architecture) is operational hygiene, not a maturity goal.
 
 ## Pairs well with
+
 - [Reliability](reliability.md) — the operations practices here are what make reliability targets achievable.
 - [Security](security.md) — operations as code is the only credible audit trail.
 - `docs/04-reference-architectures/ci-cd-pipeline.md` — concrete CI/CD blueprint.
 - `docs/04-reference-architectures/log-aggregation.md` — observability at scale.
 
 ## Further reading
+
 - AWS Well-Architected Framework — Operational Excellence pillar whitepaper.
 - *Site Reliability Engineering*, Google — the SLO/SLI vocabulary and on-call practices.
 - *The DevOps Handbook* (Kim, Humble, Debois, Willis) — flow, feedback, and continuous learning.

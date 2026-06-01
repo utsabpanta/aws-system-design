@@ -3,6 +3,7 @@
 > **One-line summary.** Match buy and sell orders for securities with microsecond latency, strict ordering, perfect auditability, and regulatory compliance. The latency / consistency / durability bar is the highest in this repo.
 
 ## TL;DR
+
 - The core is a **matching engine** — for each symbol, two priority-ordered order books (bids descending, asks ascending). New order tries to match against the opposite book; remainder rests in its own book.
 - **Single-threaded per symbol** (or per matching shard) for deterministic ordering. Microsecond latency means in-memory only; no DB on the hot path.
 - **Persistence via write-ahead log** to a redundant store; replicas re-derive state by replaying the log.
@@ -11,6 +12,7 @@
 - The hardest parts: **deterministic ordering** (every replica must agree on order arrival sequence), **risk checks** (pre-trade limits, post-trade exposure), **regulatory** (MiFID II, Reg NMS), **circuit breakers**, and **disaster recovery without data loss**.
 
 ## Functional Requirements
+
 - Submit limit orders (buy/sell at specific price).
 - Submit market orders (buy/sell at best available).
 - Cancel / modify orders.
@@ -22,6 +24,7 @@
 - (Out of scope for v1): options / derivatives / complex order types.
 
 ## Non-Functional Requirements
+
 - **Latency**: order ack p99 < 100 microseconds (μs); end-to-end (order → matched → ack) < 1 ms.
 - **Throughput**: 1M+ orders/sec per symbol at peak.
 - **Determinism**: every replica processes orders in identical sequence.
@@ -30,6 +33,7 @@
 - **Availability**: 99.999% during market hours.
 
 ## Capacity Estimates
+
 - **Orders / day**: 10B across all symbols at a large exchange.
 - **Peak rate**: 1M orders/sec for hot symbols (NVDA on FOMC day).
 - **Market data**: each price change → broadcast; ~10× the order rate in messages out.
@@ -107,7 +111,9 @@ erDiagram
 ## API Design
 
 ### FIX protocol (broker-facing)
+
 FIX is the industry-standard wire protocol. Simplified messages:
+
 ```
 NewOrderSingle:
   ClOrdID=abc123 Symbol=NVDA Side=BUY OrderQty=100 Price=500.00 OrdType=LIMIT TimeInForce=DAY
@@ -125,6 +131,7 @@ OrderCancelReplaceRequest:
 ```
 
 ### Market data feeds
+
 - **Best Bid / Offer (BBO)**: top of book per symbol.
 - **Level 2 / depth of book**: all open orders at all prices.
 - **Trade ticks**: every execution.
@@ -134,11 +141,14 @@ Multicast in colo; **CloudFront / API Gateway WebSocket** for retail.
 ## Deep Dives
 
 ### 1. Matching engine
+
 For each symbol, two sorted data structures:
+
 - **Bids** (buy orders) — descending price; within same price, ascending time.
 - **Asks** (sell orders) — ascending price; within same price, ascending time.
 
 Matching algorithm (limit order arrival):
+
 ```
 on new_limit_buy(price, qty):
     while qty > 0 and asks.top.price <= price:
@@ -156,9 +166,11 @@ Price-time priority: at each price level, oldest order matches first.
 **Memory layout matters**: cache-line-aligned data structures; minimize pointer chasing; avoid GC pauses (Java with ZGC or no-GC languages).
 
 ### 2. Sequencing
+
 Every event must have a strictly-monotonic `sequence_num` per symbol. The gateway / matching engine assigns sequence at the moment of acceptance.
 
 Why critical:
+
 - Replicas must process events in the same order to derive the same state.
 - Surveillance / audit needs total order.
 
@@ -167,7 +179,9 @@ Implementation: matching engine is the source of sequence; gateway batches incom
 For multi-machine fault tolerance: leader-follower with hot standby (Raft-like consensus or shared journal device).
 
 ### 3. Persistence and replay
+
 Every event persisted before ack. Two patterns:
+
 - **Synchronous write to durable store** (Aurora, journal device): adds latency. Mitigated by:
   - Group commit (batch many events into one write).
   - Replicate to N nodes; ack on quorum.
@@ -180,7 +194,9 @@ On AWS: Aurora Multi-AZ DB cluster with semi-sync replication; or EBS io2 Block 
 **Replay**: on cold start / crash recovery, replicas read the event log from the last snapshot to current; reconstruct the order book.
 
 ### 4. Risk checks (pre-trade)
+
 Before matching, validate:
+
 - Broker has sufficient buying power.
 - Order doesn't exceed per-broker position limit.
 - Symbol isn't halted / restricted.
@@ -192,9 +208,11 @@ These checks must complete in microseconds → in-memory lookup tables, updated 
 Failed checks → reject the order; broker gets `ExecutionReport: REJECTED` with reason.
 
 ### 5. Market data fan-out
+
 Every match → publish trade tick. Every order add/cancel → potentially update BBO → publish BBO update.
 
 Fan-out scales with subscriber count. In colo: multicast (1-to-many on network layer, free). On retail (AWS):
+
 - WebSocket connections (API Gateway / custom EKS) for live data.
 - CloudFront cache for snapshot views (delayed by N minutes).
 - Kinesis / MSK for downstream processors.
@@ -202,7 +220,9 @@ Fan-out scales with subscriber count. In colo: multicast (1-to-many on network l
 For real-time retail at scale, **dedicated WebSocket fleet on EC2/EKS** (lower per-connection cost than API Gateway).
 
 ### 6. Surveillance
+
 Real-time + post-hoc pattern detection:
+
 - **Spoofing**: placing large orders with no intent to execute, then cancelling.
 - **Layering**: stacking orders to manipulate perceived demand.
 - **Wash trading**: buying and selling to oneself.
@@ -211,7 +231,9 @@ Real-time + post-hoc pattern detection:
 Implementation: **Managed Apache Flink** consumes the order + trade stream; pattern-detection rules + ML models flag suspicious activity → alert + audit trail.
 
 ### 7. Circuit breakers
+
 Halt trading on extreme moves to prevent crashes:
+
 - **Stock-level**: halt symbol for N minutes if price moves > X% in Y seconds.
 - **Market-wide**: halt the whole market on extreme index moves (S&P drops 7% / 13% / 20%).
 - **LULD bands**: each stock has dynamic upper/lower limits; orders outside bounce.
@@ -219,7 +241,9 @@ Halt trading on extreme moves to prevent crashes:
 Implementation: matching engine checks per-symbol bands before each match; if breached, halt the symbol and notify regulators.
 
 ### 8. Settlement
+
 T+2 / T+1 settlement: trades on day T settle on day T+1 or T+2 (cash + securities exchange).
+
 - Out-of-band batch process (after market close).
 - Net positions per broker per symbol.
 - Communicate to clearinghouse (DTCC, etc.).
@@ -227,6 +251,7 @@ T+2 / T+1 settlement: trades on day T settle on day T+1 or T+2 (cash + securitie
 Not the matching engine's job — separate clearing system.
 
 ## AWS Services Used
+
 For the surrounding systems (matching engine itself is often colo bare-metal):
 
 - **EC2 with cluster placement group** — for low-latency tier (gateway, matching engine, market data).
@@ -242,16 +267,19 @@ For the surrounding systems (matching engine itself is often colo bare-metal):
 - **AWS Backup** — vault-locked retention for compliance (7 years typical).
 
 ## Cost Notes
+
 - Latency requirements push toward dedicated capacity, reserved instances.
 - Event log retention at TB/PB scale → S3 + Glacier for older data.
 - Network egress for market data fan-out can be massive.
 
 Levers:
+
 - **Place colo bare-metal for hot path**; AWS for ancillary.
 - **Multicast in colo** vs unicast on cloud — massive bandwidth saving in colo.
 - **Tiered storage** for archives.
 
 ## Failure Modes & DR
+
 - **Matching engine crash**: hot standby in another AZ promoted; clients reconnect; resume from event log.
 - **Network partition** between gateway and engine: order accepted/rejected at gateway based on quorum; cannot ack without majority confirmation.
 - **Data loss is unacceptable**: replicate every event to N nodes before ack.
@@ -259,6 +287,7 @@ Levers:
 - **Cyber attack / DDoS**: WAF + Shield + private FIX connectivity (no public ingress for orders).
 
 ## Trade-offs & Alternatives
+
 - **Single-threaded matching vs lock-free concurrent**: single-threaded is simpler, deterministic. Concurrent is faster but order-correctness is hard.
 - **In-memory only vs persistent**: in-memory is faster; persistent is required for durability. Most exchanges use in-memory + write-ahead log.
 - **AWS for matching vs colo**: AWS adds ms of latency vs colo nanoseconds. For HFT-class exchanges, colo wins. For smaller exchanges / crypto exchanges, AWS is acceptable.
@@ -266,6 +295,7 @@ Levers:
 - **Synchronous risk checks vs post-trade**: synchronous is safer (block bad orders); post-trade is faster but lets bad orders through briefly.
 
 ## Further Reading
+
 - ["Designing a stock exchange / matching engine", System Design Primer-style](https://github.com/donnemartin/system-design-primer).
 - [Nasdaq INET architecture (historical writeups)](https://www.nasdaq.com/solutions/market-infrastructure-technology).
 - [LMAX Disruptor pattern (high-perf single-thread)](https://lmax-exchange.github.io/disruptor/).

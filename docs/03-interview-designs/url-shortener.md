@@ -3,6 +3,7 @@
 > **One-line summary.** Map a long URL to a short code; redirect on lookup. The canonical "easy" system design question — easy to start, full of depth on hot keys, ID generation, and analytics.
 
 ## TL;DR
+
 - A short-code → long-URL map. Writes are tiny; reads dominate (100:1+ read/write).
 - Storage: **DynamoDB** keyed on the short code. Reads fit comfortably in single-digit-ms latency.
 - Edge: **CloudFront** caches redirects so most requests don't touch the backend.
@@ -11,6 +12,7 @@
 - Analytics: write click events to **Kinesis Firehose → S3** for offline processing; never write counters inline on the redirect path.
 
 ## Functional Requirements
+
 - Shorten a long URL → return a short URL.
 - Redirect short URL → original URL (HTTP 301 / 302).
 - Optional **custom alias** (`/jane-portfolio`).
@@ -19,6 +21,7 @@
 - (Out of scope for the simplest version): user accounts, link editing, branded domains.
 
 ## Non-Functional Requirements
+
 - **Latency**: p99 redirect < 100 ms globally.
 - **Availability**: 99.99% on reads (redirect path); 99.9% on writes (shorten).
 - **Durability**: a shortened URL never silently disappears (within its TTL).
@@ -26,6 +29,7 @@
 - **Cost**: cheap per request; the redirect path must be sub-cent per 1000.
 
 ## Capacity Estimates
+
 - **Writes**: 100M / year = ~3 / second average, ~30 / second peak. Trivial.
 - **Reads**: 10B / year = ~320 / second average, ~3,200 / second peak. Modest.
 - **Storage**: 100M URLs × ~500 B/row = ~50 GB. Tiny.
@@ -64,11 +68,13 @@ erDiagram
 ```
 
 **Link** table (DynamoDB):
+
 - **Partition key**: `short_code` (string, 7 chars base62).
 - TTL attribute: `expires_at` (DynamoDB auto-deletes after this timestamp).
 - No GSI needed for the redirect path; the partition key *is* the lookup.
 
 **Click** stream (S3 via Firehose):
+
 - Schema as above; written by Firehose into partitioned Parquet (`year=/month=/day=/`).
 - Queryable from Athena / QuickSight; never queried inline.
 
@@ -88,6 +94,7 @@ GET /api/links/:short_code/stats   (auth required)
 ```
 
 Status codes:
+
 - **301** if we want browser-permanent caching (note: hides click analytics from the browser-cached path).
 - **302** if we want every click to hit our backend (better analytics, more traffic).
 - Most systems pick **302** for the click-tracking value; some pick 301 with edge logs (CloudFront access logs) feeding analytics.
@@ -95,6 +102,7 @@ Status codes:
 ## Deep Dives
 
 ### 1. Short-code generation
+
 Two approaches; each has gotchas.
 
 **A. Base62 counter.** Maintain a monotonically increasing 64-bit counter; encode it base62 (`0-9 a-z A-Z`). 7 chars handles 62^7 ≈ 3.5 trillion codes.
@@ -116,9 +124,11 @@ Two approaches; each has gotchas.
 **Recommendation**: random + conditional write for the privacy-preserving default; switch to counter for ultra-dense / public deployments (like an internal tracking URL).
 
 ### 2. Hot links and edge caching
+
 A single viral link can be hit 100K+ QPS. DynamoDB partition throughput cap is ~3K reads/s per partition; sustained hot reads will throttle.
 
 Layered mitigations:
+
 1. **CloudFront** caches redirects by short code (TTL ~5 min, shorter for click-tracked 302s).
 2. **DAX** (DynamoDB Accelerator) in front of the table — microsecond reads at million QPS.
 3. **Read sharding the hot key** — if a single code is uncacheable for some reason, replicate the entry across multiple keys and route randomly.
@@ -126,9 +136,11 @@ Layered mitigations:
 The CloudFront layer alone handles 99%+ of the load for typical viral patterns.
 
 ### 3. Click analytics without slowing the redirect
+
 The naive approach — `INCR clicks` on every request — turns the read path into a write path (slow + serializing on the hot link).
 
 Right pattern:
+
 1. Redirect responds with 302 in <50 ms.
 2. Lambda fires a `PutRecord` to **Kinesis Data Firehose** (async, fire-and-forget).
 3. Firehose batches records and writes to S3 as Parquet partitioned by date.
@@ -138,13 +150,16 @@ Right pattern:
 For real-time-ish dashboards, replace the Firehose-to-S3 path with **Kinesis Data Streams → Lambda → DynamoDB counters** (still async, never inline on the redirect).
 
 ### 4. Custom aliases and dedup
+
 Custom alias (`/jane-portfolio`) is a write that collides with auto-generated codes if you don't reserve a namespace. Two options:
+
 - **Reserve a prefix** — `/c/jane-portfolio` for custom; `/aB3xK9q` for auto.
 - **Shared namespace with collision check** — custom alias writes use the same table; conditional write fails if taken; client gets `409 Conflict`.
 
 Shared namespace is simpler for users; the prefix approach is simpler for the system.
 
 ## AWS Services Used
+
 - **CloudFront** — edge cache for redirects; absorbs the read traffic.
 - **API Gateway (HTTP API)** — public-facing redirect + write endpoint; 71% cheaper than REST API at this shape.
 - **Lambda** — redirect handler and shortener handler.
@@ -156,18 +171,22 @@ Shared namespace is simpler for users; the prefix approach is simpler for the sy
 - **Route 53** + **ACM** — custom domain + TLS.
 
 ## Cost Notes
+
 At our 10B reads/year scale (~320 RPS avg, ~3K peak):
+
 - **CloudFront**: dominant if cache hit ratio is high (cheap per-GB for cacheable content) — maybe ~$30-50/month.
 - **DynamoDB on-demand**: ~10B reads × $0.25 / 1M = $2,500/year for reads + tiny write cost.
 - **Lambda**: 10B invocations is the cost killer if cache hit ratio is low. At 90% cache hit, ~1B invocations/year × small duration ≈ $200-500/year.
 - **Firehose**: pennies for click delivery.
 
 Levers:
+
 - **Cache aggressively** — high CloudFront hit ratio is the single biggest cost lever.
 - **Reserved capacity on DynamoDB** if traffic shape becomes steady (>50% reduction vs on-demand).
 - **Drop DAX** unless DynamoDB-direct throughput becomes a problem.
 
 ## Failure Modes & DR
+
 - **AZ failure**: DynamoDB and CloudFront are multi-AZ by default; Lambda runs across AZs. No impact.
 - **Region failure**: redirect stops working for users routed to that Region. Mitigations:
   - **DynamoDB Global Tables** for cross-Region replication.
@@ -178,6 +197,7 @@ Levers:
 - **Lambda cold start tail**: hits the p99 budget for uncached redirects. Use SnapStart (Python/Java/.NET) or provisioned concurrency.
 
 ## Trade-offs & Alternatives
+
 - **Counter vs random codes**: counter is dense and predictable; random is unguessable. Pick by privacy requirement.
 - **301 vs 302**: 301 enables browser caching (less backend load) but skips click analytics. 302 is the analytics-friendly default.
 - **DynamoDB vs Redis vs RDBMS**: DynamoDB wins on cost / latency / scaling at this access pattern. Redis would work but loses durability without MemoryDB. RDBMS is overkill — no joins, no relations.
@@ -186,6 +206,7 @@ Levers:
 - **Self-hosted vs managed**: at this scale, managed is dramatically cheaper end-to-end (no DBA, no patching).
 
 ## Further Reading
+
 - [Building a serverless URL shortener (AWS blog)](https://aws.amazon.com/blogs/compute/build-a-serverless-multi-region-active-active-backend-solution-in-an-hour/).
 - ["Designing TinyURL", System Design Primer](https://github.com/donnemartin/system-design-primer#design-pastebincom-or-bitly).
 - [DynamoDB on-demand vs provisioned](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadWriteCapacityMode.html).

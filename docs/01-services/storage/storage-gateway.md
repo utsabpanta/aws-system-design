@@ -9,6 +9,7 @@ Storage Gateway is **active**, but the underlying appliance OS is migrating:
 > ⚠️ **Amazon Linux 2 (AL2) gateway appliances are being retired.** As of **January 5, 2026**, AWS restricts new AL2 gateway activations. On **June 30, 2026**, AL2-based gateways stop receiving software updates and AWS support ends. Affected: S3 File Gateway v1.x, Tape Gateway v2.x, Volume Gateway v2.x. **Migrate to the AL2023-based gateway version before June 30, 2026.** Existing AL2 gateways continue running after that date but unpatched.
 
 ## TL;DR
+
 - The bridge between on-prem storage protocols and AWS cloud storage. Four flavors: **S3 File Gateway**, **FSx File Gateway**, **Volume Gateway**, **Tape Gateway**.
 - The appliance runs on-prem as a VM (VMware/Hyper-V/KVM), on a hardware appliance, or in EC2. Local cache absorbs hot reads/writes; cold data lives in AWS.
 - Right for hybrid scenarios: extending on-prem NAS into the cloud, replacing tape backup infrastructure, backing up on-prem workloads to S3, presenting cloud-stored files to legacy on-prem apps.
@@ -16,12 +17,14 @@ Storage Gateway is **active**, but the underlying appliance OS is migrating:
 - For pure cloud workloads (no on-prem footprint), Storage Gateway is the wrong choice — go directly to S3 / EBS / FSx / EFS.
 
 ## When to use it
+
 - Existing on-prem servers need to read/write to AWS-hosted storage using their native protocol (SMB share for a Windows app, NFS for a Linux workload, iSCSI LUN for a legacy DB, VTL for tape-backup software).
 - Migrating tape backup infrastructure to AWS (Tape Gateway replaces physical tape libraries; backup software thinks it's still talking to LTO).
 - Extending on-prem NAS into the cloud for capacity expansion without changing client paths.
 - Backing up on-prem files to S3 / Glacier with a cache for fast restores of recent files.
 
 ## When NOT to use it
+
 - All-AWS workloads — use S3 / EBS / EFS / FSx directly.
 - Real-time / synchronous replication between on-prem and cloud — Storage Gateway is asynchronous; for tight RPO, use database-native replication or DataSync with frequent runs.
 - Bulk one-time migrations — use **DataSync** or **Snowball** instead; Storage Gateway optimizes for ongoing access, not one-shot migration.
@@ -35,12 +38,14 @@ Storage Gateway is **active**, but the underlying appliance OS is migrating:
 **FSx File Gateway** — SMB only. Sits in front of an FSx for Windows File Server file system; provides a low-latency local cache for branch-office / remote-site access to a centrally-hosted FSx share.
 
 **Volume Gateway** — presents iSCSI block volumes. Two modes:
+
 - **Cached volumes** — primary data in S3, recent reads/writes cached locally. Cheap to expand.
 - **Stored volumes** — primary data on-prem, snapshots backed up to AWS as EBS snapshots. Local performance, cloud backup.
 
 **Tape Gateway** — Virtual Tape Library (VTL). Looks like an LTO tape changer to your backup software (NetBackup, Veeam, Backup Exec, etc.). Virtual tapes stored in S3 / Glacier / Deep Archive.
 
 ### Common across types
+
 - **Local cache** — sized at deploy time on the appliance. Larger cache = better hit rate, more local hardware required.
 - **Upload bandwidth limiting** — throttle how much WAN bandwidth the gateway can use.
 - **CloudWatch metrics** — `CacheHitPercent`, `CloudBytesUploaded`, `CloudBytesDownloaded`, queue depth.
@@ -80,6 +85,7 @@ The bill is usually dominated by the underlying S3 / EBS / FSx storage and the e
 - **Stored-volume mode for capacity expansion.** Stored volumes keep all data on-prem; you don't gain capacity, you gain backup. Use cached volumes to expand capacity into S3.
 
 ## Pairs well with
+
 - [S3](s3.md) and [Glacier tiers](glacier.md) — the destination for File Gateway and Tape Gateway data.
 - [FSx](fsx.md) — what FSx File Gateway fronts.
 - [EBS](ebs.md) — Volume Gateway snapshots land as EBS snapshots.
@@ -88,10 +94,12 @@ The bill is usually dominated by the underlying S3 / EBS / FSx storage and the e
 - **AWS Backup** — manages Storage Gateway Volume Gateway snapshots.
 
 ## Pairs well with these repo pages
+
 - [Backup](backup.md) — for backing up workloads served by Storage Gateway.
 - `docs/04-reference-architectures/hybrid-on-prem-vpn.md` (forthcoming) — hybrid topologies.
 
 ## Further reading
+
 - [AWS Storage Gateway documentation](https://docs.aws.amazon.com/storagegateway/).
 - [Storage Gateway AL2 to AL2023 migration](https://docs.aws.amazon.com/filegateway/latest/files3/al2-to-al2023-migration.html).
 - [S3 File Gateway](https://docs.aws.amazon.com/filegateway/latest/files3/).

@@ -3,6 +3,7 @@
 > **One-line summary.** AWS-native container orchestrator. Schedules Docker containers onto EC2 or Fargate without you running a Kubernetes control plane.
 
 ## TL;DR
+
 - The right default for containers on AWS unless you specifically need Kubernetes APIs. Simpler, cheaper, and tighter AWS integration than EKS.
 - Two launch types: **Fargate** (serverless, AWS owns the host) and **EC2** (you own the host, bin-pack workloads, pair with Spot for big savings).
 - **ECS Express Mode** (launched Nov 2025) collapses the "container + ALB + autoscaling" recipe into one command. Use it for greenfield services unless you already have an opinionated platform.
@@ -10,6 +11,7 @@
 - The biggest gotcha is networking — `awsvpc` mode (the default for Fargate) gives each task its own ENI, which is great for isolation and burns ENI quota on EC2 launch types.
 
 ## When to use it
+
 - Standard containerized web services and workers, where you'd otherwise reach for EKS.
 - Teams who don't want to operate Kubernetes (control plane upgrades, IRSA, cluster autoscaler, etc.).
 - Workloads that benefit from tight AWS integration: IAM roles per task, ALB target groups, Service Connect, CloudWatch Container Insights out of the box.
@@ -17,6 +19,7 @@
 - Migrating off **App Runner** (closing to new customers 2026-04-30) — ECS Express Mode is the AWS-recommended target.
 
 ## When NOT to use it
+
 - You need portability — multi-cloud, on-prem with KubeEdge, or a CNCF-ecosystem dependency (Argo, Tekton, Knative). Use EKS or self-managed Kubernetes.
 - The workload is a single HTTP service that fits Lambda or a managed PaaS — those are cheaper end-to-end.
 - You need stateful workloads with persistent local storage and pod affinity (databases, distributed storage). Use EC2, EKS with persistent volumes, or a managed equivalent.
@@ -32,11 +35,13 @@
 **Service** — keeps N tasks of a given task definition running. Wires them to an ALB/NLB target group, handles rolling/blue-green deploys via CodeDeploy, and integrates with Service Connect for service discovery.
 
 **Launch types:**
+
 - **Fargate** — AWS provisions the host. You pay per vCPU-second and GB-second. No node management. Right default for most teams.
 - **EC2** — you operate the EC2 hosts (in an Auto Scaling Group). Cheaper per unit at high utilization, supports daemon-set patterns (one task per host), supports Spot for big savings.
 - **External** (ECS Anywhere) — register your own VMs (on-prem or in another cloud) and run ECS tasks on them. Niche.
 
 **Networking modes:**
+
 - **`awsvpc`** (default for Fargate, recommended for EC2) — each task gets its own ENI in your VPC, IAM-attachable security group, and routable IP. Per-task isolation, but ENI count limits how many tasks per EC2 host.
 - **`bridge`**, **`host`**, **`none`** — legacy / specialty modes for EC2 only.
 
@@ -45,6 +50,7 @@
 **ECS Express Mode** — single-command deployment: `aws ecs create-service-express --image my-image:tag`. Auto-provisions a Fargate service, an ALB (or shares one across up to 25 services using host-header rules), auto-scaling on CPU, security groups, and an auto-generated URL. Free; resources land in your account so you keep full control as you grow.
 
 **CodeDeploy / ECS deploy controllers** — three options:
+
 - **Rolling** (ECS default): replace tasks one batch at a time.
 - **Blue/Green** (via CodeDeploy): two target groups, shift traffic, can canary or auto-rollback on alarm.
 - **External** (custom controller, e.g., Flagger): for advanced canary patterns.
@@ -78,6 +84,7 @@ Compute Savings Plans cover Fargate at the same discount as EC2 (~30–66%). App
 - **EC2 launch type without Spot.** Half the point of EC2 over Fargate is mixing on-demand and Spot for cost — use Capacity Providers and Spot to capture the discount.
 
 ## Pairs well with
+
 - **ALB / NLB** — L7 / L4 ingress.
 - **ECR** — private container registry; pull-through caches mirror public registries.
 - **Service Connect or App Mesh** — service discovery and traffic shaping.
@@ -87,11 +94,13 @@ Compute Savings Plans cover Fargate at the same discount as EC2 (~30–66%). App
 - **EventBridge + Scheduled Tasks** — cron-style container runs.
 
 ## Pairs well with these repo pages
+
 - [Fargate](fargate.md) — the serverless launch type ECS most often runs on.
 - [App Runner](app-runner.md) — what to migrate off of toward ECS Express Mode.
 - [EKS](eks.md) — when you need Kubernetes APIs instead.
 
 ## Further reading
+
 - [Amazon ECS documentation](https://docs.aws.amazon.com/AmazonECS/).
 - [ECS Express Mode docs](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/express-service-overview.html).
 - [Service Connect deep dive](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html).

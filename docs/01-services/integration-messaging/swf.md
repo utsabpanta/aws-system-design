@@ -11,6 +11,7 @@
 > This page exists for existing SWF users and to document the migration consideration.
 
 ## TL;DR
+
 - SWF launched in 2012 as AWS's first orchestration service. State machines defined imperatively in code via the **AWS Flow Framework** (Java; Ruby support discontinued).
 - Workflow worker (your code) polls SWF for decisions to make; activity workers poll for activities to execute. AWS hosts the state; you host the workers.
 - Compared to Step Functions: more flexibility (you can write any orchestration logic in code), much more operational overhead (you run the workers), and no AWS-native service integrations.
@@ -18,10 +19,12 @@
 - The narrow remaining case for SWF: existing apps where rewriting the workflow logic into Step Functions ASL isn't yet worth it, or workflows that fundamentally need the imperative model SWF provides.
 
 ## When to use it
+
 - You already use SWF; you're not yet ready to migrate.
 - **For new workloads: don't.** Use [Step Functions](step-functions.md).
 
 ## When NOT to use it
+
 - Any new workload — Step Functions is the better answer.
 - Even most existing workloads — the migration to Step Functions is usually worth doing within a year or two.
 
@@ -81,10 +84,12 @@ SWF pricing is generally cheaper per-transition than Step Functions Standard for
 - **Multi-Region / multi-account.** SWF is Regional and lacks Step Functions' cross-account features.
 
 ## Pairs well with these repo pages
+
 - [Step Functions](step-functions.md) — the recommended successor.
 - [Lambda](../compute/lambda.md), [ECS](../compute/ecs.md) — workflow workers; even more relevant in Step Functions.
 
 ## Further reading
+
 - [Amazon SWF documentation](https://docs.aws.amazon.com/amazonswf/).
 - [Choosing between Step Functions and SWF (AWS recommendation)](https://aws.amazon.com/step-functions/faqs/).
 - [Migrating from SWF to Step Functions (AWS blog patterns)](https://aws.amazon.com/blogs/compute/category/application-services/aws-step-functions/).

@@ -3,6 +3,7 @@
 > **One-line summary.** Managed text-to-speech (TTS). Dozens of voices across many languages, with **Neural** and **Generative** voice engines for human-like output.
 
 ## TL;DR
+
 - Convert text into natural-sounding speech via API. Returns MP3 / OGG Vorbis / PCM audio (`SynthesizeSpeech`) or **starts an async S3-output job** for long-form text.
 - Three engine tiers in 2026:
   - **Standard** — concatenative TTS; cheapest, robotic by modern standards.
@@ -12,6 +13,7 @@
 - Pair with **Transcribe** (the inverse — speech-to-text) for full voice-interaction pipelines.
 
 ## When to use it
+
 - IVR / contact center prompts (often pairs with Amazon Connect).
 - E-learning / accessibility (audio versions of text content).
 - Audiobook / podcast generation.
@@ -19,6 +21,7 @@
 - Voice in chatbots and assistants.
 
 ## When NOT to use it
+
 - Voice cloning of specific people without their consent — restricted by AWS AUP and not the right tool.
 - Highly emotional / dramatic performances — current generative voices are good but not full performance acting.
 - Real-time conversational AI where extremely low latency and emotional adaptation matter — emerging Bedrock Voice and other AWS conversational primitives may fit better.
@@ -26,6 +29,7 @@
 ## Key concepts
 
 ### Engines and voices
+
 - **Standard voices** — concatenative; many languages, low cost; obviously synthetic in modern UX.
 - **Neural Text-to-Speech (NTTS)** — neural-net-based; modern default for most apps. Many voices across English, Spanish, French, German, Japanese, Mandarin, Hindi, Arabic, and others.
 - **Generative voices / Long-form** — newer, longer-context, more expressive engines. Use for audiobooks, long narration, marketing copy, IVR prompts that need warmth.
@@ -33,7 +37,9 @@
 Voice catalog includes both gender presentations across many accents (US, UK, AU, IN English; LatAm vs European Spanish; etc.).
 
 ### SSML
+
 Mark up the input text:
+
 - `<break time="500ms"/>` for pauses.
 - `<phoneme alphabet="ipa" ph="...">word</phoneme>` for custom pronunciation.
 - `<emphasis level="strong">word</emphasis>`.
@@ -43,16 +49,20 @@ Mark up the input text:
 Critical for production-quality output.
 
 ### Lexicons
+
 Per-account pronunciation lexicons override default pronunciation for specific terms (your product names, jargon, abbreviations).
 
 ### Async (long-form synthesis)
+
 - Start a synthesis task; Polly writes the result to an S3 bucket; you get an SNS notification on completion.
 - Right for podcast-length / book-length content (text up to ~100K characters).
 
 ### Speech marks
+
 Optional metadata stream alongside audio: word- / sentence-level timestamps, viseme codes for lip-sync animation. Useful for karaoke-style highlighting and animation.
 
 ### Output formats
+
 - **MP3** — most common.
 - **OGG Vorbis**.
 - **PCM** — raw audio for further processing.
@@ -83,6 +93,7 @@ Optional metadata stream alongside audio: word- / sentence-level timestamps, vis
 - **Skipping the legal AUP review for voice cloning / impersonation use cases.** Don't.
 
 ## Pairs well with
+
 - [Transcribe](transcribe.md) — the speech-to-text counterpart for round-trip voice workflows.
 - **Amazon Connect** — IVR prompts and dynamic messages.
 - [Lex](lex.md) — conversational bots that speak responses via Polly.
@@ -91,9 +102,11 @@ Optional metadata stream alongside audio: word- / sentence-level timestamps, vis
 - [Translate](translate.md) — translate text before synthesizing in another language.
 
 ## Pairs well with these repo pages
+
 - [Transcribe](transcribe.md), [Lex](lex.md), [Translate](translate.md).
 
 ## Further reading
+
 - [Amazon Polly documentation](https://docs.aws.amazon.com/polly/).
 - [Polly voices](https://docs.aws.amazon.com/polly/latest/dg/voicelist.html).
 - [SSML reference](https://docs.aws.amazon.com/polly/latest/dg/ssml.html).

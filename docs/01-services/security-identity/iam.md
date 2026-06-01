@@ -3,6 +3,7 @@
 > **One-line summary.** AWS's authorization engine. Decides who (principal) can do what (action) to which resources (ARN), under what conditions.
 
 ## TL;DR
+
 - The single most important AWS service to get right. Almost every breach involves IAM misuse.
 - Use **IAM Identity Center** for humans (federation, SSO), **IAM roles** for workloads (EC2 instance profiles, ECS task roles, Lambda execution roles, IRSA / Pod Identity for EKS), **STS** for short-lived credentials. **No long-lived access keys** as a default.
 - Three policy types matter most: **identity-based** (attached to user/role/group), **resource-based** (attached to a resource like an S3 bucket), and **SCPs** (org-wide guardrails in AWS Organizations).
@@ -10,9 +11,11 @@
 - Use **Access Analyzer** continuously — it surfaces unused permissions, external access, and validates policies before you ship them.
 
 ## When to use it
+
 - Always. Every AWS API call is authorized through IAM.
 
 ## When NOT to use it
+
 - For end-user / customer-facing authentication, use **Cognito** (or your IdP through Cognito or Identity Center). IAM is for AWS resource access by people and workloads you control.
 
 ## Key concepts
@@ -28,6 +31,7 @@
 **Policy** — JSON document declaring `Effect` (`Allow` / `Deny`) for `Action`s on `Resource`s under optional `Condition`s.
 
 **Policy types:**
+
 - **Identity-based** — attached to a user / group / role.
 - **Resource-based** — attached to a resource (S3 bucket policy, KMS key policy, SQS queue policy, Lambda function policy). Can grant cross-account access without the consumer changing anything in their own account.
 - **Permissions boundaries** — maximum permissions a role/user can have. Doesn't grant anything; only caps. Used to delegate role creation safely.
@@ -42,6 +46,7 @@
 **Instance profiles, task roles, execution roles, IRSA / Pod Identity** — service-specific ways of attaching a role to a compute identity so the SDK can transparently call `AssumeRole` and get credentials.
 
 **Access Analyzer.** Continuously evaluates policies and surfaces:
+
 - **External access** — resources reachable from outside your account / org.
 - **Unused access** — IAM roles and permissions not used in N days.
 - **Policy validation** — policy linting before you save.
@@ -81,6 +86,7 @@
 - **Skipping Access Analyzer.** It's free for external access; the unused-access analyzer is the cleanest way to spot drift.
 
 ## Pairs well with
+
 - [IAM Identity Center](iam-identity-center.md) — human access.
 - **AWS Organizations + SCPs / RCPs** — org-wide guardrails.
 - **AWS Access Analyzer** — continuous policy hygiene.
@@ -89,10 +95,12 @@
 - **AWS Secrets Manager / Parameter Store** — for any secrets that *do* need to exist (rather than IAM-roleable workloads).
 
 ## Pairs well with these repo pages
+
 - [Security pillar](../../05-well-architected/security.md) — the principles IAM enforces.
 - All compute pages — workloads consume IAM via instance profile / task role / execution role / IRSA / Pod Identity.
 
 ## Further reading
+
 - [AWS IAM documentation](https://docs.aws.amazon.com/iam/).
 - [IAM policy evaluation logic](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html).
 - [IAM Access Analyzer](https://docs.aws.amazon.com/IAM/latest/UserGuide/what-is-access-analyzer.html).

@@ -3,6 +3,7 @@
 > **One-line summary.** Managed relational databases. Pick an engine (PostgreSQL, MySQL, MariaDB, Oracle, SQL Server, Db2); AWS runs the EC2, EBS, OS, engine binary, patching, and backups.
 
 ## TL;DR
+
 - The right default for "I need a relational database on AWS and the workload fits one box." Six engines supported.
 - **Multi-AZ deployment is table stakes for production** — synchronous standby in another AZ; automatic failover in 30–120 seconds. The newer **Multi-AZ DB cluster** topology (one writer + two readable standbys) cuts failover to ~35 seconds and adds a read-only endpoint.
 - For workloads that outgrow a single writer, look at **Aurora** (see [`aurora.md`](aurora.md)) — usually a better long-term home than RDS for high-availability MySQL / PostgreSQL.
@@ -10,12 +11,14 @@
 - Big cost levers: right-sizing, Reserved Instances, **gp3 over gp2/io1**, and **Multi-AZ DB cluster vs single-standby** depending on whether you can use the read replicas.
 
 ## When to use it
+
 - "Give me a Postgres / MySQL / SQL Server / Oracle / Db2 / MariaDB without managing the OS."
 - Workloads with steady, predictable load that fits a single writer.
 - Apps that need a specific engine version, parameter, or extension that RDS supports but Aurora doesn't.
 - Workloads that already use the engine on-prem and want a lift-and-shift target.
 
 ## When NOT to use it
+
 - High read scale needs — use **Aurora** (15 readers, lower replica lag) or Aurora Global.
 - Sub-second failover — Aurora is faster.
 - Sub-30-second failover *with* RDS — use **Multi-AZ DB cluster** (gets you to ~35 s) instead of the classic Multi-AZ.
@@ -26,6 +29,7 @@
 **DB instance** — the EC2 + EBS managed by RDS. Instance classes are EC2-shaped (`db.m6i.large`, `db.r7g.xlarge`, `db.m8g.4xlarge`). **Graviton (`g` suffix) is ~20% cheaper for the same performance**; use it unless the engine doesn't support ARM.
 
 **Engines and licensing:**
+
 - **PostgreSQL** — fully open source, full extension support (with version-specific allow-list), the most popular new-RDS-instance choice.
 - **MySQL** — community MySQL.
 - **MariaDB** — community MariaDB.
@@ -34,10 +38,12 @@
 - **Db2** — IBM Db2, license-included or BYOL.
 
 **Multi-AZ topologies (two distinct options):**
+
 - **Multi-AZ (single-standby)** — one writer + one synchronous standby in another AZ. Standby is *not* readable. Automatic failover in 30–120 s. The classic default.
 - **Multi-AZ DB cluster** (PostgreSQL and MySQL only) — one writer + **two readable** standbys, semi-synchronous replication. Failover in ~35 s. Standbys serve read traffic via a cluster reader endpoint. Roughly 2× the cost of single-standby but you gain read scale.
 
 **Storage** — uses EBS under the hood. Volume types:
+
 - **`gp3`** — the right default. Cheaper *and* faster than `gp2`; supports independently provisioned IOPS / throughput.
 - **`io1` / `io2`** — provisioned IOPS for very high-throughput workloads.
 - Storage auto-scaling grows the volume up to a configured ceiling.
@@ -84,6 +90,7 @@
 - **Single-engine sprawl across many small instances.** Consolidating onto fewer larger instances (or onto Aurora) often saves 30%+ in licensing and instance overhead.
 
 ## Pairs well with
+
 - [Aurora](aurora.md) — when you need higher HA, more read scale, or Serverless.
 - **RDS Proxy** — connection pooling.
 - **AWS Backup** — managed cross-account / cross-Region backups with vault lock.
@@ -92,11 +99,13 @@
 - **Database Migration Service (DMS)** — to / from / between engines.
 
 ## Pairs well with these repo pages
+
 - [Aurora](aurora.md), [Aurora Serverless](aurora-serverless.md) — the AWS-native engines.
 - [DynamoDB](dynamodb.md) — for workloads that don't actually need SQL.
 - [Backup](../storage/backup.md) — for retention beyond 35 days.
 
 ## Further reading
+
 - [Amazon RDS documentation](https://docs.aws.amazon.com/rds/).
 - [Multi-AZ DB cluster deployments](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/multi-az-db-clusters-concepts.html).
 - [RDS Blue/Green Deployments](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments.html).

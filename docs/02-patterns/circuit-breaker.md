@@ -3,6 +3,7 @@
 > **One-line summary.** When a downstream is failing, stop calling it for a window. Fail fast, give the downstream room to recover, prevent cascading failure.
 
 ## TL;DR
+
 - A three-state machine — **closed** (normal), **open** (failing fast, not calling downstream), **half-open** (probing to see if downstream recovered).
 - Designed for **synchronous** calls — async work with retries / DLQs is a different shape (queues *are* the buffer).
 - The point isn't to "fix" the downstream — it's to (a) stop pouring more requests onto a struggling dependency, and (b) free the caller's resources (threads, connection pool slots) so unrelated work keeps moving.
@@ -10,12 +11,14 @@
 - AWS-native: most service SDKs include adaptive retry / circuit-breaker-like behavior; for service-mesh circuit-breakers, **VPC Lattice** / **App Mesh** (closing) / **ECS Service Connect**; libraries: **Resilience4j** (Java), **Polly** (.NET), **pybreaker** (Python).
 
 ## When to use it
+
 - Sync RPC / HTTP / gRPC calls to dependencies you can't trust to always be healthy.
 - Calls to third-party APIs (payment providers, vendor APIs, social-login providers).
 - DB / cache calls when the DB is slow enough to threaten thread starvation.
 - Aggregating responses from many backends — break the chain for the dead one rather than letting it hang the whole composite response.
 
 ## When NOT to use it
+
 - Async / queue-based work — backpressure / DLQs are the right tools.
 - Calls within the same process — circuit-break the downstream call, not the in-process function.
 - Workloads where falling back to "fail fast" is worse than waiting — pure-bursty downstream where a slow response is still better than no response.
@@ -41,6 +44,7 @@ stateDiagram-v2
 - Probe success → **Closed** (recover); probe failure → back to **Open** with another timeout.
 
 ### Per-instance vs distributed
+
 - **Per-instance circuit breakers** are the norm — each application instance maintains its own state. Simple, fast, no extra dependencies.
 - **Distributed circuit breakers** share state across instances (Redis / DynamoDB). More accurate at low volumes per instance; adds a dependency.
 
@@ -49,6 +53,7 @@ stateDiagram-v2
 **Failure threshold.** What counts as "failure"? Time-outs, HTTP 5xx, connection errors. Application-level errors (HTTP 4xx) are usually not breaker-tripping — they're business errors, not dependency failures.
 
 **Window and counting.** Two common shapes:
+
 - **Sliding-window count** — last N requests.
 - **Sliding-window time** — last N seconds.
 
@@ -61,6 +66,7 @@ Combined: "open if error rate > X% over the last Y seconds with a minimum of Z r
 **Half-open probe count.** Most libraries allow N concurrent probes; if all succeed, close. Single-probe is conservative; many-probe is faster recovery.
 
 **Fallback.** What happens when the breaker is open? Options:
+
 - **Error** — fail fast with a 503 or domain-specific error.
 - **Cached response** — last known good (good for read-mostly traffic).
 - **Default value** — e.g., recommendations service down → return popular items.
@@ -106,6 +112,7 @@ Combined: "open if error rate > X% over the last Y seconds with a minimum of Z r
 - **No chaos testing.** Breakers only matter when downstreams fail. Without injecting failures, you don't know if the breaker actually works. Use **AWS Fault Injection Service (FIS)**.
 
 ## Further reading
+
 - ["Avoiding insurmountable queue backlogs", Amazon Builders' Library](https://aws.amazon.com/builders-library/avoiding-insurmountable-queue-backlogs/).
 - *Release It!*, Michael Nygard — the canonical reference for stability patterns (circuit breaker, bulkhead, timeout, retry, fail fast).
 - [Resilience4j docs](https://resilience4j.readme.io/).

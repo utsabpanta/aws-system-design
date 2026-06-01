@@ -3,6 +3,7 @@
 > **One-line summary.** Managed Apache Airflow — DAGs run on AWS-operated worker, scheduler, and web-server fleets in your VPC. Open-source Airflow, AWS does the operations.
 
 ## TL;DR
+
 - The right answer when your data team already speaks Airflow and you want a managed equivalent on AWS without operating EKS-hosted Airflow yourself.
 - Supports **Airflow 3.0** (latest, 2026) and **Airflow 2.11** (added January 2026). AWS commits to supporting at least three minor versions at any time; **Airflow 2.4.3 / 2.5.1 / 2.6.3 reached end of support on December 30, 2025**.
 - Environment sizes (small / medium / large) determine worker / scheduler / web-server capacity; auto-scaling for workers within bounds.
@@ -10,12 +11,14 @@
 - For new pipeline orchestration, evaluate **Step Functions Distributed Map** (serverless fan-out) or **Glue Workflows** (data-integration native) before committing to Airflow. MWAA wins for teams already invested in Airflow's ecosystem.
 
 ## When to use it
+
 - Existing Airflow DAGs being lifted to AWS.
 - Data teams already trained on Airflow.
 - Pipelines that need Airflow's specific operators / hooks / sensors (large catalog including AWS-native and third-party).
 - Workflows where the DAG-as-code Python model is the team's preferred orchestration UX.
 
 ## When NOT to use it
+
 - Greenfield workflows where Step Functions covers the use case — Step Functions is significantly cheaper at low scale and has tighter AWS integration.
 - ETL-specific orchestration — **Glue Workflows** is data-pipeline-native and cheaper for pure Glue jobs.
 - Low-volume workflows where the per-hour MWAA cost (always-on environment) doesn't amortize.
@@ -23,6 +26,7 @@
 ## Key concepts
 
 **Environment.** The MWAA resource. Includes scheduler, web server (Airflow UI), and worker fleet. Sized at creation:
+
 - **Small** — a few workers, lower-throughput.
 - **Medium** — more workers, higher concurrency.
 - **Large** — maximum capacity tier.
@@ -72,6 +76,7 @@ MWAA's always-on environment cost is the dominant line item. Tiny / occasional w
 - **Forgotten secrets / connections in the Airflow UI.** Manage Airflow connections via Secrets Manager backend, not via the UI (which doesn't audit cleanly).
 
 ## Pairs well with
+
 - **S3** — DAG storage.
 - **Secrets Manager** — connection / variable storage backend.
 - [Glue](../analytics/) (forthcoming), [EMR](../analytics/) (forthcoming), [Athena](../analytics/), **Redshift** — common DAG targets.
@@ -80,10 +85,12 @@ MWAA's always-on environment cost is the dominant line item. Tiny / occasional w
 - **EventBridge** — trigger MWAA DAGs from AWS events.
 
 ## Pairs well with these repo pages
+
 - [Step Functions](step-functions.md) — the AWS-native orchestration alternative.
 - `docs/04-reference-architectures/batch-etl-glue.md`, `docs/04-reference-architectures/streaming-etl-kinesis.md` (forthcoming).
 
 ## Further reading
+
 - [Amazon MWAA documentation](https://docs.aws.amazon.com/mwaa/).
 - [Supported Airflow versions](https://docs.aws.amazon.com/mwaa/latest/userguide/airflow-versions.html).
 - [MWAA architecture](https://docs.aws.amazon.com/mwaa/latest/userguide/what-is-mwaa.html).

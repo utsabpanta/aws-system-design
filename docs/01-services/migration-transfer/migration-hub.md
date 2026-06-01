@@ -3,6 +3,7 @@
 > **One-line summary.** Central console for planning and tracking AWS migrations across DMS, MGN, Application Discovery Service, and partner tools. Inventory of sources, server-by-server tracking, and (via AWS Transform) AI-driven recommendations.
 
 ## TL;DR
+
 - The "where am I in the migration?" view. Aggregates status from MGN (servers), DMS (databases), and other migration tools (CloudEndure legacy, partner products).
 - **Strategy Recommendations** analyzes your environment and suggests modernization paths (lift-and-shift vs replatform vs refactor).
 - **EC2 Instance Recommendations** sizes target EC2 instances based on observed source utilization.
@@ -11,6 +12,7 @@
 - ⚠️ **Migration Hub Refactor Spaces** (the multi-account routing layer for Strangler Fig modernization) is **closed to new customers since November 7, 2025**.
 
 ## TL;DR — what's where in 2026
+
 | Feature | Service / Location |
 |---|---|
 | Server migration | **MGN** (Application Migration Service) |
@@ -23,18 +25,21 @@
 | AI-driven migration / modernization | **AWS Transform** (newer) |
 
 ## When to use it
+
 - Any multi-server / multi-database AWS migration where status across workstreams matters.
 - Strategy / planning phase — get recommendations on modernization paths.
 - EC2 right-sizing for migration targets.
 - Programs with multiple parallel migration waves needing a central view.
 
 ## When NOT to use it
+
 - Single-server / single-DB one-off migrations — too much overhead.
 - If you've already adopted **AWS Transform**, work in Transform; Migration Hub will route you there.
 
 ## Key concepts
 
 ### Sources of migration data
+
 - **AWS Application Discovery Service** — on-prem inventory.
 - **MGN** — server-migration progress.
 - **DMS** — database-migration progress.
@@ -42,13 +47,16 @@
 - **Partner tools** integrated via the Migration Hub API.
 
 ### Home Region
+
 Migration Hub aggregates data to a "home Region" — pick one Region as the migration command center; data from migrations in any other Region rolls up there.
 
 ### Applications
+
 - Group source servers / databases logically into **applications**.
 - Track migration status per application.
 
 ### Strategy Recommendations
+
 - Analyzes your environment (via Application Discovery Service data).
 - Recommends per-application strategy:
   - **Rehost** (MGN lift-and-shift).
@@ -59,20 +67,24 @@ Migration Hub aggregates data to a "home Region" — pick one Region as the migr
   - **Retire** (decommission).
 
 ### EC2 Instance Recommendations
+
 - Uses observed CPU / memory / network usage to recommend EC2 instance types for migrated servers.
 - Generates a sized cost estimate per server.
 
 ### Migration Hub Orchestrator
+
 - Pre-built workflow templates for common migrations (SAP, server migrations, database migrations).
 - Custom workflows for org-specific patterns.
 
 ### AWS Transform (newer, recommended evolution)
+
 - Launched May 2025.
 - AI-driven assessment + recommendations + automation.
 - Includes Migration Hub features (Strategy Recommendations, EC2 Instance Recommendations, Journeys, Orchestrator) with enhanced AI capabilities.
 - Pairs with Q Developer for code-modernization workflows.
 
 ### Migration Hub Refactor Spaces (closed to new customers)
+>
 > ⚠️ **Closed to new customers since November 7, 2025.** Existing customers continue. AWS Transform / native Strangler Fig with API Gateway + Lambda is the modern path.
 
 Refactor Spaces was the multi-account routing service for the **Strangler Fig** modernization pattern — wraps a monolith with an API Gateway + NLB + IAM, then routes specific paths to new microservices in separate accounts. AWS Transform now provides the equivalent capability with better AI integration.
@@ -103,15 +115,18 @@ Refactor Spaces was the multi-account routing service for the **Strangler Fig** 
 - **Not evaluating AWS Transform.** If you're starting a new migration in 2026, look at AWS Transform first.
 
 ## Pairs well with
+
 - [MGN](mgn.md), [DMS](dms.md), [DataSync](datasync.md), [Application Discovery Service](application-discovery-service.md) — all feed Migration Hub.
 - **AWS Transform** — newer evolution.
 - [Q Developer](../ml-ai/q.md) — AI-assisted code modernization in conjunction with Transform.
 - [Organizations](../observability/organizations.md), [Control Tower](../observability/control-tower.md) — target account / landing zone for migrations.
 
 ## Pairs well with these repo pages
+
 - [MGN](mgn.md), [DMS](dms.md), [DataSync](datasync.md), [Application Discovery Service](application-discovery-service.md).
 
 ## Further reading
+
 - [AWS Migration Hub documentation](https://docs.aws.amazon.com/migrationhub/).
 - [Strategy Recommendations](https://docs.aws.amazon.com/migrationhub-strategy/).
 - [EC2 Instance Recommendations](https://docs.aws.amazon.com/migrationhub/latest/ug/ec2-recommendations.html).

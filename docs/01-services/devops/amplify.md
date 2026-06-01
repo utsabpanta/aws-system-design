@@ -3,6 +3,7 @@
 > **One-line summary.** End-to-end framework for building and hosting web and mobile apps on AWS — Gen 2 unifies the front-end framework, backend provisioning (in TypeScript), and **Amplify Hosting** for static / SSR / SPA deployment.
 
 ## TL;DR
+
 - Two-ish products under one name:
   - **Amplify Hosting** — Vercel / Netlify-style static / SSR / SPA hosting on AWS. Push to Git; Amplify builds and deploys.
   - **Amplify Gen 2** (replacing Gen 1) — TypeScript-first backend builder. Define auth (Cognito), data (AppSync + DynamoDB), storage (S3), functions (Lambda), real-time (AppSync subscriptions). One repo, full-stack, branch-based environments.
@@ -11,6 +12,7 @@
 - Compared to building each piece yourself (Cognito + AppSync + DynamoDB + Lambda + S3 + CloudFront): Amplify's value is the integration story and code generation; the cost is opinion / lock-in.
 
 ## When to use it
+
 - Greenfield React / Next.js / Vue / Angular / Svelte apps on AWS.
 - Teams that want full-stack scaffolding (auth + data + storage + hosting) in one repo.
 - Mobile apps (iOS / Android / Flutter / React Native) consuming AWS services.
@@ -18,6 +20,7 @@
 - Server-side rendered Next.js apps that want AWS-native hosting (instead of Vercel).
 
 ## When NOT to use it
+
 - Teams already standardized on Vercel / Netlify / Cloudflare for hosting and AWS for backend.
 - Backends that don't fit the Amplify Gen 2 model (large microservice meshes, EKS-resident apps, complex EventBridge flows).
 - Workloads where the team wants to write CDK / Terraform directly without an Amplify abstraction layer.
@@ -25,6 +28,7 @@
 ## Key concepts
 
 ### Amplify Hosting
+
 - **Git-connected** — connect a GitHub / GitLab / Bitbucket / CodeCommit repo.
 - **Branch-based environments** — `main` → prod, `staging` → staging, every feature branch → preview URL.
 - **Build settings** — YAML in `amplify.yml` for the build commands and output directory.
@@ -36,6 +40,7 @@
 - **Monorepo support** — multiple apps from one repo.
 
 ### Amplify Gen 2 (backend builder)
+
 - **TypeScript-first** — define backend as TypeScript code (`amplify/backend.ts`).
 - **Auth** — Cognito User Pool / Identity Pool, social federation, email/password, magic links.
 - **Data** — AppSync GraphQL API (or REST), DynamoDB / Aurora / OpenSearch backing, fine-grained authorization rules in TypeScript.
@@ -46,13 +51,16 @@
 - **Branch-based backends** — every Git branch gets its own backend environment.
 
 ### Amplify Gen 1 (legacy)
+
 The previous Amplify CLI + JSON config approach. Still supported but Gen 2 is the recommended new-project path.
 
 ### Amplify libraries (client)
+
 - **`amplify/auth`**, **`amplify/data`**, **`amplify/storage`**, **`amplify/predictions`** — TypeScript / Swift / Kotlin / Dart / Flutter SDKs that wrap Cognito / AppSync / S3 / Lex / Polly / Transcribe with conventional APIs.
 - Auto-configured from the deployed backend.
 
 ### Hosting features
+
 - **Build-time SSR / ISR support** for Next.js.
 - **Image optimization** at edge.
 - **Headers, redirects, rewrites** declared in config.
@@ -60,12 +68,14 @@ The previous Amplify CLI + JSON config approach. Still supported but Gen 2 is th
 ## Pricing model
 
 ### Amplify Hosting
+
 - **Build minutes** — per build-minute.
 - **Storage** — per GB-month for hosted artifacts.
 - **Data transfer** — per GB served.
 - **SSR compute** — for Next.js SSR / ISR: per request + per million function invocations (similar shape to Lambda).
 
 ### Amplify Gen 2 backend
+
 - The Amplify backend service is **free**.
 - You pay for the underlying AWS resources (Cognito MAUs, AppSync requests, DynamoDB capacity, Lambda invocations, S3 storage).
 
@@ -88,6 +98,7 @@ The previous Amplify CLI + JSON config approach. Still supported but Gen 2 is th
 - **Auth state across mobile + web inconsistent.** Same Cognito User Pool across platforms works, but UX details (refresh, session expiry) need explicit handling.
 
 ## Pairs well with
+
 - [Cognito](../security-identity/cognito.md), **AppSync** (GraphQL), [DynamoDB](../database/dynamodb.md), [S3](../storage/s3.md), [Lambda](../compute/lambda.md) — backing services.
 - [Bedrock](../ml-ai/bedrock.md) — AI components inside Amplify Gen 2.
 - [Route 53](../networking/route53.md), [ACM](../security-identity/acm.md) — custom domains and TLS.
@@ -95,10 +106,12 @@ The previous Amplify CLI + JSON config approach. Still supported but Gen 2 is th
 - [CDK](cdk.md) — Amplify Gen 2 compiles to CDK; you can drop into CDK for what Amplify abstracts away.
 
 ## Pairs well with these repo pages
+
 - [Cognito](../security-identity/cognito.md), [DynamoDB](../database/dynamodb.md), [Lambda](../compute/lambda.md), [CDK](cdk.md).
 - `docs/04-reference-architectures/static-website-s3-cloudfront.md` (forthcoming).
 
 ## Further reading
+
 - [AWS Amplify documentation](https://docs.amplify.aws/).
 - [Amplify Gen 2 (TypeScript-first)](https://docs.amplify.aws/react/build-a-backend/).
 - [Amplify Hosting](https://docs.aws.amazon.com/amplify/).

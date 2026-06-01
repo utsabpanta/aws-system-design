@@ -3,6 +3,7 @@
 > **One-line summary.** Managed API front door — HTTP / REST / WebSocket — that handles routing, auth, rate limiting, request validation, and integration to Lambda, ECS, EC2, Step Functions, or any HTTP backend.
 
 ## TL;DR
+
 - Three API types: **HTTP API** (cheaper, faster, modern default), **REST API** (older, full-featured), **WebSocket API** (persistent connections, message routing).
 - **HTTP APIs are ~71% cheaper and ~60% lower latency than REST APIs** — use HTTP API by default; only reach for REST API when you specifically need its extra features (API keys with usage plans, AWS WAF, request transformations, response caching, the Apigee-style management surface).
 - Integrate with **Lambda**, **HTTP endpoints (public or private ALB / NLB / IPs via VPC Link)**, **AWS services directly via SDK integration**, **Step Functions**, **EventBridge**, **SQS / SNS / Kinesis**.
@@ -10,12 +11,14 @@
 - The biggest decision point in 2026 is "HTTP API or REST API" — don't default to REST out of habit.
 
 ## When to use it
+
 - Public or internal HTTP APIs fronting Lambda, container services, or other backends.
 - WebSocket APIs for chat, real-time updates, IoT control.
 - Service-to-service APIs that benefit from managed throttling, auth, and observability without writing them per service.
 - "I want to expose a Lambda over HTTPS" — Function URLs are simpler if you don't need anything beyond that; API Gateway when you need routing, auth, rate limits, or aggregation.
 
 ## When NOT to use it
+
 - Internal-only service-to-service traffic within one VPC — direct NLB / ALB / Service Connect / PrivateLink is typically cheaper and lower-latency.
 - High-throughput, ultra-low-latency endpoints (millions of RPS, sub-ms requirements) — NLB beats API Gateway on raw forwarding.
 - WebSockets at extreme scale — API Gateway WebSocket has connection / message limits and pricing that can be beaten by a custom Fargate / EC2 setup at very high concurrency.
@@ -24,6 +27,7 @@
 ## Key concepts
 
 ### HTTP API
+
 - The modern default. Cheaper and faster than REST API.
 - **Routes** — method + path patterns (`POST /orders`, `ANY /pets/{id}`).
 - **Integrations** — Lambda (with payload format v2), HTTP endpoint (public or private via VPC Link), AWS service.
@@ -32,6 +36,7 @@
 - **Stages** — `$default`, custom names (`prod`, `staging`).
 
 ### REST API
+
 - The full-featured original. Use when you need:
   - **API keys with usage plans** for per-customer rate limiting and quotas.
   - **AWS WAF integration** (REST API has it directly; HTTP API needs WAF on a CloudFront distribution fronting the API).
@@ -42,12 +47,14 @@
   - **Regional** vs **Private** endpoints (Private API only reachable from a specified VPC via Interface endpoint).
 
 ### WebSocket API
+
 - Long-lived connections. Routes are based on a **route selection expression** evaluated against the message (e.g., `$request.body.action`).
 - Lambda integration for `$connect`, `$disconnect`, `$default`, and custom routes.
 - **Management API** lets your backend push messages to specific connections by connection ID.
 - Connection count and message rate matter for cost — high-concurrency / high-message-rate workloads can outgrow it.
 
 ### Common to all
+
 - **Custom domain names** with ACM certs.
 - **Stages** for deploy management.
 - **Throttling** — per-stage burst and rate limits.
@@ -91,6 +98,7 @@ The HTTP API vs REST API price gap (~71% cheaper for HTTP API) is the dominant e
 - **WebSocket API for chat at very high scale.** The per-connection-minute pricing scales linearly; at certain scale, custom Fargate + WebSocket server is cheaper.
 
 ## Pairs well with
+
 - [Lambda](../compute/lambda.md) — the canonical integration target.
 - [CloudFront](cloudfront.md) — in front of an API Gateway for caching + WAF (especially for HTTP API).
 - **Cognito** — user pools for auth (JWT for HTTP API; authorizer for REST API).
@@ -100,10 +108,12 @@ The HTTP API vs REST API price gap (~71% cheaper for HTTP API) is the dominant e
 - **X-Ray** — distributed tracing.
 
 ## Pairs well with these repo pages
+
 - [Lambda](../compute/lambda.md), [CloudFront](cloudfront.md).
 - `docs/04-reference-architectures/serverless-rest-api.md` (forthcoming).
 
 ## Further reading
+
 - [Amazon API Gateway documentation](https://docs.aws.amazon.com/apigateway/).
 - [Choose between REST APIs and HTTP APIs](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html).
 - [WebSocket API overview](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-websocket-api.html).

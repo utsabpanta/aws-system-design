@@ -11,21 +11,25 @@
 > - Until end of service, existing customers can keep using App Mesh (including creating new resources and onboarding new accounts via CLI/CFN).
 >
 > **AWS-recommended migration targets:**
+>
 > - **EKS workloads** → **Amazon VPC Lattice** — eliminates sidecar proxies; managed control + data plane; cross-account / cross-VPC support via AWS RAM.
 > - **ECS workloads** → **Amazon ECS Service Connect** (the AWS-native alternative for ECS service mesh-style features).
 >
 > This page exists for existing users and migration reference. If you're starting fresh, jump straight to VPC Lattice or ECS Service Connect.
 
 ## TL;DR
+
 - App Mesh provided service-to-service traffic management — routing rules, retries, circuit breakers, observability — on top of Envoy sidecar proxies running in your ECS / EKS / EC2 workloads.
 - The model: a managed control plane (Envoy xDS server) pushes config to sidecars; the sidecars handle every request and report metrics / traces.
 - Worked well in production for years; AWS shipped two natively-integrated alternatives (Service Connect for ECS, VPC Lattice for EKS / multi-account) and is sunsetting App Mesh.
 - The big migration question is **VPC Lattice vs ECS Service Connect** — pick by your compute platform and whether cross-account access is required.
 
 ## When to use it
+
 - You already use App Mesh; you have until September 30, 2026 to migrate.
 
 ## When NOT to use it
+
 - Any new project — use VPC Lattice or ECS Service Connect.
 
 ## Key concepts (for existing users)
@@ -47,12 +51,14 @@
 ## Migration paths
 
 ### EKS → VPC Lattice
+
 - **No more sidecars.** VPC Lattice is a managed data plane; pods talk directly to the Lattice service network.
 - **Cross-account / cross-VPC by design** — services published to a Lattice service network can be consumed from other accounts via AWS RAM, without VPC peering or PrivateLink endpoints.
 - **AWS Gateway API Controller** for EKS — define Lattice routes as Kubernetes `Gateway` / `HTTPRoute` resources.
 - AWS migration guidance: [Migrating from AWS App Mesh to Amazon VPC Lattice](https://aws.amazon.com/blogs/containers/migrating-from-aws-app-mesh-to-amazon-vpc-lattice/).
 
 ### ECS → ECS Service Connect
+
 - **Service Connect** is built into ECS; configured per service.
 - Envoy-based, but the proxy is **managed by ECS itself** (not a sidecar you maintain).
 - Service discovery via DNS, health-aware client-side load balancing, automatic retries, native CloudWatch metrics.
@@ -60,6 +66,7 @@
 - AWS migration guidance: [Migrating from AWS App Mesh to Amazon ECS Service Connect](https://aws.amazon.com/blogs/containers/migrating-from-aws-app-mesh-to-amazon-ecs-service-connect/).
 
 ### Choosing between them
+
 | Need | Pick |
 |---|---|
 | Pure ECS, no cross-account | **ECS Service Connect** |
@@ -82,11 +89,13 @@
 - **Migrating one service at a time without a coexistence plan.** Some services on App Mesh, some on Service Connect / Lattice — services need to reach each other during the migration window. Test the boundary traffic patterns explicitly.
 
 ## Pairs well with these repo pages
+
 - [ECS](../compute/ecs.md) — host of ECS Service Connect.
 - [EKS](../compute/eks.md) — host of VPC Lattice consumers via Gateway API Controller.
 - [PrivateLink](vpc-endpoints.md) — adjacent cross-account / cross-VPC primitive.
 
 ## Further reading
+
 - [App Mesh discontinuation announcement](https://aws.amazon.com/blogs/containers/migrating-from-aws-app-mesh-to-amazon-vpc-lattice/).
 - [Amazon VPC Lattice documentation](https://docs.aws.amazon.com/vpc-lattice/).
 - [Amazon ECS Service Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html).

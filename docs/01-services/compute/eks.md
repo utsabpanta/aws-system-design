@@ -3,6 +3,7 @@
 > **One-line summary.** Managed Kubernetes control plane. You get the CNCF Kubernetes API; AWS runs the masters.
 
 ## TL;DR
+
 - Use EKS when you specifically want the Kubernetes API — for portability, ecosystem (Argo, Helm, Operators, Istio), or because your team already runs Kubernetes elsewhere. Otherwise ECS is simpler.
 - The control plane is managed; the data plane is yours (EC2 self-managed, EC2 managed node groups, Fargate, or **EKS Auto Mode** which manages nodes for you).
 - **EKS Auto Mode** (launched late 2024, GA throughout 2025) is the easiest way to run EKS in 2026 — AWS manages the node lifecycle, Karpenter-style autoscaling, and core add-ons.
@@ -10,6 +11,7 @@
 - The biggest hidden costs: the control plane fee per cluster ($0.10/hour ≈ $72/month — non-trivial when you run dozens), cross-AZ data transfer between pods, and ALB/NLB per Ingress.
 
 ## When to use it
+
 - You want portable Kubernetes manifests (multi-cloud, on-prem with EKS Anywhere, hybrid with EKS Hybrid Nodes).
 - You depend on the Kubernetes ecosystem — Argo CD/Workflows, Tekton, Knative, Crossplane, Istio, KEDA, operators.
 - Your team has Kubernetes expertise and you want to reuse it on AWS.
@@ -17,6 +19,7 @@
 - You need pod-level features ECS lacks (sidecar lifecycles, ephemeral containers, init container ordering, custom schedulers).
 
 ## When NOT to use it
+
 - You don't have a reason to run Kubernetes. ECS is simpler, cheaper at small scale (no control plane fee), and integrates as deeply with AWS.
 - You're running a handful of services. The complexity tax is real — operators, networking, RBAC, version upgrades.
 - You want serverless containers with no node concept — Fargate (via ECS) or App Runner-style services (now ECS Express Mode) is a better fit.
@@ -26,6 +29,7 @@
 **Cluster** — the Kubernetes control plane (API server, etcd, scheduler, controller-manager) managed by AWS. Highly available across 3 AZs by default. You pick the Kubernetes version; AWS supports the current and three preceding minor versions, with extended support (paid) for older versions.
 
 **Data plane options:**
+
 - **Managed node groups** — EC2 Auto Scaling Groups managed by EKS. AWS handles AMI updates and replacement; you choose instance types, sizes, and capacity.
 - **Self-managed nodes** — bring your own ASG/launch templates. More control, more work.
 - **Fargate** — serverless pods, no nodes to operate. Limited (no DaemonSets, no GPU, no privileged, slower scaling) but operationally simplest.
@@ -73,6 +77,7 @@
 - **Cluster autoscaler with classic ASGs.** Karpenter (or EKS Auto Mode) replaces this with faster, cheaper, right-sized provisioning.
 
 ## Pairs well with
+
 - **Karpenter / EKS Auto Mode** — modern autoscaling.
 - **AWS Load Balancer Controller** — native ALB/NLB Ingress.
 - **EBS / EFS / FSx CSI drivers** — persistent volumes.
@@ -82,10 +87,12 @@
 - **App Mesh / Istio / Linkerd** — service mesh (if you actually need one).
 
 ## Pairs well with these repo pages
+
 - [ECS](ecs.md) — the AWS-native alternative; usually the right default unless you specifically need Kubernetes.
 - [Fargate](fargate.md) — the serverless data-plane option.
 
 ## Further reading
+
 - [Amazon EKS documentation](https://docs.aws.amazon.com/eks/).
 - [EKS Best Practices Guides](https://aws.github.io/aws-eks-best-practices/) (community-maintained, AWS-blessed).
 - [Karpenter](https://karpenter.sh/).

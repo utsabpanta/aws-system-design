@@ -3,6 +3,7 @@
 > **One-line summary.** Serverless compute engine for containers. You hand AWS a task definition or pod spec; AWS provisions the host and runs the container.
 
 ## TL;DR
+
 - A *launch type*, not a standalone service — you consume Fargate via ECS or EKS.
 - "No nodes" is the value prop. No EC2 instances to size, patch, scale, or pay for when idle.
 - **Fargate Spot** runs containers on spare capacity at ~70% off, with a 2-minute reclaim notice. Available for both ECS and (with caveats) EKS workloads.
@@ -10,6 +11,7 @@
 - The biggest gotcha is image pull time at startup — large containers add seconds to scale-out latency, which compounds during traffic spikes.
 
 ## When to use it
+
 - You want containers without operating EC2 hosts.
 - Workloads have spiky or unpredictable load — you pay only for running tasks.
 - The team is small and ops time matters more than per-vCPU price.
@@ -17,6 +19,7 @@
 - ECS Express Mode services (always Fargate underneath).
 
 ## When NOT to use it
+
 - High, steady utilization where EC2+Spot+Savings Plans wins on cost.
 - GPU workloads — Fargate has no GPU support (use EC2 or EKS with GPU node groups).
 - Workloads needing privileged containers, custom kernel modules, or `host` networking (none of which Fargate allows).
@@ -73,6 +76,7 @@ The breakeven vs EC2: at ≳70% steady-state utilization with multi-year Savings
 - **Assuming Fargate scales instantly.** Provisioning + image pull = seconds-to-minutes. For latency-critical scale-out, keep a warm baseline.
 
 ## Pairs well with
+
 - [ECS](ecs.md) — the most common front door to Fargate.
 - [EKS](eks.md) — Fargate profiles for serverless pods, with caveats.
 - **ECR + pull-through cache** — image distribution.
@@ -81,6 +85,7 @@ The breakeven vs EC2: at ≳70% steady-state utilization with multi-year Savings
 - **Compute Savings Plans** — discount even on Fargate.
 
 ## Further reading
+
 - [AWS Fargate documentation](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html).
 - [Fargate Capacity Providers (Spot)](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-capacity-providers.html).
 - [Fargate task sizing](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html#fargate-tasks-size).

@@ -3,6 +3,7 @@
 > **One-line summary.** Split data across nodes / partitions by a key so the workload distributes evenly. The fundamental scaling lever for any storage system beyond a single host.
 
 ## TL;DR
+
 - Three classic strategies: **hash-based** (consistent hashing — most common), **range-based** (sorted by key — good for range scans, prone to hotspots), and **directory-based** (lookup table — flexible but adds a hop).
 - The hard problems are **hot keys / hot partitions**, **rebalancing** when partitions are added/removed, and **secondary-index access patterns** that don't align with the partition key.
 - AWS-native: **DynamoDB partitions** (auto-managed via partition key), **Aurora Limitless** (sharded PostgreSQL with one endpoint), **Kinesis shards** (partition key chooses shard), **Redis Cluster slots** (hash slots across nodes).
@@ -10,12 +11,14 @@
 - Cross-partition transactions / queries are expensive — design to keep related data on the same partition where possible.
 
 ## When to use it
+
 - Datasets too large for a single host's storage / RAM / CPU.
 - Throughput too high for a single host (>10K writes/sec, >100K reads/sec — engine-dependent).
 - Workloads where horizontal scaling is the only realistic path (most internet-scale workloads).
 - Multi-tenant systems where tenant isolation matters (tenant-ID as partition key).
 
 ## When NOT to use it
+
 - Datasets that fit on one host with headroom — a single primary + read replicas is simpler.
 - Workloads where the query pattern crosses partitions on every read — defeats the point.
 - Tiny systems where the operational overhead exceeds the benefit.
@@ -23,6 +26,7 @@
 ## How it works
 
 ### Hash-based partitioning
+
 ```mermaid
 flowchart LR
   Req["key='user-42'"] --> H[hash function]
@@ -38,16 +42,19 @@ flowchart LR
 - Adding / removing partitions reshuffles most keys (mitigated by **consistent hashing** — only a fraction of keys move).
 
 ### Range-based partitioning
+
 - Keys ordered; partitions cover ranges (`a-d` → P0, `e-h` → P1, etc.).
 - Efficient range scans (good for time-series, alphabetical lookups).
 - Hot ranges if data is non-uniformly distributed (everyone's signing up today → today's range is hot).
 
 ### Directory-based (lookup) partitioning
+
 - Maintain a `(key → partition)` directory (often in ZooKeeper / etcd / Redis).
 - Maximum flexibility — move any key to any partition without rehashing.
 - Adds a lookup hop; the directory is itself a scaling concern.
 
 ### Consistent hashing
+
 - Hash the key onto a circular space; hash the partition IDs to the same space.
 - A key belongs to the next partition clockwise.
 - Adding a partition redistributes only the keys between its position and the next — minimal churn.
@@ -60,17 +67,20 @@ flowchart LR
 **Composite / compound key.** Many systems support `(partition_key, sort_key)`. Partition key picks the shard; sort key orders within. DynamoDB's PK+SK is canonical.
 
 **Hot partition / hot key.** One key (or a small subset) sees disproportionate traffic. A "celebrity user's tweet" hammers their partition. Mitigations:
+
 - **Sharding the hot key** — append a random suffix (`celebrity:1`, `celebrity:2`, …), spread writes, aggregate reads.
 - **Read replicas** for the hot partition (DAX in front of DynamoDB).
 - **Pre-aggregation** — don't read raw data on the hot path; read precomputed counts.
 - **Cache** for the hot key.
 
 **Rebalancing.** When partitions are added (scale-out) or removed (scale-in), data has to move. Strategies:
+
 - **Resharding** (full reshuffle — Cassandra, custom systems). Slow, disruptive.
 - **Consistent hashing** (incremental movement).
 - **Pre-allocation** (start with N "virtual partitions" mapped to M physical nodes; reassign virtual partitions when scaling). Used by DynamoDB internally.
 
 **Secondary indexes.** A query that doesn't include the partition key has to fan out across all partitions (scatter-gather). Mitigations:
+
 - **Global Secondary Indexes (GSIs)** — DynamoDB's term for a second physical table indexed differently.
 - **Inverted indexes / projections** — maintain a denormalized view in OpenSearch / Elasticsearch.
 - **Materialized views** via [CQRS](cqrs.md) projections.
@@ -97,6 +107,7 @@ flowchart LR
 | **S3** | Auto-partitioned by prefix internally; can hit per-prefix request rate limits (3,500 PUT / 5,500 GET per second per prefix) — design prefixes to spread load |
 
 ### DynamoDB partition-key design (canonical)
+
 - **High cardinality** — at least as many unique values as you expect partitions.
 - **Even distribution of access** — not "category" if 90% of reads are for one category.
 - **Aligned with query patterns** — the partition key must appear in every query (or use a GSI).
@@ -132,6 +143,7 @@ Good: `partition_key = customer_id, sort_key = order_id` (cardinality = customer
 - **One partition strategy across the whole system.** Different aggregates benefit from different strategies. Per-table / per-aggregate decisions.
 
 ## Further reading
+
 - *Designing Data-Intensive Applications*, Martin Kleppmann, Chapter 6 (Partitioning).
 - ["The DynamoDB Book", Alex DeBrie](https://www.dynamodbbook.com/) — the canonical reference for DynamoDB partition design.
 - [Consistent hashing — Wikipedia](https://en.wikipedia.org/wiki/Consistent_hashing).

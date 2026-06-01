@@ -7,6 +7,7 @@ Thanks for contributing! A few quick checks before you hit "Create pull request"
 <!-- One or two sentences. Don't restate the diff. -->
 
 ## Type
+
 - [ ] New service page (`docs/01-services/`)
 - [ ] New pattern (`docs/02-patterns/`)
 - [ ] New interview design (`docs/03-interview-designs/`)
@@ -16,6 +17,7 @@ Thanks for contributing! A few quick checks before you hit "Create pull request"
 - [ ] Tooling / CI / scaffolding
 
 ## Checklist
+
 - [ ] Follows the [page template](../CONTRIBUTING.md#page-template).
 - [ ] Length within budget (service 600–1200 words / interview 1500–3500 / ref-arch 1000–2500).
 - [ ] Diagrams committed: Mermaid inline, or both `.py` source and rendered `.png` for `diagrams` output.

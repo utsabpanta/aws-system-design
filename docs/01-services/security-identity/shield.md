@@ -3,6 +3,7 @@
 > **One-line summary.** AWS's DDoS protection service. **Shield Standard** is free and automatic for every AWS account; **Shield Advanced** is a paid subscription that adds L7 protection, the DDoS Response Team (DRT), and cost protection during attacks.
 
 ## TL;DR
+
 - **Shield Standard** is on by default on every AWS account at no cost. Protects CloudFront, Route 53, ALB, NLB, and Global Accelerator from common L3/L4 DDoS attacks (SYN floods, UDP reflection).
 - **Shield Advanced** is a paid monthly subscription (per AWS Organization) — adds **L7 DDoS protection**, **24/7 DDoS Response Team**, **cost protection** (AWS credits scaled costs back during a documented attack), and **unlimited WAF rule usage** on protected resources.
 - Only consider Shield Advanced if you run high-profile public services that are credible DDoS targets — large e-commerce, gaming, news, financial.
@@ -14,12 +15,14 @@
 **Shield Standard:** always on; nothing to enable.
 
 **Shield Advanced:**
+
 - High-profile public services where a sustained L7 DDoS would be a credible business event.
 - Online gaming, news during election cycles, real-time finance, e-commerce during peak season.
 - Workloads with contractual or regulatory uptime obligations that include DDoS scenarios.
 - Workloads where you'd want the AWS DRT on a war-room call within minutes of an attack.
 
 ## When NOT to use it
+
 - Low-profile workloads. Shield Standard's automatic protection is sufficient for most.
 - Internal-only services that the internet can't reach.
 - Workloads where you'd rather invest in CloudFront + WAF + over-provisioning than in a subscription that protects a small fraction of your stack.
@@ -27,11 +30,13 @@
 ## Key concepts
 
 ### Shield Standard (free, automatic)
+
 - Always on for **CloudFront, Route 53, Global Accelerator, ALB, NLB, EC2 with EIPs**.
 - Inline mitigation for common L3/L4 attacks — SYN floods, UDP reflection (DNS, NTP, SSDP), ICMP floods.
 - No DRT support; no cost protection.
 
 ### Shield Advanced (paid)
+
 - Per-AWS-Organization subscription at a significant monthly fee plus per-protected-resource fees on top of the underlying resource pricing.
 - **Protected resources.** Enable Shield Advanced per resource (CloudFront distribution, ALB, NLB, Global Accelerator, Route 53 hosted zone, Elastic IP). Up to a configured maximum.
 - **L7 DDoS protection** — automatic mitigation for application-layer attacks against protected CloudFront / ALB.
@@ -42,10 +47,12 @@
 - **Health-based detection** — uses Route 53 / Application Recovery Controller signals to better detect attacks vs legitimate traffic.
 
 ### How attacks are mitigated
+
 - **L3/L4** — AWS edge absorbs traffic, scrubbing centers strip attack patterns, only legitimate traffic forwarded to origin.
 - **L7 (HTTP/HTTPS)** — Shield + WAF managed rule groups + custom rules + adaptive scoring. The DRT can deploy emergency rules in real time during an attack.
 
 ### Reporting
+
 - **DDoS Reports** in CloudWatch and the Shield console — visibility into ongoing and historical events on protected resources.
 - **CloudWatch metrics** — `DDoSDetected`, `DDoSAttackBitsPerSecond`, etc.
 
@@ -72,15 +79,18 @@ The Advanced subscription is large enough that it only makes economic sense when
 - **Cost protection misunderstood.** Credits cover *attack-driven* overage only — not "we forgot to add an SP and now CloudFront is expensive."
 
 ## Pairs well with
+
 - [WAF](waf.md) — L7 filtering; Shield Advanced bundles unlimited WAF on protected resources.
 - [CloudFront](../networking/cloudfront.md) — edge absorption; primary protection layer.
 - [Route 53](../networking/route53.md) and **Application Recovery Controller** — failover during sustained attacks.
 - **Global Accelerator** — anycast routing absorbs distributed attacks.
 
 ## Pairs well with these repo pages
+
 - [WAF](waf.md), [CloudFront](../networking/cloudfront.md).
 
 ## Further reading
+
 - [AWS Shield documentation](https://docs.aws.amazon.com/waf/latest/developerguide/shield-chapter.html).
 - [Shield Advanced overview](https://aws.amazon.com/shield/features/).
 - [DDoS Response Team (DRT)](https://aws.amazon.com/shield/drt/).

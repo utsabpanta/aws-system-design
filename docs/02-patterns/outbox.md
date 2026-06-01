@@ -3,6 +3,7 @@
 > **One-line summary.** Atomically write a domain event to an "outbox" table in the same transaction as the business state change. A separate relay then publishes the events to a message bus. Solves the dual-write problem.
 
 ## TL;DR
+
 - Without it: `update order; publish order-paid event` is two writes. If the publish fails (or the process crashes between them), the DB and the message bus diverge. With it: both writes happen in **one DB transaction**.
 - The relay (a separate process, often **DynamoDB Streams + Lambda** or **DMS CDC + Kinesis**) reads the outbox and publishes downstream. At-least-once delivery + idempotent consumers means events are reliably propagated.
 - Alternative names: **Transactional outbox**, **outbox pattern**, **dual-write avoidance via CDC**.
@@ -10,12 +11,14 @@
 - Pairs with [event-sourcing](event-sourcing.md), [CQRS](cqrs.md), and [saga](saga.md). The outbox is what makes those patterns reliable.
 
 ## When to use it
+
 - Any service that needs to **change local state AND publish an event** atomically.
 - Microservices integrating via events where dropping an event is unacceptable.
 - Sagas / distributed transactions where each step must reliably emit its outcome.
 - Read-model projections where the projection must never miss an upstream change.
 
 ## When NOT to use it
+
 - The event is best-effort / nice-to-have (analytics that can lose 1%).
 - The service has no local DB; it's a stateless transformation.
 - Pure event-sourced systems where the event store *is* the system of record (the events are written first; the state is the projection).
@@ -42,11 +45,14 @@ flowchart LR
 5. Consumers process events with at-least-once + idempotent handlers.
 
 ### The dual-write problem this solves
+
 Without the outbox:
+
 ```python
 update_order(order_id, status="paid")  # write 1
 publish_event(...)  # write 2 — different system
 ```
+
 If write 2 fails (network blip, message bus down) after write 1 commits, the DB says "paid" but no one downstream knows. The reverse scenario (publish succeeds, DB write fails) is symmetric.
 
 With the outbox, both writes are inside **one** DB transaction. Either both happen or neither does. The relay reliably propagates committed events.
@@ -54,6 +60,7 @@ With the outbox, both writes are inside **one** DB transaction. Either both happ
 ## Key concepts
 
 **Outbox table.** Schema typically:
+
 ```sql
 CREATE TABLE outbox (
   id            UUID PRIMARY KEY,
@@ -64,9 +71,11 @@ CREATE TABLE outbox (
   published_at  TIMESTAMPTZ NULL  -- relay marks after publish
 );
 ```
+
 The relay polls / tails for rows where `published_at IS NULL`, publishes, then updates `published_at`.
 
 **Relay implementations:**
+
 - **DynamoDB Streams + Lambda** — the gold standard on AWS. Streams capture changes; Lambda publishes to SNS / EventBridge / Kinesis. No polling, no separate relay process.
 - **CDC tools (Debezium, AWS DMS)** — tail the source DB's transaction log; publish to Kafka / Kinesis. Best for RDBMS sources.
 - **Polling relay** — a separate process polls the outbox table on a schedule. Simplest; adds latency and load on the DB.
@@ -76,6 +85,7 @@ The relay polls / tails for rows where `published_at IS NULL`, publishes, then u
 **Ordering.** With per-aggregate ordering: publish events for the same `aggregate_id` in commit order. SQS FIFO with `MessageGroupId = aggregate_id`, Kafka with `key = aggregate_id`, Kinesis with `partitionKey = aggregate_id`.
 
 **Outbox cleanup.** Published rows shouldn't accumulate forever. Two strategies:
+
 - **Hard delete** after publish + retention window.
 - **Soft delete** + scheduled cleanup.
 
@@ -86,6 +96,7 @@ For DynamoDB, **TTL** can auto-delete old outbox items.
 ## AWS-native implementations
 
 ### DynamoDB Streams + Lambda (recommended)
+
 Use DynamoDB as the app DB; write business state and the outbox event in the **same transaction** (`TransactWriteItems`). Stream captures both; Lambda processes the stream and publishes the event to SNS / EventBridge.
 
 ```python
@@ -99,9 +110,11 @@ dynamodb.transact_write_items(TransactItems=[
 The DynamoDB Stream-driven relay is exactly-once *enough* (Lambda retries on failure; idempotency handles dups).
 
 ### Postgres / MySQL + Debezium / DMS CDC
+
 For RDBMS sources, **DMS** tails the transaction log; downstream sink to Kinesis / MSK / S3 / SNS via Lambda. Debezium (self-managed Kafka Connect) is the open-source path. Both extract changes without polling the app DB.
 
 ### Aurora Zero-ETL → Redshift (specific case)
+
 For analytical projection of operational data, Aurora Zero-ETL replicates changes to Redshift automatically — a managed outbox-like flow where the outbox table is implicit (the full Aurora change log).
 
 ## Common pitfalls
@@ -130,6 +143,7 @@ For analytical projection of operational data, Aurora Zero-ETL replicates change
 - **Outbox events used as the system of record.** They're a change log, not history. If you need full history, consider event sourcing.
 
 ## Further reading
+
 - ["Pattern: Transactional outbox", microservices.io](https://microservices.io/patterns/data/transactional-outbox.html).
 - [Debezium docs](https://debezium.io/) — the canonical CDC implementation, often paired with outbox.
 - ["Reliability, constant work, and a good cup of coffee", Amazon Builders' Library](https://aws.amazon.com/builders-library/reliability-and-constant-work/).

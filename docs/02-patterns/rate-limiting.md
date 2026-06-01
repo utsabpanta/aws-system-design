@@ -3,6 +3,7 @@
 > **One-line summary.** Cap request rate per client / endpoint / resource. Protects downstream from being overwhelmed; protects shared infrastructure from a noisy tenant; protects you from runaway cost.
 
 ## TL;DR
+
 - Three classic algorithms: **token bucket** (most popular), **leaky bucket**, **fixed / sliding window counter**. Each handles burst differently.
 - Apply rate limits at multiple layers: edge (CloudFront / WAF), API gateway (API Gateway throttling), application (in-process), downstream-per-tenant (per-tenant quotas).
 - Distributed rate limiting needs shared state (Redis / DynamoDB / ElastiCache) — local rate limiters across N hosts allow N× the intended rate.
@@ -10,6 +11,7 @@
 - Communicate limits clearly via `429 Too Many Requests` + `Retry-After` + standard rate-limit headers. Silent rate limiting confuses every client.
 
 ## When to use it
+
 - Public APIs serving multiple tenants — prevent one tenant from starving others.
 - Per-user or per-IP abuse mitigation (signup spam, brute-force login, scraping).
 - Cost protection on calls to expensive downstream services (LLMs, third-party APIs).
@@ -17,6 +19,7 @@
 - Protecting downstream databases from spike-load.
 
 ## When NOT to use it
+
 - Internal microservice traffic where you'd rather use **backpressure** (queue + auto-scale) than reject.
 - Workloads where rejection causes worse cascading failures than slowdown.
 - Tiny scale where the limiter's own complexity outweighs the protection.
@@ -24,6 +27,7 @@
 ## How it works
 
 ### Token bucket (the most-used algorithm)
+
 ```mermaid
 flowchart LR
   Req[Request arrives] -->|consume 1 token| Bucket[(Token bucket\ncapacity = burst limit)]
@@ -31,25 +35,30 @@ flowchart LR
   Bucket -->|token available| Allow[Allowed]
   Bucket -->|no token| Reject[429]
 ```
+
 - Bucket has **capacity** (max burst) and **refill rate** (steady state).
 - Each request consumes one token.
 - Empty bucket = reject (or queue with backpressure).
 - Allows sustained-rate + bounded-burst behavior.
 
 ### Leaky bucket
+
 - Requests fill a queue; queue drains at a fixed rate.
 - Constant outflow regardless of input burst.
 - Used for traffic shaping (smooth bursts into a steady stream).
 
 ### Fixed window counter
+
 - Count requests in 1-minute / 1-hour windows; reset at window boundaries.
 - Simple but allows "double burst" at window transition.
 
 ### Sliding window counter
+
 - Hybrid of fixed window + weighted average across boundaries.
 - More accurate, slightly more state.
 
 ### Sliding window log
+
 - Store timestamp of every request; count entries in the last N seconds.
 - Most accurate, most memory.
 
@@ -70,6 +79,7 @@ Layered limiters are normal; each catches what the next layer can't.
 Local rate limiters on N hosts allow N× the configured rate — fine for protecting one instance, not for protecting downstream.
 
 Distributed-state options:
+
 - **Redis / Valkey** with `INCR` + TTL or atomic Lua scripts. Most common.
 - **DynamoDB** with conditional writes (`if attribute_exists`, atomic counters).
 - **Token-bucket on Memcached** with `CAS` operations.
@@ -114,6 +124,7 @@ Trade-off: a shared store adds a network hop per request. For very tight latency
 - **Lambda reserved concurrency as the rate limiter.** Works but blunt — caller sees throttled errors rather than `429`. Add an explicit rate limiter at the API boundary if client UX matters.
 
 ## Further reading
+
 - ["Token bucket" — Wikipedia](https://en.wikipedia.org/wiki/Token_bucket).
 - *Designing Data-Intensive Applications*, Martin Kleppmann (load balancing chapter).
 - [WAF rate-based rules docs](https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-type-rate-based.html).

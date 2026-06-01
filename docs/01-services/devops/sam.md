@@ -3,6 +3,7 @@
 > **One-line summary.** Open-source CloudFormation extension and CLI specifically for serverless apps (Lambda, API Gateway, DynamoDB, EventBridge, Step Functions). Concise YAML + local-test tooling.
 
 ## TL;DR
+
 - **SAM templates** are CloudFormation with a `Transform: AWS::Serverless-2016-10-31` directive — succinct resource shapes for Lambda functions, HTTP/REST APIs, DynamoDB tables, EventBridge rules, Step Functions.
 - **SAM CLI** wraps the build / package / deploy / local-test loop with one command. `sam local invoke` runs Lambda functions in a local Docker container; `sam local start-api` runs API Gateway locally.
 - For **serverless-only** apps, SAM is the most concise IaC option. For broader / mixed workloads, **CDK** is usually a better fit.
@@ -10,12 +11,14 @@
 - **SAM Accelerate** (sync mode) deploys Lambda function code changes in seconds without a full CloudFormation update.
 
 ## When to use it
+
 - Serverless apps where the resource set is Lambda + API Gateway + DynamoDB + EventBridge + a few other primitives.
 - Teams who want concise YAML over CDK's TypeScript / Python.
 - Workloads where local testing of Lambda + API Gateway matters (SAM CLI's `sam local` is the best AWS-native local-test loop).
 - Quick prototypes and hackathon-shaped apps.
 
 ## When NOT to use it
+
 - Non-serverless workloads (large ECS / EKS / EC2 fleets) — SAM is serverless-shaped; CDK or CloudFormation directly is better.
 - Multi-stack / multi-environment deployments with rich orchestration — CDK Pipelines fits better.
 - Teams already standardized on CDK or Terraform — switching adds friction.
@@ -23,7 +26,9 @@
 ## Key concepts
 
 ### Template
+
 A YAML / JSON CloudFormation template with `Transform: AWS::Serverless-2016-10-31`. Uses simplified resource types:
+
 - **AWS::Serverless::Function** — Lambda with built-in defaults for IAM, environment, layers, events.
 - **AWS::Serverless::Api** / **AWS::Serverless::HttpApi** — API Gateway (REST / HTTP).
 - **AWS::Serverless::SimpleTable** — DynamoDB.
@@ -34,6 +39,7 @@ A YAML / JSON CloudFormation template with `Transform: AWS::Serverless-2016-10-3
 Each compiles to one or more CloudFormation resources.
 
 ### SAM CLI
+
 - **`sam init`** — bootstrap a project from a template.
 - **`sam build`** — install dependencies, package Lambda code.
 - **`sam local invoke <FunctionName>`** — invoke a Lambda function locally in Docker.
@@ -45,18 +51,23 @@ Each compiles to one or more CloudFormation resources.
 - **`sam delete`** — tear down.
 
 ### SAM Accelerate (`sam sync`)
+
 Skips full CloudFormation updates for code-only changes. Updates Lambda function code (or other supported resources) directly via service APIs. Seconds vs minutes for the iteration loop.
 
 ### Lambda layers and runtimes
+
 SAM has first-class support for Lambda layers, runtimes (Node, Python, Java, Go, .NET, Ruby, custom runtimes via container images), and architectures (x86_64, ARM64).
 
 ### Events
+
 `Events:` section on a `Function` declares triggers — API Gateway routes, EventBridge rules, S3 buckets, SQS queues, DynamoDB Streams, Kinesis, Schedule, IoT, Cognito, ALB — all expressed as nested mini-templates that SAM expands into the actual CloudFormation.
 
 ### SAM Pipelines
+
 Generated CI/CD templates for SAM apps (`sam pipeline init` creates a CodePipeline / GitHub Actions / GitLab CI / Jenkins / Bitbucket Pipelines starter).
 
 ### Serverless Application Repository (SAR)
+
 Marketplace of reusable SAM apps. Discover and deploy partner / community serverless apps via `AWS::Serverless::Application`.
 
 ## Pricing model
@@ -84,15 +95,18 @@ Marketplace of reusable SAM apps. Discover and deploy partner / community server
 - **No CodePipeline / CI integration.** Manual `sam deploy` from a laptop doesn't audit-trail. Use `sam pipeline init` to bootstrap CI.
 
 ## Pairs well with
+
 - [Lambda](../compute/lambda.md), [API Gateway](../networking/api-gateway.md), [DynamoDB](../database/dynamodb.md), [Step Functions](../integration-messaging/step-functions.md), [EventBridge](../integration-messaging/eventbridge.md) — serverless primitives.
 - [CloudFormation](cloudformation.md), [CDK](cdk.md) — SAM compiles to CloudFormation; coexists with CDK.
 - [CodePipeline](codepipeline.md), GitHub Actions, GitLab CI — CI/CD.
 - **Serverless Framework** — adjacent third-party tool with similar shape.
 
 ## Pairs well with these repo pages
+
 - [CloudFormation](cloudformation.md), [CDK](cdk.md), [Lambda](../compute/lambda.md), [API Gateway](../networking/api-gateway.md), [Step Functions](../integration-messaging/step-functions.md).
 
 ## Further reading
+
 - [AWS SAM documentation](https://docs.aws.amazon.com/serverless-application-model/).
 - [SAM CLI reference](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-using.html).
 - [`sam local`](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local.html).

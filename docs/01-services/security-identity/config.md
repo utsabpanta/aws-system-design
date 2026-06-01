@@ -3,6 +3,7 @@
 > **One-line summary.** Continuously evaluates the configuration of every AWS resource against rules, tracks state changes over time, and (optionally) auto-remediates drift.
 
 ## TL;DR
+
 - Tracks the *configuration history* of every resource in your account — when an S3 bucket policy changed, when a security group rule was added, when a Lambda runtime version was updated.
 - **Config rules** evaluate resources against desired state ("S3 buckets must not be public," "EBS volumes must be encrypted," "RDS must be in private subnets"). Pre-built **AWS-managed rules** cover most baselines; custom rules via Lambda.
 - **Conformance packs** bundle rules + remediations against compliance frameworks (PCI, HIPAA, FedRAMP, CIS, NIST).
@@ -10,18 +11,21 @@
 - The cost is **per-config-item recorded + per-rule evaluation**; a chatty account with many recorded resources can run up real bills. Tune what you record.
 
 ## When to use it
+
 - Any production AWS account or AWS Organization needing compliance posture monitoring.
 - "We must prove our config matched our policy at time T" — Config's history is the answer.
 - Auto-remediation of common drift (re-encrypt EBS, block public S3, enforce SG egress).
 - Audit Manager and Security Hub CSPM consume Config's evaluations.
 
 ## When NOT to use it
+
 - Single tiny account with no compliance need — Trusted Advisor's free checks cover the obvious.
 - Account where you really don't want auditable state history (rare; this is usually a sign of an architectural problem).
 
 ## Key concepts
 
 **Recorder.** The Config component that captures resource state. One per Region per account. Choose what to record:
+
 - **All resources** (broad, expensive at scale).
 - **Specific resource types** (e.g., just S3, EC2, IAM).
 - **Global resources** recorded only in the chosen Region (avoid duplication).
@@ -29,6 +33,7 @@
 **Configuration item (CI).** A snapshot of a resource's state at a point in time. Every change creates a new CI. Stored in S3 (the **delivery channel**) and queryable via Config Aggregator or Advanced Query.
 
 **Config rule.** Evaluates a resource against desired state.
+
 - **AWS-managed rules** — hundreds of pre-built rules (e.g., `s3-bucket-public-write-prohibited`, `rds-storage-encrypted`).
 - **Custom rules** — Lambda function that evaluates the resource config and returns COMPLIANT / NON_COMPLIANT.
 - **Custom policy rules** — Guard DSL-based rules; no Lambda needed.
@@ -73,6 +78,7 @@ The big cost driver is **all-resources recording** in an account with many short
 - **Forgetting Global resources.** Don't record global resources (like IAM) in every Region — duplicate and expensive. Pick one Region.
 
 ## Pairs well with
+
 - **Security Hub CSPM** — Config findings flow in.
 - **Audit Manager** — pulls Config evidence into audit reports.
 - **Systems Manager Automation** — runs remediation actions.
@@ -80,10 +86,12 @@ The big cost driver is **all-resources recording** in an account with many short
 - **EventBridge** — react to compliance events.
 
 ## Pairs well with these repo pages
+
 - [Security Hub CSPM](security-hub.md), [Audit Manager](audit-manager.md), [IAM](iam.md).
 - [Operational Excellence pillar](../../05-well-architected/operational-excellence.md).
 
 ## Further reading
+
 - [AWS Config documentation](https://docs.aws.amazon.com/config/).
 - [AWS-managed Config rules](https://docs.aws.amazon.com/config/latest/developerguide/managed-rules-by-aws-config.html).
 - [Conformance packs](https://docs.aws.amazon.com/config/latest/developerguide/conformance-packs.html).

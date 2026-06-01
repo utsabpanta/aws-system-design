@@ -3,6 +3,7 @@
 > **One-line summary.** AWS compute and storage embedded inside telco 5G networks. Workloads run at the edge of the mobile carrier's network for ultra-low-latency to 5G devices.
 
 ## TL;DR
+
 - 30+ Wavelength Zones globally as of 2026, embedded in major 5G operator networks (Verizon, KDDI, SK Telecom, Vodafone, Bell, etc.).
 - Right for **5G mobile workloads** that need sub-10ms latency to devices on the carrier's network — interactive AR/VR, real-time gaming on mobile, autonomous-vehicle telemetry, live broadcast production, industrial IoT over 5G.
 - Each Wavelength Zone is parented to an AWS Region. Subset of services available locally (EC2, EBS, ECS, EKS, ECR, VPC primitives).
@@ -10,6 +11,7 @@
 - A niche product — most workloads don't have a 5G-mobile-end-user latency requirement; for the workloads that do, nothing else fits.
 
 ## When to use it
+
 - **Real-time mobile gaming** where 5G phones / tablets are the clients.
 - **AR / VR** experiences over 5G with strict latency budgets (sub-20ms total round-trip including device + network + compute).
 - **Autonomous vehicles** or fleet telemetry over 5G needing local processing.
@@ -17,6 +19,7 @@
 - **Industrial IoT** over private 5G with carrier integration.
 
 ## When NOT to use it
+
 - Non-5G workloads — Local Zones serve metro latency without the 5G dependency.
 - Global workloads — Wavelength is operator-and-zone-specific; users on a different carrier don't benefit.
 - Workloads that don't need the carrier-network proximity — regular Regions or Local Zones are cheaper and have broader service availability.
@@ -24,21 +27,27 @@
 ## Key concepts
 
 ### Wavelength Zone
+
 Compute and storage capacity embedded in a telecom carrier's data center. Each Zone:
+
 - Belongs to a specific **carrier** (Verizon in the US, KDDI in Japan, SK Telecom in Korea, Vodafone in Europe, Bell in Canada, etc.).
 - Parents to a specific AWS Region.
 - Identified as `<parent-region>-wl1-<carrier>-<location>` (e.g., `us-east-1-wl1-bos-wlz-1`).
 
 ### Carrier IP
+
 Wavelength instances can have a **carrier IP** — addressable from devices on the carrier's 5G network without traversing the internet. The latency win comes from this routing path.
 
 ### VPC integration
+
 - Wavelength Zones are accessed via Wavelength-specific subnets in a VPC.
 - **Carrier Gateway** routes carrier-IP traffic.
 - **Service link** to the parent Region for management plane and AWS-service access.
 
 ### Supported services
+
 Subset focused on compute and storage:
+
 - **EC2** (specific instance types).
 - **EBS**.
 - **ECS, EKS**.
@@ -48,9 +57,11 @@ Subset focused on compute and storage:
 Other AWS services route to the parent Region.
 
 ### Mobile device → Wavelength data path
+
 5G device → carrier 5G network → Wavelength Zone (compute) → optional path back to parent Region for further processing. The first leg stays on the carrier's network.
 
 ### Enabling
+
 Opt-in per account per Zone, similar to Local Zones.
 
 ## Pricing model
@@ -79,6 +90,7 @@ Wavelength has its own pricing nuances per carrier; check the per-Zone pricing p
 - **Service availability assumptions.** Many AWS services don't run in Wavelength Zones; they route to the parent Region — adds latency for what was supposed to be a low-latency workload.
 
 ## Pairs well with
+
 - [Local Zones](local-zones.md) — alternative for metro latency without 5G dependency.
 - [Outposts](outposts.md) — when on-prem hardware control is the requirement.
 - [VPC](../networking/vpc.md) — extends to Wavelength subnets.
@@ -86,9 +98,11 @@ Wavelength has its own pricing nuances per carrier; check the per-Zone pricing p
 - **AWS IoT Core** — adjacent for IoT-device-to-cloud paths, though not the same shape.
 
 ## Pairs well with these repo pages
+
 - [Local Zones](local-zones.md), [Outposts](outposts.md), [IoT Core](iot-core.md).
 
 ## Further reading
+
 - [AWS Wavelength documentation](https://docs.aws.amazon.com/wavelength/).
 - [Wavelength Zones list](https://aws.amazon.com/wavelength/locations/).
 - [Carrier Gateway and carrier IPs](https://docs.aws.amazon.com/wavelength/latest/developerguide/wavelength-carrier-gateways.html).

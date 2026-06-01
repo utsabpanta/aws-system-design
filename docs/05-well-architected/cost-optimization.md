@@ -3,6 +3,7 @@
 > **One-line summary.** Run the system at the lowest sustained price point that meets the other four pillars — and keep watching, because the bill grows on its own.
 
 ## TL;DR
+
 - You can't optimize what you can't attribute. Tag every resource with `Owner`, `Service`, `Env` on day one.
 - Three line items account for most surprise bills: idle compute, NAT Gateway egress, and inter-AZ data transfer. Audit them first.
 - Commit-based discounts (Savings Plans / Reserved Instances) are 30–70% off on-demand for predictable baseline load. The math takes 10 minutes; the savings are real.
@@ -26,12 +27,14 @@ The defining property of cloud spend: it grows on its own. Yesterday's launched 
 ## Key practices
 
 ### Visibility
+
 - **Tagging from day one.** Cost-allocation tags (`Owner`, `Service`, `Env`, `CostCenter`) on every resource. Enforce via Tag Policies in AWS Organizations.
 - **Cost Explorer + Cost and Usage Reports (CUR).** CUR is the raw data (delivered to S3, queryable in Athena). Cost Explorer is the dashboard most teams live in.
 - **AWS Budgets** for forecasted spend, **Cost Anomaly Detection** for unexpected spikes. Both should be wired before anything ships to production.
 - **Per-account separation.** Production, staging, sandbox in separate accounts. Cost-by-account is the lowest-effort, highest-fidelity cost view.
 
 ### Compute
+
 - **Right-sizing.** Compute Optimizer surfaces over-provisioned EC2, RDS, Lambda. Most workloads use 30–50% of provisioned capacity; that's pure overspend.
 - **Savings Plans / Reserved Instances.**
   - **Compute Savings Plans** — most flexible, ~66% off, apply across EC2, Fargate, Lambda regardless of family/Region.
@@ -43,12 +46,14 @@ The defining property of cloud spend: it grows on its own. Yesterday's launched 
 - **Graviton.** ~20% better price/performance vs x86. Free money if your workload rebuilds for ARM.
 
 ### Storage
+
 - **S3 storage classes.** Lifecycle objects from Standard → Standard-IA (30+ days) → Glacier Instant Retrieval (90+ days) → Glacier Deep Archive (180+ days). Or use **Intelligent-Tiering** to let S3 handle it automatically.
 - **EBS gp3 over gp2.** Cheaper *and* faster. Migration is a one-command change.
 - **Delete what you don't need.** Old snapshots, unattached volumes, abandoned dev resources. Trusted Advisor has free checks for the obvious cases.
 - **S3 Storage Lens** for organization-wide S3 visibility. The big offenders are usually old logs, dev backups, and orphaned multipart uploads.
 
 ### Data transfer
+
 - The most common bill surprises:
   - **NAT Gateway** charges per hour ($30+/month/AZ) and per GB processed. Audit egress patterns; use VPC Endpoints for AWS services to bypass NAT.
   - **Inter-AZ traffic** — every cross-AZ packet has a per-GB charge in both directions. Microservices chatter across AZs can add up surprisingly fast. Co-locate chatty services or use Local Zone topology if it matters.
@@ -57,6 +62,7 @@ The defining property of cloud spend: it grows on its own. Yesterday's launched 
 - **VPC Endpoints** (Gateway for S3/DynamoDB are free; Interface endpoints have a per-hour + per-GB cost that's still usually cheaper than NAT egress).
 
 ### Databases
+
 - **Right-size and right-engine.** A `db.r6g.xlarge` running at 10% CPU is overspend. Aurora Serverless v2 scales capacity per ACU (Aurora Capacity Unit) and is ideal for spiky workloads.
 - **Reserved Capacity** for predictable databases (RDS, DynamoDB, OpenSearch). DynamoDB provisioned-with-auto-scaling-and-RIs is much cheaper than on-demand for steady traffic.
 - **Read replicas vs caching.** A read replica costs as much as a primary; a Redis cache that handles 90% of reads is typically much cheaper.
@@ -64,6 +70,7 @@ The defining property of cloud spend: it grows on its own. Yesterday's launched 
 - **Aurora I/O-optimized** if you have very I/O-heavy workloads (large analytical scans, high-write OLTP) — flat per-instance pricing instead of per-I/O.
 
 ### Serverless
+
 - **Lambda is cheap, until it's not.** Sub-millisecond compute is amazing; 10-second functions hammered at high RPS are surprisingly expensive. Compare to Fargate or EC2 above ~1M invocations/day on long-running functions.
 - **Lambda right-sizing.** Memory and CPU are coupled — sometimes 2× memory makes the function 3× faster and net-cheaper. Use the AWS Lambda Power Tuning tool.
 - **API Gateway HTTP APIs** vs REST APIs. HTTP APIs are ~70% cheaper and faster; use REST only when you need the features it has that HTTP API doesn't (per-method WAF, request transformations, API keys/usage plans).
@@ -92,12 +99,14 @@ The defining property of cloud spend: it grows on its own. Yesterday's launched 
 - **Orphaned resources.** Unattached EBS volumes, old snapshots, idle load balancers, abandoned NAT Gateways. Trusted Advisor surfaces these for free.
 
 ## Pairs well with
+
 - [Performance Efficiency](performance-efficiency.md) — same tools, often the same optimizations.
 - [Operational Excellence](operational-excellence.md) — cost dashboards live alongside performance dashboards in the operations function.
 - [Sustainability](sustainability.md) — efficient compute is also greener compute.
 - `docs/04-reference-architectures/cost-optimization-patterns.md`.
 
 ## Further reading
+
 - AWS Well-Architected Framework — Cost Optimization pillar whitepaper.
 - [FinOps Framework](https://www.finops.org/) (FinOps Foundation).
 - *Cloud FinOps* (J.R. Storment, Mike Fuller).

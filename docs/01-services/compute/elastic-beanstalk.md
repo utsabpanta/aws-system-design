@@ -3,6 +3,7 @@
 > **One-line summary.** AWS's classic PaaS — give it your app code and a platform (Python, Node, Java, Go, .NET, PHP, Ruby, Docker), it provisions EC2, ALB, ASG, RDS, and runs the deploy.
 
 ## TL;DR
+
 - The original "git push, AWS handles the rest" service on AWS, launched 2011. Still actively maintained — AWS continues to ship new platform versions in 2026.
 - It's a thin layer over EC2 + Auto Scaling Group + ALB + (optional) RDS. You can drop down to the underlying resources at any time.
 - The model fits a single-app team well; less idiomatic for microservices or containerized fleets, where ECS/EKS won.
@@ -10,12 +11,14 @@
 - For new projects in 2026, consider **ECS Express Mode** (containerized, simpler) or **App Runner** (closing to new customers — see below) before defaulting to EB.
 
 ## When to use it
+
 - Single-application teams who want a deploy story without operating ECS/EKS.
 - Lift-and-shifting an existing app (Rails, Spring Boot, Django, Express, ASP.NET) onto AWS quickly.
 - You want AWS to manage capacity, health checks, rolling deploys, and basic blue/green without writing CloudFormation yourself.
 - Workloads where the EB platform list (Python, Node, Java, Go, .NET, PHP, Ruby, Docker, multi-container Docker on ECS) covers your runtime needs.
 
 ## When NOT to use it
+
 - Microservices / container fleets — ECS or EKS gives you proper service-to-service primitives.
 - You need fine-grained control over the underlying CloudFormation / IaC. EB's nested stacks are awkward to extend and easy to get wrong.
 - Modern container workflows where you'd rather think in terms of images and task definitions than "platform branches."
@@ -32,6 +35,7 @@ The lifecycle nuance worth knowing: **platform branches** (e.g., "Python 3.11 ru
 **Application** — the top-level container in EB. Has a name and zero or more environments.
 
 **Environment** — a running deployment (`my-app-prod`, `my-app-staging`). Comes in two configurations:
+
 - **Web server environment** — ALB / NLB in front, EC2 instances behind, optional RDS.
 - **Worker environment** — SQS-backed background workers. EB polls SQS and posts messages to a local HTTP endpoint on each instance.
 
@@ -74,6 +78,7 @@ EB is one of the few PaaS-style products with no PaaS markup — the abstraction
 - **Single-instance environments in production.** That's the default for the smallest tier — no ALB, no failover. Fine for dev, dangerous in prod.
 
 ## Pairs well with
+
 - **RDS** (created separately) — managed database tier.
 - **CloudWatch Logs** — stream EC2 logs out of the environment.
 - **Route 53** — friendly DNS in front of the EB-provided URL.
@@ -81,11 +86,13 @@ EB is one of the few PaaS-style products with no PaaS markup — the abstraction
 - **CodePipeline** — wire up CI/CD that deploys to EB environments.
 
 ## Pairs well with these repo pages
+
 - [EC2](ec2.md) — what's underneath.
 - [ECS](ecs.md) — the modern containerized alternative.
 - [App Runner](app-runner.md) — adjacent PaaS-style option (closing to new customers).
 
 ## Further reading
+
 - [AWS Elastic Beanstalk documentation](https://docs.aws.amazon.com/elasticbeanstalk/).
 - [Elastic Beanstalk platform support policy](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/platforms-support-policy.html).
 - [Elastic Beanstalk platform release schedule](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/platforms-schedule.html).

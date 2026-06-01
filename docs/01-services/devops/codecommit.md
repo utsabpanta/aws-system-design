@@ -9,6 +9,7 @@
 > Between July 25, 2024 and November 24, 2025, only existing customers could create new repositories. That period is over — the service is fully back.
 
 ## TL;DR
+
 - Managed private Git on AWS. IAM-controlled access, SSH or HTTPS, no infrastructure to operate.
 - After a 16-month closure to new customers (June 2024 – November 2025), CodeCommit is back to GA with new investment.
 - Reasonable choice when you want Git inside AWS without GitHub / GitLab / Bitbucket and you prefer to keep code, IAM, KMS, and CI all in one cloud.
@@ -16,11 +17,13 @@
 - Standard Git semantics — `git clone`, `git push`, branch protection (via IAM policies), pull requests via the AWS console.
 
 ## When to use it
+
 - Teams that want a single-cloud setup with AWS-controlled source code, IAM-aligned access, and KMS encryption.
 - Regulated workloads where keeping source on AWS infrastructure is required.
 - Workloads with tight integration to other AWS services (CodeBuild, CodePipeline, CodeArtifact, CodeGuru) where the AWS-native source store is convenient.
 
 ## When NOT to use it
+
 - Teams already deeply invested in GitHub / GitLab / Bitbucket ecosystems (PR workflows, marketplace integrations, community).
 - Workloads where open-source collaboration matters — public GitHub is the de facto standard.
 - Teams using GitHub Copilot / GitHub Actions / GitHub Advanced Security where reproducing the experience on CodeCommit isn't feasible.
@@ -30,6 +33,7 @@
 **Repository.** Standard Git repo. Created per AWS account, in a specific Region.
 
 **Access:**
+
 - **HTTPS** with Git credentials generated for an IAM user (legacy pattern).
 - **HTTPS-GRC** (git-remote-codecommit) — STS-based authentication, recommended for federated identities / SSO users.
 - **SSH** with public-key auth on an IAM user (legacy).
@@ -40,6 +44,7 @@ For modern setups with **IAM Identity Center** federation, HTTPS-GRC is the righ
 **Branches and PRs.** Standard Git branches; AWS console (and SDK / CLI) supports pull requests with approval rules, approval rule templates, and approval requirements.
 
 **Triggers.**
+
 - **CloudWatch / EventBridge events** on repo activity (push, PR creation, comment).
 - **SNS notifications** on events.
 - **CodePipeline** can use CodeCommit as a source.
@@ -81,6 +86,7 @@ Genuinely cheap for most teams. The 5-user free tier is generous for small teams
 - **Forgetting that public-facing collaboration is awkward.** CodeCommit isn't designed for external contributors; for open-source / community, GitHub is the right tool.
 
 ## Pairs well with
+
 - [CodeBuild](codebuild.md), [CodePipeline](codepipeline.md), [CodeDeploy](codedeploy.md) — native source for AWS CI/CD.
 - [IAM Identity Center](../security-identity/iam-identity-center.md) — federated access with HTTPS-GRC.
 - [KMS](../security-identity/kms.md) — encryption at rest with customer-managed keys.
@@ -88,9 +94,11 @@ Genuinely cheap for most teams. The 5-user free tier is generous for small teams
 - [Q Developer](../ml-ai/q.md) — code review via Q Developer agent on the repo.
 
 ## Pairs well with these repo pages
+
 - [CodePipeline](codepipeline.md), [CodeBuild](codebuild.md), [CodeDeploy](codedeploy.md), [CodeArtifact](codeartifact.md).
 
 ## Further reading
+
 - [AWS CodeCommit documentation](https://docs.aws.amazon.com/codecommit/).
 - [The Future of AWS CodeCommit (return to GA)](https://aws.amazon.com/blogs/devops/aws-codecommit-returns-to-general-availability/).
 - [HTTPS-GRC (git-remote-codecommit)](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-git-remote-codecommit.html).

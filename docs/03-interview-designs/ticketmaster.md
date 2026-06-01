@@ -3,6 +3,7 @@
 > **One-line summary.** Sell tickets to events with a fixed seat inventory under massive concurrent demand. Hard real consistency requirement (don't oversell), brutal traffic spikes (Taylor Swift on-sale), seat-reservation state machines, anti-bot defenses, and queue-based fairness.
 
 ## TL;DR
+
 - The defining problem is **don't oversell** — strong consistency on seat inventory under thousands of concurrent buyers, while keeping per-request latency reasonable.
 - Two-phase reservation: **soft hold** (5-15 min, user is in checkout) → **payment** → **confirmed**. Soft holds prevent two users from buying the same seat simultaneously.
 - **Virtual waiting room** for high-demand on-sales — a separate queue gates entry to checkout; users see "you are #4,521 in line."
@@ -11,6 +12,7 @@
 - The hardest parts: **inventory consistency under contention** (10K users all clicking "buy seat A12" at once), **virtual queue fairness**, **payment integration** (Stripe, etc.), and **graceful degradation** on the worst spikes.
 
 ## Functional Requirements
+
 - Browse events (search by city, date, artist).
 - View an event's seat map (which seats available).
 - Reserve seats (5-15 min hold).
@@ -20,12 +22,14 @@
 - Resale marketplace (out of scope for v1).
 
 ## Non-Functional Requirements
+
 - **Consistency**: every seat sold exactly once. No oversell. Ever.
 - **Latency**: seat-map load p99 < 500 ms; reservation submit p99 < 1 sec; checkout flow can be slower (3-5 sec acceptable).
 - **Throughput**: 1M users hitting the on-sale at once for a hot event; sustained 10K transactions/sec.
 - **Availability**: 99.99% — but the on-sale window is the only thing that matters; outages during it are catastrophic.
 
 ## Capacity Estimates
+
 - **Hot event on-sale**: 1M concurrent users; 100K reservation attempts in the first minute; 50K confirmed sales.
 - **Steady state**: 10K transactions/sec across all events.
 - **Event catalog**: 100K active events × ~10K seats avg = ~1B seat rows.
@@ -124,9 +128,11 @@ GET /v1/waiting-room/:event_id
 ## Deep Dives
 
 ### 1. Inventory consistency (the defining problem)
+
 Two users click "buy seat A12" at the same millisecond. Only one wins.
 
 **Conditional write** to DynamoDB:
+
 ```python
 ddb.update_item(
     Key={'event_id': event_id, 'seat_id': 'A12'},
@@ -146,9 +152,11 @@ DynamoDB serializes per-item operations; this is atomic and consistent.
 For **multiple seats in one request** (`["A12", "A13"]`), use `TransactWriteItems` — all-or-nothing. If any seat is already taken, the whole transaction fails; client picks again.
 
 ### 2. Soft holds and expiry
+
 A user clicks "reserve" → seat is on_hold for 10 minutes while they enter payment. If they don't complete: release.
 
 Two release mechanisms:
+
 - **TTL on the `reservations` table** (DynamoDB TTL) — passive cleanup; up to 48 hours late.
 - **Active sweeper** — Lambda runs every minute, finds expired holds, resets seats to `available` via conditional write.
 
@@ -157,9 +165,11 @@ The active sweeper is essential for popular events — TTL is too lazy.
 Step Functions wait state could also drive expiry: state machine sleeps 10 min, then issues the release if not confirmed.
 
 ### 3. Virtual waiting room
+
 For a Taylor Swift on-sale, letting 1M users hit the reservation API simultaneously would crater the system.
 
 **Virtual waiting room** intercepts users before the API:
+
 1. User loads event page; instead of seat map, gets "you're in line."
 2. ElastiCache **sorted set** per event: `ZADD waiting:event_42 <timestamp> <user_id>`.
 3. Position = `ZRANK user_id`.
@@ -170,7 +180,9 @@ For a Taylor Swift on-sale, letting 1M users hit the reservation API simultaneou
 This bounds the reservation API's traffic to what it can handle; users see fair queueing.
 
 ### 4. Anti-bot
+
 Bots are the largest attack surface. Layers:
+
 - **WAF rate-based rules** at CloudFront.
 - **CAPTCHA challenges** before joining the waiting room (Cloudflare Turnstile, hCAPTCHA, native CloudFront-fronted challenge).
 - **Device fingerprinting** (browser features, behavior patterns) — flag suspicious clients.
@@ -181,7 +193,9 @@ Bots are the largest attack surface. Layers:
 This is constantly evolving — bot operators evolve too.
 
 ### 5. Payment flow
+
 Reservation → payment is the riskiest moment. Step Functions state machine:
+
 ```
 hold_created (10 min TTL)
   -> user_initiates_payment
@@ -196,18 +210,23 @@ Payment is async — the gateway may webhook back with confirmation. Step Functi
 Idempotency on payment: each payment attempt has a key; retries don't double-charge.
 
 ### 6. Seat map UI
+
 Showing 10K seats with real-time status is heavy. Solutions:
+
 - **Periodic snapshot** of seat status to S3 (every 5 sec) for browse-mode.
 - **WebSocket** for live updates during user interaction (status of seats they're considering).
 - **Optimistic UI** — user clicks a seat; UI shows "reserving..." → server confirms or rejects.
 
 ### 7. Graceful degradation
+
 For the worst on-sales (1M+ concurrent), some degradation is unavoidable:
+
 - **Reduce seat-map resolution** — show "section X has Y seats available" instead of per-seat map.
 - **Disable certain features** (re-selecting, browsing other events) during peak.
 - **Static error page** at WAF that explains the wait — better than timeouts.
 
 ## AWS Services Used
+
 - **CloudFront** — global edge.
 - **WAF + Shield Advanced** — bot and DDoS protection.
 - **API Gateway** — public endpoints.
@@ -222,15 +241,18 @@ For the worst on-sales (1M+ concurrent), some degradation is unavoidable:
 - **CloudWatch** — operational metrics + alarms for the on-sale.
 
 ## Cost Notes
+
 - **DynamoDB on-demand** during on-sales is the major cost — millions of conditional writes in minutes.
 - **WAF + Shield Advanced** are flat monthly fees (Shield Advanced ~$3K/month) — worth it for the on-sale protection.
 - **ElastiCache** waiting-room cluster needs headroom for the queue size (1M entries × ~200 bytes = 200 MB — small).
 
 Levers:
+
 - **Reserved capacity** isn't applicable to on-demand spike loads; use on-demand and accept the cost.
 - **Most events are not Taylor Swift** — typical events are cheap; reserved capacity for the steady load + on-demand for spikes.
 
 ## Failure Modes & DR
+
 - **DynamoDB throttle on hot event**: per-event-id partition can be a hotspot. Mitigation: pre-split the event into sub-event-ids (`event_42:section_A`, `event_42:section_B`) so different sections are different partitions.
 - **Payment gateway down**: Step Functions retries; holds extended; users notified.
 - **Region failure during on-sale**: catastrophic; multi-Region active-active for the hottest events (rare).
@@ -238,12 +260,14 @@ Levers:
 - **Cascading degradation under extreme load**: explicit degradation modes (described above) prevent total outage.
 
 ## Trade-offs & Alternatives
+
 - **Strong consistency vs eventual**: strong is non-negotiable for inventory. Eventual is OK for ancillary data (reviews, recommendations).
 - **DynamoDB vs relational**: DynamoDB conditional writes give consistency at scale without locking; relational (Postgres with `SELECT ... FOR UPDATE`) works for smaller scale but locks badly at high concurrency.
 - **Virtual queue vs let the system burn**: virtual queue is the only humane answer at high demand.
 - **Bots are an arms race**: combine CloudFront + WAF + CAPTCHA + behavioral; accept that some bots get through.
 
 ## Further Reading
+
 - ["Designing Ticketmaster", System Design Primer-style writeups](https://github.com/donnemartin/system-design-primer).
 - [Queue-It (virtual waiting room SaaS)](https://queue-it.com/) — productized version of this pattern.
 - [DynamoDB transactions](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/transaction-apis.html).

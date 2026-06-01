@@ -3,6 +3,7 @@
 > **One-line summary.** The vocabulary you need to read every other page in this repo without bouncing off.
 
 ## TL;DR
+
 - Latency is *time per request*; throughput is *requests per unit time*. They trade off against each other.
 - Availability and durability both come in "nines" but mean different things — availability is "is it up," durability is "did we lose your data."
 - The CAP theorem forces a choice between consistency and availability during a network partition; PACELC tells you the latency-vs-consistency choice when there *isn't* a partition.
@@ -16,6 +17,7 @@
 **Throughput** is how many requests per second (RPS) you can serve. Throughput and latency are linked by **Little's Law**: `concurrent requests = throughput × latency`. If your service handles 100 RPS at 200 ms p99, you have ~20 in-flight requests at any moment — so you need at least 20 worker threads or async slots to sustain it.
 
 You can almost always trade one for the other:
+
 - Batching increases throughput at the cost of per-request latency.
 - Sharding decreases per-shard latency at the cost of operational complexity.
 - Adding a queue smooths bursts but adds a hop.
@@ -56,6 +58,7 @@ Almost every modern AWS-native design is horizontal. Vertical scaling is reasona
 A cache is a *lookaside* (your code checks the cache, then the database) or *read-through/write-through* (the cache sits in front of the database). Either way, the contract is the same: trade strict consistency for latency and load reduction.
 
 The three eternal questions:
+
 1. **When do you populate it?** Lazy (on miss) is simplest; warm-loading or write-through is faster but adds coupling.
 2. **When do you invalidate it?** TTL is the only invalidation strategy that's actually simple. Event-driven invalidation is correct but easy to get wrong; if you delete-on-write you'd better make sure the delete actually wins races against in-flight reads.
 3. **What do you do on a miss-storm?** When the cache is cold (after a deploy, after an eviction), the database eats all the load at once. Mitigations: request coalescing (only one request per key goes to the DB), staggered TTLs (jitter), and warming during deploy.
@@ -106,6 +109,7 @@ In an AWS context that usually means: SQS or Kinesis sits between two services, 
 If you can't safely retry, you can't build a reliable distributed system. Idempotency = "doing it twice has the same effect as doing it once."
 
 Common implementations:
+
 - **Idempotency key** — client generates a unique ID per logical operation; server stores `(key, result)` and replays the stored result on duplicate. Stripe-style.
 - **Conditional writes** — `if-not-exists` puts, `expected-version` updates. DynamoDB conditional expressions, S3 object versioning + If-Match.
 - **At-least-once + dedup** — queue delivers more than once on purpose; consumer tracks processed message IDs in a TTL'd store.
@@ -117,6 +121,7 @@ Every payment, every state transition, every webhook handler should be idempoten
 The estimate isn't the point. The dimensions are.
 
 A reasonable interview-style template:
+
 1. **DAU** → **QPS** (`DAU × actions_per_day / 86400`, then multiply by 5–10 for peak).
 2. **Storage per record** × records per day × retention → total bytes.
 3. **Bandwidth** = QPS × payload size, in *and* out.
@@ -129,6 +134,7 @@ The estimate's job is to tell you which scaling story you're committing to in th
 ## Failure modes to think about explicitly
 
 For every system, ask:
+
 - **What does the failure of one instance look like?** (Should be invisible — that's why you have a load balancer.)
 - **What does the failure of one AZ look like?** (Should degrade gracefully — that's why you run multi-AZ.)
 - **What does the failure of one Region look like?** (Most systems silently say "we go down" — say it explicitly, then decide if that's OK.)
@@ -139,6 +145,7 @@ For every system, ask:
 If a page in this repo doesn't address those questions for the system it describes, it's incomplete.
 
 ## Further reading
+
 - [AWS mental model](aws-mental-model.md) — Regions, AZs, edge, IAM, the geography under everything.
 - *Designing Data-Intensive Applications*, Martin Kleppmann — the canonical reference for replication, consistency, and partitioning.
 - *Site Reliability Engineering*, Google — the SLO/SLI/SLA vocabulary.

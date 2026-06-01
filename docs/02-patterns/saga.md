@@ -3,6 +3,7 @@
 > **One-line summary.** Implement long-running, multi-step business transactions as a sequence of local transactions with compensating actions for rollback. The distributed-systems answer to "we can't do 2PC."
 
 ## TL;DR
+
 - A saga is a sequence of **local transactions**, each of which emits an event triggering the next. If any step fails, **compensating transactions** undo the prior steps.
 - Two flavors: **orchestration** (a central coordinator drives the flow; easy to reason about) and **choreography** (each service reacts to events; loose coupling, harder to debug).
 - AWS-native orchestration: **Step Functions** — first-class for sagas, with built-in retries, error handling, and parallel branches. Choreography: **EventBridge** / **SNS** + per-service event handlers.
@@ -10,12 +11,14 @@
 - Pairs with [idempotency](idempotency.md), [outbox](outbox.md), and [event-sourcing](event-sourcing.md). Without idempotent steps and reliable event publishing, sagas are unreliable.
 
 ## When to use it
+
 - Multi-service business transactions (place order: charge card + reserve inventory + ship + email).
 - Workflows that can't (or shouldn't) live in one DB transaction.
 - Long-running processes with manual approval steps.
 - Distributed transactions where 2PC isn't an option.
 
 ## When NOT to use it
+
 - Single-service transactions — use the DB transaction directly.
 - Pure async fanout without coordination — use [pub-sub](pub-sub.md).
 - Workflows where compensation is impossible (sending a notification you can't unsend — though even there, send-an-apology is a kind of compensation).
@@ -24,6 +27,7 @@
 ## How it works
 
 ### Orchestration (recommended starting point)
+
 ```mermaid
 sequenceDiagram
   participant O as Orchestrator<br/>(Step Functions)
@@ -44,6 +48,7 @@ sequenceDiagram
 A central state machine drives the flow. Each step is a service call; on failure, the orchestrator invokes the compensating steps in reverse order. Easier to debug, single place to change the flow.
 
 ### Choreography
+
 ```mermaid
 flowchart LR
   P[Payment service] -->|PaymentCompleted| Bus((Event Bus))
@@ -62,6 +67,7 @@ No central coordinator. Each service publishes events; downstream services react
 **Local transaction.** Each saga step is an ACID transaction in *one* service's DB. Atomic locally; not atomic across the saga.
 
 **Compensating transaction.** A semantic undo for the step. Not a rollback (the local transaction committed). Examples:
+
 - `ChargeCard` → `RefundCharge`.
 - `ReserveStock` → `ReleaseReservation`.
 - `CreateShipment` → `CancelShipment`.
@@ -80,6 +86,7 @@ No central coordinator. Each service publishes events; downstream services react
 ## AWS-native implementations
 
 ### Step Functions (orchestration — recommended)
+
 - **State machine** defines the saga: a sequence of `Task` states (each calling a service / Lambda / SDK action).
 - **`Catch`** clauses route to compensating branches on error.
 - **Retry policies** for transient failures (don't compensate on a network blip).
@@ -87,6 +94,7 @@ No central coordinator. Each service publishes events; downstream services react
 - Built-in service integrations (200+ AWS SDK actions) mean steps often don't need a Lambda wrapper.
 
 Example shape (high level):
+
 ```
 Start → ChargeCard → ReserveStock → CreateShipment → Succeed
          catch        catch          catch
@@ -95,11 +103,13 @@ Start → ChargeCard → ReserveStock → CreateShipment → Succeed
 ```
 
 ### EventBridge + per-service Lambda (choreography)
+
 - Each service subscribes to relevant events; emits its own.
 - Compensation events flow the same way.
 - Use **correlation IDs** in every event for tracing.
 
 ### Hybrid
+
 Orchestration for the main flow + EventBridge for cross-domain integration events. Most production sagas are some hybrid.
 
 ## Common pitfalls
@@ -128,6 +138,7 @@ Orchestration for the main flow + EventBridge for cross-domain integration event
 - **Treating compensation as optional.** It's not. Every step needs a compensation defined up-front, or you have to declare the step a pivot point.
 
 ## Further reading
+
 - ["Pattern: Saga", microservices.io](https://microservices.io/patterns/data/saga.html).
 - *Microservices Patterns*, Chris Richardson — full chapter on sagas.
 - [Saga pattern in Step Functions (AWS workshop)](https://docs.aws.amazon.com/step-functions/latest/dg/sample-project-saga.html).

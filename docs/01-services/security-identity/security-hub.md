@@ -3,6 +3,7 @@
 > **One-line summary.** AWS's central security findings aggregator and Cloud Security Posture Management (CSPM) service. Consolidates findings from GuardDuty, Inspector, Macie, Config, IAM Access Analyzer, Firewall Manager, and partner tools, and scores your org against standards (AWS Foundational Security Best Practices, CIS, PCI, NIST).
 
 ## TL;DR
+
 - One pane of glass for security findings across AWS services and integrated third-party tools, with normalized **AWS Security Finding Format (ASFF)** and OCSF support.
 - Continuously evaluates resources against **security standards** (AWS Foundational Security Best Practices is the right baseline; CIS, PCI DSS, NIST 800-53 also available).
 - **Automation Rules** auto-update or suppress findings in near-real-time based on criteria. **EventBridge** routing for custom workflows (auto-remediation, ticketing, paging).
@@ -10,18 +11,21 @@
 - Multi-account aggregation via delegated admin; findings from all member accounts roll up to a security account.
 
 ## When to use it
+
 - Any AWS Organization with multiple accounts and security services running — Security Hub is the right aggregation layer.
 - Compliance reporting against standards (AFSBP, CIS, PCI, NIST).
 - Driving auto-remediation workflows from security findings.
 - Cross-account / cross-Region finding triage in a SOC or security operations function.
 
 ## When NOT to use it
+
 - Single-account, tiny footprint — direct GuardDuty / Inspector consoles may suffice.
 - Workloads where you've fully standardized on a third-party CSPM (Wiz, Orca, Prisma, Lacework) — running both is duplicative.
 
 ## Key concepts
 
 **Standards.** Pre-built control sets evaluated continuously against your resources:
+
 - **AWS Foundational Security Best Practices (AFSBP)** — the right baseline.
 - **CIS AWS Foundations Benchmark v1.x / v3.x.**
 - **PCI DSS.**
@@ -33,6 +37,7 @@ Each control has a compliance status (Passed / Failed / Unknown / Not Applicable
 **Findings.** Normalized to **AWS Security Finding Format (ASFF)** — JSON with severity, resource, account, Region, type, recommendation. Optional **Open Cybersecurity Schema Framework (OCSF)** format for cross-vendor compatibility.
 
 **Finding providers.**
+
 - **AWS-native:** GuardDuty, Inspector, Macie, IAM Access Analyzer, Config, Firewall Manager, Health, Audit Manager, Systems Manager Patch Manager, Detective.
 - **Partner integrations:** dozens of third-party security products send findings to Security Hub via the ASFF API.
 - **Custom:** your own scanner can post findings to Security Hub.
@@ -74,16 +79,19 @@ The bulk of typical cost is the AWS-native services that produce the findings (G
 - **No SIEM forwarding.** Many SOCs operate from a SIEM, not directly from Security Hub. Use the EventBridge → SIEM integration or the new CloudWatch Logs delivery + a Logs subscription.
 
 ## Pairs well with
+
 - [GuardDuty](guardduty.md), [Inspector](inspector.md), [Macie](macie.md), [Detective](detective.md), [Config](config.md), [Audit Manager](audit-manager.md), **IAM Access Analyzer**, **Firewall Manager** — primary AWS finding sources.
 - **EventBridge + Lambda / Step Functions** — auto-remediation.
 - **CloudWatch Logs** — finding delivery for retention / SIEM forwarding.
 - **SIEM / SOAR** (Splunk, Datadog Security, Wiz, Orca, etc.) — bidirectional integration.
 
 ## Pairs well with these repo pages
+
 - [GuardDuty](guardduty.md), [Inspector](inspector.md), [Macie](macie.md), [Detective](detective.md), [Config](config.md), [Audit Manager](audit-manager.md).
 - [Security pillar](../../05-well-architected/security.md).
 
 ## Further reading
+
 - [AWS Security Hub CSPM documentation](https://docs.aws.amazon.com/securityhub/).
 - [AWS Foundational Security Best Practices](https://docs.aws.amazon.com/securityhub/latest/userguide/fsbp-standard.html).
 - [Automation rules](https://docs.aws.amazon.com/securityhub/latest/userguide/automation-rules.html).

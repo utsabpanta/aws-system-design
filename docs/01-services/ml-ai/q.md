@@ -3,6 +3,7 @@
 > **One-line summary.** AWS's generative-AI assistant brand — multiple distinct products under the Q umbrella, each tailored to a use case (developer coding, enterprise knowledge, contact-center agent assist, BI, AWS console help).
 
 ## TL;DR
+
 - **Amazon Q** is a *family of products*, not a single service. The shared idea: an LLM-powered assistant grounded in specific data sources for specific roles. The pricing, integration, and surface differ per product.
 - The big five:
   - **Amazon Q Developer** — coding assistant in IDEs, CLI, and as a CI/CD agent.
@@ -24,12 +25,14 @@
 | Custom LLM-powered app in your codebase | [**Bedrock**](bedrock.md) (not Q) |
 
 ## When NOT to use it
+
 - LLM features you'd build into your own product — use **Bedrock** directly; Q is for ready-made AWS-surface assistants.
 - Multi-cloud / multi-vendor LLM strategies — Q is AWS-specific.
 
 ## Key concepts
 
 ### Amazon Q Developer
+
 - **IDE plugins** (VS Code, JetBrains, Visual Studio, etc.) — inline code suggestions, chat, refactoring, test generation.
 - **CLI** — `q chat` / `q translate` for shell tasks.
 - **Agentic coding** — natural-language prompt → multi-file production-ready feature. Generates code, tests, and integration glue.
@@ -40,6 +43,7 @@
 - **Pricing tiers** — Free (limited), Pro (per user/month for unlimited suggestions and advanced features).
 
 ### Amazon Q Business
+
 - **Enterprise chatbot** grounded in your data sources: Slack, Teams, SharePoint, Confluence, Salesforce, ServiceNow, Jira, S3, Box, OneDrive, Google Drive, custom connectors.
 - **Plugins / actions** — let the chatbot take actions in connected systems (create a Jira ticket, query Salesforce).
 - **Apps** — custom mini-applications built on top of your Q Business assistant.
@@ -48,6 +52,7 @@
 - **Q Apps** — turn natural-language prompts into reusable internal mini-apps.
 
 ### Amazon Q in Connect
+
 - Real-time assistant for contact-center agents during voice/chat interactions.
 - **Recommendations** — pulls from connected knowledge sources (S3 docs, Salesforce, ServiceNow, custom) as the conversation unfolds.
 - **Generative responses** — drafts agent reply text grounded in policies / KB.
@@ -55,15 +60,18 @@
 - Replaces the older "Amazon Connect Wisdom" branding.
 
 ### Amazon Q in QuickSight
+
 See [`../analytics/quicksight.md`](../analytics/quicksight.md). Natural-language Q&A on top of QuickSight datasets; generative BI authoring (describe a dashboard in plain language, Q generates a starting point).
 
 ### Amazon Q in AWS Console
+
 - In-console chat for "how do I do X in AWS?"
 - Resource-aware (knows about resources in your account).
 - Helps with troubleshooting, generating CLI / SDK code, explaining errors.
 - Generally free; some advanced operations may have integration limits.
 
 ### Q Developer Agent for code review
+
 Recent feature: an agent that reviews PRs against your codebase, flags issues, and proposes fixes. Often paired with GitHub / GitLab via webhooks.
 
 ## Pricing model (per Q product)
@@ -91,6 +99,7 @@ Recent feature: an agent that reviews PRs against your codebase, flags issues, a
 - **Expecting Q to do anything Bedrock can.** Q is an opinionated wrapper for specific roles. If your use case doesn't fit one of those roles, Bedrock + your own UI is the right path.
 
 ## Pairs well with
+
 - [Bedrock](bedrock.md) — Q products use Bedrock-hosted models under the hood; you'd build a custom alternative on Bedrock if Q doesn't fit.
 - [IAM Identity Center](../security-identity/iam-identity-center.md) — auth for Q Business and others.
 - **Amazon Connect** — host for Q in Connect.
@@ -99,9 +108,11 @@ Recent feature: an agent that reviews PRs against your codebase, flags issues, a
 - **SharePoint / Confluence / Slack / Salesforce / ServiceNow / S3 / Jira / Teams** — Q Business connectors.
 
 ## Pairs well with these repo pages
+
 - [Bedrock](bedrock.md), [QuickSight](../analytics/quicksight.md), [IAM Identity Center](../security-identity/iam-identity-center.md).
 
 ## Further reading
+
 - [Amazon Q documentation hub](https://docs.aws.amazon.com/amazonq/).
 - [Amazon Q Developer](https://aws.amazon.com/q/developer/).
 - [Amazon Q Business](https://aws.amazon.com/q/business/).

@@ -3,6 +3,7 @@
 > **One-line summary.** Zero-trust application access. Users authenticate via your IdP and are evaluated per request against fine-grained policies before reaching corporate apps — no VPN needed.
 
 ## TL;DR
+
 - The modern alternative to **Client VPN** for workforce application access. Per-application access, not per-network.
 - Authenticates via **IAM Identity Center** or any OIDC-compatible IdP (Okta, Entra ID, Google Workspace, etc.). Authorizes per request via **Cedar policies** that evaluate identity claims and device posture.
 - Supports both **HTTP(S) apps** (browser-based) and **TCP apps** (Git over CLI, SSH-style, DB clients — via the **Connectivity Client** desktop helper).
@@ -10,12 +11,14 @@
 - Lower per-user cost than Client VPN at scale; replaces "VPN for everything" with "scoped access to the specific apps each user needs."
 
 ## When to use it
+
 - Workforce remote access to internal web apps (Confluence, Jira, internal dashboards, dev environments).
 - TCP-based dev access (Git over SSH, kubectl, DB clients) without giving everyone full network reachability.
 - Migrating away from VPN-based "network access" toward per-application zero-trust.
 - Environments using IAM Identity Center or a modern IdP that wants to extend SSO to network-private apps.
 
 ## When NOT to use it
+
 - Network-level access required (custom protocols, fat clients that need broad routing) — Client VPN may still fit.
 - External / customer-facing apps — use Cognito + standard auth.
 - Tiny user populations where the operational overhead beats the per-app scoping benefits.
@@ -31,6 +34,7 @@
 **Verified Access group.** A logical bucket of applications that share a policy.
 
 **Verified Access endpoint.** One per protected app. Two types:
+
 - **Load balancer endpoint** — ALB or NLB target.
 - **Network interface endpoint** — direct to an ENI (an EC2 instance running the app).
 - **CIDR endpoint** — TCP endpoint reachable via the Connectivity Client (no public DNS exposure).
@@ -85,6 +89,7 @@ Generally lower than Client VPN at moderate-to-large workforces because of the p
 - **One huge group for everything.** Per-group policy scoping makes per-app policies cleaner. Use groups by sensitivity tier or per app family.
 
 ## Pairs well with
+
 - [IAM Identity Center](iam-identity-center.md) — primary identity source.
 - **Third-party IdPs (Okta, Entra ID, Google Workspace, etc.)** — OIDC-based federation.
 - **Third-party endpoint security tools (Jamf, CrowdStrike, JumpCloud)** — device trust providers.
@@ -92,11 +97,13 @@ Generally lower than Client VPN at moderate-to-large workforces because of the p
 - **CloudWatch Logs / S3** — access log destination.
 
 ## Pairs well with these repo pages
+
 - [Client VPN](../networking/vpn.md) — the older alternative for workforce access.
 - [Verified Permissions](verified-permissions.md) — the sibling service that handles authorization decisions in your own apps.
 - [Cognito](cognito.md) — customer-facing auth (different problem).
 
 ## Further reading
+
 - [AWS Verified Access documentation](https://docs.aws.amazon.com/verified-access/).
 - [Verified Access features](https://aws.amazon.com/verified-access/features/).
 - [Cedar policy language](https://www.cedarpolicy.com/).

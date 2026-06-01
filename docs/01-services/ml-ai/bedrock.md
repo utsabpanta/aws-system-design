@@ -3,6 +3,7 @@
 > **One-line summary.** AWS's managed foundation-model platform. Access Anthropic Claude, Meta Llama, Mistral, Cohere, AI21, Amazon Titan, Amazon Nova, and others through one API; fine-tune, ground on your data via Knowledge Bases, orchestrate as Agents, evaluate, and gate with Guardrails.
 
 ## TL;DR
+
 - The right service for **LLM and foundation-model workloads on AWS**. One API, multiple model providers, no per-vendor SDKs to manage.
 - **Knowledge Bases** is the managed RAG primitive (S3 / Confluence / Salesforce / SharePoint as sources; OpenSearch / Pinecone / Aurora pgvector / Kendra as the retriever). **Agents** orchestrate multi-step tasks with tool use.
 - **Guardrails** enforce content policies (denied topics, PII redaction, prompt-injection filters, harmful-content classifiers) at the API boundary — applies to any model on the platform.
@@ -10,6 +11,7 @@
 - For custom models, fine-tuning is supported on many models; **Provisioned Throughput** reserves capacity for predictable production load.
 
 ## When to use it
+
 - Building LLM-powered features (chat, summarization, classification, code generation, content generation).
 - Retrieval-augmented generation (RAG) over enterprise data using Knowledge Bases.
 - Multi-step agent workflows with tool use (DB query, API call, file operation).
@@ -17,6 +19,7 @@
 - Enforcing content policies / safety controls at the LLM API boundary.
 
 ## When NOT to use it
+
 - Workloads that need a specific open-source model not on Bedrock — host on **SageMaker** (or **SageMaker JumpStart**) directly.
 - Classical ML (regression, classification on tabular data, time-series) — **SageMaker**.
 - Specific AI tasks where AWS has a dedicated API (OCR → Textract, transcription → Transcribe, image labeling → Rekognition) — usually cheaper than running them through an LLM.
@@ -24,7 +27,9 @@
 ## Key concepts
 
 ### Foundation models
+
 Bedrock hosts models from multiple providers:
+
 - **Anthropic Claude** (Claude 3.x / 4.x family) — large reasoning / chat / vision models.
 - **Meta Llama** — open Llama models.
 - **Mistral / Mixtral**.
@@ -36,6 +41,7 @@ Bedrock hosts models from multiple providers:
 Models are versioned; new versions land regularly. Each model has on-demand and (for many) Provisioned Throughput pricing.
 
 ### Invocation modes
+
 - **InvokeModel** / **Converse** — single request/response.
 - **InvokeModelWithResponseStream** / **ConverseStream** — streaming output for chat UX.
 - **Batch inference** — long-running offline scoring of large datasets.
@@ -43,7 +49,9 @@ Models are versioned; new versions land regularly. Each model has on-demand and 
 The **Converse API** is the unified, model-agnostic shape — same code works across Claude, Llama, Mistral, etc.
 
 ### Knowledge Bases
+
 Managed RAG:
+
 - **Data sources** — S3, Confluence, Salesforce, SharePoint, web crawl, custom.
 - **Chunking** — fixed-size, semantic, or hierarchical.
 - **Embeddings** — Titan Embeddings, Cohere Embed, or others.
@@ -51,14 +59,18 @@ Managed RAG:
 - **Retrieve** API returns relevant chunks; **RetrieveAndGenerate** also generates a grounded answer with citations.
 
 ### Agents
+
 Multi-step LLM workflows:
+
 - **Action groups** — Lambda functions the agent can call as tools.
 - **Knowledge Bases** integration — retrieve from RAG sources mid-conversation.
 - **Memory** — preserve context across sessions.
 - **Multi-agent collaboration** — supervisor + sub-agent patterns.
 
 ### Guardrails
+
 Policy enforcement at the API:
+
 - **Denied topics** — block specific topics ("don't discuss competitor X").
 - **Content filters** — harmful content categories (hate, violence, sexual, misconduct).
 - **Word filters** — block specific words / regex.
@@ -69,15 +81,19 @@ Policy enforcement at the API:
 Guardrails apply to any model on Bedrock and to your own models (via ApplyGuardrail).
 
 ### Fine-tuning
+
 Supported for many models — provide a labeled dataset; Bedrock produces a custom model artifact. **Continued Pre-training** is also available for some models (domain adaptation).
 
 ### Model Evaluation
+
 Compare models on your own dataset with automatic metrics, LLM-as-judge evaluation, or human evaluation workflows.
 
 ### Provisioned Throughput
+
 Reserve dedicated capacity (in **Model Units**) for predictable latency and throughput. Hourly billing for the reservation. Required for fine-tuned models in some cases; optional for base models for production SLOs.
 
 ### Bedrock Marketplace
+
 Discover and deploy partner models (Cohere, Mistral premium, others) with managed billing.
 
 ## Pricing model
@@ -112,6 +128,7 @@ The dominant cost on most workloads is **per-token inference** — design for pr
 - **Region availability mismatch.** Specific models are launched per-Region; verify your target Region supports the model before architecting around it.
 
 ## Pairs well with
+
 - [Lambda](../compute/lambda.md) — Action Groups in Agents.
 - [OpenSearch](../analytics/opensearch.md), **Aurora pgvector**, [Neptune Analytics](../database/neptune.md), [Kendra](kendra.md), **Pinecone, MongoDB Atlas** — Knowledge Bases vector stores.
 - [S3](../storage/s3.md), **Confluence / Salesforce / SharePoint connectors** — Knowledge Bases data sources.
@@ -120,10 +137,12 @@ The dominant cost on most workloads is **per-token inference** — design for pr
 - [CloudTrail](../observability/) (forthcoming) — Bedrock API logs.
 
 ## Pairs well with these repo pages
+
 - [SageMaker](sagemaker.md), [Kendra](kendra.md), [OpenSearch](../analytics/opensearch.md), [Neptune](../database/neptune.md).
 - `docs/04-reference-architectures/genai-rag-bedrock.md` (forthcoming).
 
 ## Further reading
+
 - [Amazon Bedrock documentation](https://docs.aws.amazon.com/bedrock/).
 - [Bedrock Knowledge Bases](https://aws.amazon.com/bedrock/knowledge-bases/).
 - [Bedrock Agents](https://aws.amazon.com/bedrock/agents/).

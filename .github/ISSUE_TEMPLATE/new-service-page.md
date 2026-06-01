@@ -15,6 +15,7 @@ labels: ["content", "service-page"]
 <!-- What gap does it close? Which interview design or reference architecture will link to it? -->
 
 ## Status check
+
 - [ ] I verified the service is currently active (not closed to new customers, not deprecated).
 - [ ] If it has a deprecation / rename note, I'll include it at the top of the page.
 

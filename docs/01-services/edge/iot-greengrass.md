@@ -3,6 +3,7 @@
 > **One-line summary.** Edge runtime for IoT devices and gateways. Brings AWS Lambda, container components, ML inference, MQTT brokering, and Stream Manager to the device — works offline, syncs to cloud when connected.
 
 ## TL;DR
+
 - The right service for IoT scenarios where local processing matters (latency, intermittent connectivity, bandwidth cost, regulatory data locality) — not every sensor needs to round-trip to the cloud for every reading.
 - **Greengrass V2** is the current generation (V1 reaches **end of support June 1, 2026**). All new deployments should be V2; existing V1 customers must migrate before EOL.
 - **Components** (the deployment unit): AWS-published (Stream Manager, MQTT broker, ML inference runtimes, Secret Manager, CloudWatch Logs / Metrics, Token Exchange) and your own (Lambda functions, Docker containers, Python / Java / C++ apps).
@@ -10,6 +11,7 @@
 - Pairs natively with **IoT Core** for cloud-side messaging, registry, and OTA jobs.
 
 ## When to use it
+
 - Edge processing of sensor data (filter, aggregate, downsample before sending to cloud).
 - ML inference at the edge (defect detection, predictive maintenance, image classification).
 - Offline-capable IoT — devices keep working through internet outages, sync when reconnected.
@@ -17,6 +19,7 @@
 - Local control loops where cloud round-trip latency is unacceptable (manufacturing, robotics).
 
 ## When NOT to use it
+
 - Devices that only need to send sensor readings to the cloud — IoT Core direct is simpler.
 - Workloads where the edge isn't bandwidth- or latency-constrained — keep processing in the cloud.
 - Very-resource-constrained microcontrollers (Arduino-class) — Greengrass needs Linux. Use **FreeRTOS** or direct MQTT to IoT Core.
@@ -24,14 +27,18 @@
 ## Key concepts
 
 ### Versions
+
 - **Greengrass V2** (current) — component-based deployment model, smaller footprint, fleet-management features.
 - **Greengrass V1** — original; **reaches end of support June 1, 2026**. Migrate.
 
 ### Greengrass core device
+
 A Linux device running the Greengrass nucleus + deployed components. Manages local Lambda functions, container components, ML, MQTT brokering, secrets, logs.
 
 ### Components
+
 The deployment unit. **AWS-public components** include:
+
 - **Nucleus** (the core runtime).
 - **MQTT 5 / 3.1.1 broker** for local devices.
 - **Stream Manager** for sending high-throughput streams to cloud (Kinesis / S3) with buffering and retry.
@@ -45,23 +52,29 @@ The deployment unit. **AWS-public components** include:
 **Custom components** — your own apps as components (Lambda function, generic Docker / process).
 
 ### Deployments
+
 - Deploy to a single core, a thing group, or all cores.
 - Per-deployment rollout strategy with metrics-based abort.
 - Component versions; deployments are immutable.
 
 ### Stream Manager
+
 Reliable, asynchronous data shipping from edge to cloud with local buffering, store-and-forward, batching, and exactly-once-into-Kinesis semantics. The right way to ship telemetry that needs to survive connectivity gaps.
 
 ### Local Lambda functions
+
 Run Lambda functions (Python, Node, Java, C++, Go runtimes) on the core. Triggered by local MQTT, IPC, or timer. Useful for local control loops.
 
 ### IPC and authorization
+
 Components communicate via the Greengrass IPC (a local SDK). Access controlled by an authorization policy on each component.
 
 ### Local secrets
+
 Replicate secrets from AWS Secrets Manager to the core; components access them locally.
 
 ### Recent (2026) features
+
 - **V2.17 (April 2026)** — non-root install, lightweight components (Secure Tunneling lite at 4 MB), PKCS#11 / HSM support for cert storage.
 - **Component SDK in C / C++ / Rust** (April 2026) — sub-MB component footprints for resource-constrained devices.
 - **Nucleus lite** — for even smaller devices.
@@ -92,6 +105,7 @@ Replicate secrets from AWS Secrets Manager to the core; components access them l
 - **Trying to run X86 components on ARM (or vice versa).** Components are arch-specific; verify your build.
 
 ## Pairs well with
+
 - [IoT Core](iot-core.md) — cloud-side broker.
 - **AWS Lambda** — function components running locally on the core.
 - [Kinesis](../analytics/kinesis.md) — Stream Manager destination.
@@ -101,9 +115,11 @@ Replicate secrets from AWS Secrets Manager to the core; components access them l
 - [Snowball Edge](snow-family.md) — can host Greengrass for disconnected scenarios.
 
 ## Pairs well with these repo pages
+
 - [IoT Core](iot-core.md), [Kinesis](../analytics/kinesis.md), [Lambda](../compute/lambda.md).
 
 ## Further reading
+
 - [AWS IoT Greengrass V2 documentation](https://docs.aws.amazon.com/greengrass/v2/developerguide/).
 - [V1 to V2 migration](https://docs.aws.amazon.com/greengrass/v2/developerguide/move-from-v1.html).
 - [Public components](https://docs.aws.amazon.com/greengrass/v2/developerguide/public-components.html).

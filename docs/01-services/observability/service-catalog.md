@@ -3,6 +3,7 @@
 > **One-line summary.** Curated catalog of AWS resources — admins package CloudFormation templates as "products" in "portfolios"; end users provision them as governed, IAM-scoped self-service.
 
 ## TL;DR
+
 - Lets a platform / cloud-center-of-excellence team **publish vetted infrastructure patterns** that developers can self-service-provision without learning CloudFormation or having broad IAM.
 - **Products** wrap a CloudFormation (or Terraform Cloud / Open Source) template; **portfolios** group products and define access (who can see / launch what).
 - **Constraints** restrict how a product is launched: launch role (the IAM role used), allowed parameter values, notification targets, tags, account-level resource limits.
@@ -10,12 +11,14 @@
 - Most-used in regulated / large enterprises that need governed self-service; less common in small fast-moving teams that just use CDK / Terraform directly.
 
 ## When to use it
+
 - Platform / Cloud Center of Excellence (CCoE) teams publishing approved patterns (VPC, EKS cluster, RDS database, S3 bucket with the right defaults).
 - Compliance environments where developers need provisioning power without broad IAM.
 - Multi-team self-service — give product teams a portfolio of "the things you're allowed to create."
 - Control Tower Account Factory Customization.
 
 ## When NOT to use it
+
 - Small teams comfortable with direct CDK / CloudFormation / Terraform.
 - Workloads where the catalog overhead exceeds the governance benefit.
 - Teams using a third-party developer platform (Backstage, Port) with its own pattern library.
@@ -23,18 +26,22 @@
 ## Key concepts
 
 ### Portfolios
+
 Collection of products + a list of principals (IAM users, roles, groups) that can use it. Constraints applied at the portfolio or product level.
 
 ### Products
+
 - **CloudFormation product** — wraps a CFN template (versioned).
 - **Terraform Cloud product** — wraps a Terraform Cloud workspace.
 - **Terraform Open Source product** — wraps a Terraform configuration with a managed runner.
 - **External product** — generic external provisioning workflow.
 
 ### Versions
+
 Each product is versioned. Users see the available versions; admins can deprecate old versions, mark a default.
 
 ### Constraints
+
 - **Launch constraint** — IAM role used to provision. Lets developers launch without owning the IAM permissions themselves.
 - **Template constraint** — restrict allowed values for parameters (whitelist of instance types, regions).
 - **Notification constraint** — SNS notification on stack events.
@@ -43,16 +50,20 @@ Each product is versioned. Users see the available versions; admins can deprecat
 - **Resource update constraint** — restrict updates to certain resources.
 
 ### Provisioning
+
 End user opens Service Catalog, picks a product, fills parameters, clicks **Launch**. CloudFormation creates the resources under the launch role's IAM — user doesn't need direct IAM.
 
 ### Sharing across accounts
+
 - **Local portfolios** — same-account use.
 - **Shared portfolios** — share with other accounts (org-wide or specific) via AWS Organizations integration; recipients can import to their own portfolios.
 
 ### TagOptions
+
 Library of tags applied to provisioned resources for consistency.
 
 ### Service Catalog AppRegistry
+
 A catalog of *applications* (not just products). Groups resources across services (CloudFormation stacks, ECS services, Lambda functions) into a logical application — pairs with Systems Manager Application Manager.
 
 ## Pricing model
@@ -81,6 +92,7 @@ A catalog of *applications* (not just products). Groups resources across service
 - **No telemetry on portfolio usage.** Which products are used / unused? Without metrics, the catalog stagnates.
 
 ## Pairs well with
+
 - [Control Tower](control-tower.md) — Account Factory Customization uses Service Catalog blueprints.
 - [Organizations](organizations.md) — cross-account portfolio sharing.
 - [CloudFormation](../devops/cloudformation.md) — product template format.
@@ -88,9 +100,11 @@ A catalog of *applications* (not just products). Groups resources across service
 - [Systems Manager Application Manager](systems-manager.md) — pairs with AppRegistry for application-level operations.
 
 ## Pairs well with these repo pages
+
 - [Control Tower](control-tower.md), [Organizations](organizations.md), [CloudFormation](../devops/cloudformation.md).
 
 ## Further reading
+
 - [AWS Service Catalog documentation](https://docs.aws.amazon.com/servicecatalog/).
 - [Portfolios](https://docs.aws.amazon.com/servicecatalog/latest/adminguide/catalogs_portfolios.html).
 - [Launch constraints](https://docs.aws.amazon.com/servicecatalog/latest/adminguide/constraints-launch.html).

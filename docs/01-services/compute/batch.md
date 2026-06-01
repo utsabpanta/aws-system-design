@@ -3,6 +3,7 @@
 > **One-line summary.** Managed batch job scheduler — submit jobs, AWS provisions compute (EC2 or Fargate), runs them in priority/queue order, and tears down when idle.
 
 ## TL;DR
+
 - The right primitive for "I have N independent jobs to run, here's how big each one is, please find me compute." HPC, genomics, financial risk runs, ML preprocessing, video transcoding farms.
 - Runs on **EC2**, **Fargate**, or **EKS** compute environments. EC2 + Spot is the cost winner; Fargate is the operationally simplest; EKS lets you reuse an existing cluster.
 - **Multi-node parallel (MNP) jobs** — for MPI/HPC workloads needing inter-node communication — are EC2-only. Fargate doesn't support MNP.
@@ -10,6 +11,7 @@
 - The mental model is "Kubernetes Jobs with AWS managing the cluster" — but simpler if you don't already have Kubernetes.
 
 ## When to use it
+
 - High-throughput batch processing — render farms, genomics pipelines, ETL backfills, Monte Carlo simulations, ML data preprocessing.
 - Workloads with thousands of independent units (use job arrays).
 - Cost-sensitive batch where Spot interruption is acceptable.
@@ -17,6 +19,7 @@
 - Jobs that exceed Lambda's 15-minute timeout but don't justify a long-lived service.
 
 ## When NOT to use it
+
 - Online / latency-sensitive request handling. Batch jobs queue and start in seconds-to-minutes — wrong shape for HTTP.
 - Streaming or always-on workers — use ECS/EKS services or Lambda.
 - One-off interactive workloads — submit-and-wait via SDK works but feels heavy; consider Step Functions or a direct ECS RunTask.
@@ -25,6 +28,7 @@
 ## Key concepts
 
 **Compute environment** — the pool of capacity Batch can schedule onto. Three flavors:
+
 - **Managed EC2** — Batch creates and scales an ASG; supports On-Demand, Spot, and instance-type lists ("best-fit" or "spot-capacity-optimized" allocation strategies).
 - **Managed Fargate** — Batch provisions Fargate tasks per job. No cluster sizing; pay per job. Caveats: no MNP, no GPU, max 16 vCPU / 120 GB per task.
 - **Unmanaged** — you bring your own ECS cluster; Batch just dispatches jobs.
@@ -75,6 +79,7 @@ For long-running batch fleets, EC2 Spot with Compute Savings Plans for the on-de
 - **Confusing Batch with Step Functions Distributed Map.** Distributed Map is great for serverless fan-out via Lambda/ECS; Batch is better when you need MNP, deep Spot integration, or compute environments measured in thousands of vCPUs.
 
 ## Pairs well with
+
 - **EC2 Spot Capacity Providers** — cost optimization for batch fleets.
 - **FSx for Lustre** — high-throughput shared scratch (Lustre integrates with S3 for input/output).
 - **S3** — input and output store for batch pipelines.
@@ -83,10 +88,12 @@ For long-running batch fleets, EC2 Spot with Compute Savings Plans for the on-de
 - **CloudWatch Logs + Container Insights** — per-job stdout/stderr and metrics.
 
 ## Pairs well with these repo pages
+
 - [EC2](ec2.md), [Fargate](fargate.md), [EKS](eks.md) — the compute substrates.
 - `docs/04-reference-architectures/batch-etl-glue.md` (forthcoming) — batch ETL patterns.
 
 ## Further reading
+
 - [AWS Batch documentation](https://docs.aws.amazon.com/batch/).
 - [AWS Batch best practices](https://docs.aws.amazon.com/batch/latest/userguide/best-practices.html).
 - [Multi-node parallel jobs](https://docs.aws.amazon.com/batch/latest/userguide/multi-node-parallel-jobs.html).

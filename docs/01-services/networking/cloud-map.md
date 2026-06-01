@@ -3,6 +3,7 @@
 > **One-line summary.** AWS service discovery — register service instances under a friendly name, look them up via DNS or API, with optional health checks. The "service registry" primitive that other AWS services (ECS, App Mesh, EKS) integrate into.
 
 ## TL;DR
+
 - A registry for "where is service X right now?" Maps friendly names (`orders-api.internal`) to a set of instances (containers, EC2, Lambdas, arbitrary endpoints) with metadata and health.
 - Two query surfaces: **DNS** (Route 53 Private Hosted Zone under the hood) and the **DiscoverInstances API** (lower latency, returns metadata).
 - The most common consumer is **ECS Service Discovery** — `aws_service_discovery_*` Terraform resources, ECS Service Connect, and the older Service Discovery integration all use Cloud Map under the hood.
@@ -10,12 +11,14 @@
 - Built-in health checks integrate with Route 53; unhealthy instances are filtered out of DNS responses and API queries.
 
 ## When to use it
+
 - Service registry for mixed workloads (ECS + Lambda + on-prem + arbitrary HTTP endpoints) that need to find each other by name.
 - Custom service discovery patterns that ECS Service Connect / VPC Lattice don't fit.
 - Multi-account service catalog where you want a single registry shared across accounts (via Route 53 association).
 - Replacement for a self-hosted Consul / etcd / Eureka without standing up the infra.
 
 ## When NOT to use it
+
 - Pure intra-ECS service-to-service — use ECS Service Connect, which is built on Cloud Map but with a much simpler interface and automatic Envoy-based load balancing.
 - Pure intra-EKS — use Kubernetes Services (CoreDNS) for in-cluster discovery; **VPC Lattice** for cross-VPC / cross-account.
 - Public-facing endpoints — use Route 53 directly (Cloud Map's value is the dynamic-registry pattern, which public DNS doesn't need).
@@ -23,6 +26,7 @@
 ## Key concepts
 
 **Namespace.** Top-level grouping. Three flavors:
+
 - **Public DNS namespace** — public Route 53 hosted zone; service names are publicly resolvable. (`example.com`.)
 - **Private DNS namespace** — VPC-private hosted zone; names resolve only inside the VPCs that the namespace is associated with. (`prod.internal`.)
 - **HTTP namespace** — no DNS records; only the `DiscoverInstances` API. Useful when consumers don't need or want DNS.
@@ -32,6 +36,7 @@
 **Service instance.** A specific endpoint (`{ "AWS_INSTANCE_IPV4": "10.0.1.42", "AWS_INSTANCE_PORT": "8080" }`). Registered via `RegisterInstance`, deregistered via `DeregisterInstance`. ECS does this automatically when configured for Service Discovery.
 
 **Health checks.**
+
 - **Route 53 health check** — Route 53 polls the endpoint; unhealthy instances are filtered out of DNS responses.
 - **Custom health check** — your service (or a CI / monitoring system) updates instance health via API. Cheaper for high-cardinality instance counts.
 
@@ -70,6 +75,7 @@ Cloud Map is cheap. The dominant cost is at very high cardinality (tens of thous
 - **Treating it as the source of truth for service topology.** It's a runtime registry. Documentation, dependency graphs, and architecture diagrams need a separate home.
 
 ## Pairs well with
+
 - [ECS](../compute/ecs.md) — primary consumer.
 - [Route 53](route53.md) — private hosted zone under DNS namespaces.
 - [VPC](vpc.md) — private namespaces are associated with VPCs.
@@ -77,10 +83,12 @@ Cloud Map is cheap. The dominant cost is at very high cardinality (tens of thous
 - **AWS App Mesh** (legacy) / **VPC Lattice** — alternative service-to-service primitives.
 
 ## Pairs well with these repo pages
+
 - [ECS](../compute/ecs.md), [EKS](../compute/eks.md).
 - [App Mesh](app-mesh.md) — what to migrate away from; Cloud Map underpinned its naming.
 
 ## Further reading
+
 - [AWS Cloud Map documentation](https://docs.aws.amazon.com/cloud-map/).
 - [Cloud Map with ECS Service Discovery](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html).
 - [Cloud Map and ECS Service Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect-concepts.html).

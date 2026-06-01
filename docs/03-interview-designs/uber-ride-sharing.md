@@ -3,6 +3,7 @@
 > **One-line summary.** Match riders to nearby drivers in real time. The defining problems are geospatial indexing (drivers' moving locations), low-latency matching, surge pricing, trip lifecycle state, and payment.
 
 ## TL;DR
+
 - Drivers' locations stream in every ~4 seconds → indexed by **geohash** in a hot store (**ElastiCache / DynamoDB**). Rider requests a ride → server queries nearby drivers by geohash → ranks them → dispatches.
 - Trip is a multi-stage **state machine** in **Step Functions** (or app-orchestrated equivalent): requested → matched → driver-en-route → arrived → in-progress → completed → paid.
 - **Surge pricing** computed per-geohash per-time-window based on demand:supply ratio; sticky for a short window so users see consistent prices.
@@ -10,6 +11,7 @@
 - The hardest parts: **geo-index update rate** (millions of drivers, every 4 seconds = millions of writes/sec), **matching latency** (rider should see a driver assigned in under 5 seconds), **surge transparency / fairness**, and **trip-state consistency across rider + driver + dispatch**.
 
 ## Functional Requirements
+
 - Rider requests a ride from A to B.
 - System finds nearby available drivers; matches one.
 - Driver accepts (or skips); next driver tried if skipped.
@@ -21,12 +23,14 @@
 - (Out of scope for v1): pool rides (multi-rider), food delivery, courier.
 
 ## Non-Functional Requirements
+
 - **Latency**: match within 5 seconds; ETA update every few seconds; location push p99 < 200 ms.
 - **Throughput**: 10M concurrent drivers worldwide; ~2M concurrent trips at peak.
 - **Availability**: 99.99%; outages = drivers can't earn, riders stranded.
 - **Geo accuracy**: drivers' location accurate to ~10 meters; ETA within 30 sec.
 
 ## Capacity Estimates
+
 - **Location updates**: 10M drivers × 1 update / 4 sec = 2.5M writes/sec sustained.
 - **Match queries**: 100K ride requests/min average, ~1M/min peak (rush hour).
 - **Trip state writes**: trip has ~20 state events × 50M trips/day = 1B writes/day = ~12K/sec.
@@ -126,13 +130,16 @@ WebSocket events to rider:
 ## Deep Dives
 
 ### 1. Geospatial indexing with geohashes
+
 A **geohash** is a base-32 string that encodes a lat/lng. Each char halves the precision:
+
 - 5-char ≈ 5 km × 5 km cell.
 - 6-char ≈ 1 km × 1 km.
 - 7-char ≈ 150 m × 150 m.
 - 8-char ≈ 19 m × 19 m.
 
 For matching, we typically index by **5- or 6-char prefix** (1-5 km cells). To find drivers near a rider:
+
 1. Compute the rider's 5-char geohash.
 2. Look up the cell + 8 neighbors (3x3 grid).
 3. Get all drivers in those cells.
@@ -145,7 +152,9 @@ Update path: every driver location update removes the driver from the old geohas
 **Alternative**: **Redis GEO commands** (`GEOADD`, `GEOSEARCH`) provide native geo-indexing. Simpler API; same performance class.
 
 ### 2. Matching algorithm
+
 After narrowing to ~50 candidate drivers in the geohash:
+
 1. Filter by `status = available` + matching `vehicle_type`.
 2. Compute ETA for each (driver → pickup) via routing service.
 3. Rank by `(ETA, rating, time_since_last_trip)`.
@@ -155,7 +164,9 @@ After narrowing to ~50 candidate drivers in the geohash:
 **Concurrent matching**: if two riders both want the same nearby driver, the first to dispatch wins. DynamoDB conditional update on `drivers.status = available` → `assigned`. Loser's matcher picks the next driver.
 
 ### 3. Trip state machine
+
 Trip lifecycle in **Step Functions**:
+
 ```
 requested
   -> matching (try dispatch loop)
@@ -178,7 +189,9 @@ The state machine handles retries, timeouts, compensations.
 For very high trip volume, Standard Step Functions exactly-once semantics matter (no double-charging on retry).
 
 ### 4. Surge pricing
+
 Per-geohash demand:supply ratio:
+
 - Demand = rider requests in last ~5 min in geohash.
 - Supply = available drivers in geohash.
 - Ratio > threshold → apply surge multiplier (1.2x, 1.5x, 2.0x, 3.0x).
@@ -188,6 +201,7 @@ Computed by Flink job over rider-request + driver-location streams; published pe
 Transparency: explicitly show "1.5x surge" in the UI; never hide the multiplier.
 
 ### 5. ETA service
+
 Given (start_lat_lng, dest_lat_lng, current_traffic), return estimated time.
 
 - Routing engine: usually a third-party (Mapbox, HERE, Google Maps) or self-hosted (OSRM, Valhalla).
@@ -195,29 +209,36 @@ Given (start_lat_lng, dest_lat_lng, current_traffic), return estimated time.
 - ML-trained adjustments based on observed actual vs predicted times in this geohash at this hour.
 
 ### 6. Driver app real-time updates
+
 Driver gets:
+
 - New ride dispatch (push + WS).
 - Rider's pickup location.
 - Real-time navigation prompts.
 
 Rider gets:
+
 - Driver's location every few seconds (WS).
 - ETA updates.
 
 Both via WebSocket; same connection management as [whatsapp-chat](whatsapp-chat.md) (connection table in DynamoDB, per-user routing).
 
 ### 7. Handling many vehicle types and tiers
+
 Uber has UberX, UberXL, Pool, Comfort, Black, etc. Each has different matching pools, surge multipliers, pricing.
 
 Approach: tag drivers with `vehicle_type`; matching filter on `vehicle_type`. Per-vehicle-type geohash indices reduce the per-query candidate set.
 
 ### 8. Geographic isolation
+
 For per-Region operation (Uber operates in 70+ countries, each with regulations):
+
 - Per-Region deployment of dispatch, matching, surge.
 - Cross-Region only for global services (account, payment).
 - Compliance: data residency (driver location stays in Region).
 
 ## AWS Services Used
+
 - **API Gateway (HTTP + WebSocket)** — REST + real-time push.
 - **Lambda + Fargate** — handlers (Fargate for sustained connection / heavy compute).
 - **DynamoDB** — drivers, riders, trips, geo_index (backstop).
@@ -233,17 +254,20 @@ For per-Region operation (Uber operates in 70+ countries, each with regulations)
 - **CloudFront** — public web / app delivery.
 
 ## Cost Notes
+
 - **DynamoDB** writes for location updates (2.5M/sec) are the major fixed cost — reserved capacity essential.
 - **Kinesis** shards for the location stream: meaningful monthly cost.
 - **Valkey cluster** for hot geo index: significant for HA + memory.
 - **SageMaker** for real-time ETA model: per-endpoint-hour.
 
 Levers:
+
 - **Drop write rate** on driver location: 4 sec is the default; 6-8 sec in low-traffic areas.
 - **Tier old trip data** to S3 Glacier.
 - **Per-Region clusters** with independent sizing.
 
 ## Failure Modes & DR
+
 - **Geo index Valkey failure**: fall back to DynamoDB GSI (slower); auto-recover when Valkey is back.
 - **Kinesis throttle on location stream**: backpressure to driver apps; reduce update frequency client-side.
 - **Step Functions failure mid-trip**: persistent state recovers; trip continues from last state.
@@ -251,6 +275,7 @@ Levers:
 - **Hot geohash (concert venue, airport at peak)**: shard the geohash internally; rate-limit dispatch attempts per cell.
 
 ## Trade-offs & Alternatives
+
 - **Geohash vs S2 cells vs quadtrees**: geohash is simple; S2 (Google) handles polar regions better; quadtrees are flexible but more code. Uber actually uses **H3** (their own hexagonal grid).
 - **Valkey GEO vs custom geohash sets**: Valkey GEO is simpler; custom geohash gives more control over cell size.
 - **WebSocket vs HTTP polling for location**: WS for real-time updates; polling for fallback on bad connections.
@@ -258,6 +283,7 @@ Levers:
 - **Per-trip Step Function vs custom state machine**: Step Functions gives durability and audit; custom in DynamoDB is cheaper at extreme scale.
 
 ## Further Reading
+
 - [Uber engineering blog — many posts on dispatch, H3, real-time](https://www.uber.com/blog/engineering/).
 - ["H3: Uber's Hexagonal Hierarchical Spatial Index"](https://eng.uber.com/h3/).
 - ["Designing Uber", System Design Primer](https://github.com/donnemartin/system-design-primer).

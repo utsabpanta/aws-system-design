@@ -3,6 +3,7 @@
 > **One-line summary.** AWS's load-balancing family — Application Load Balancer (L7 HTTP), Network Load Balancer (L4 TCP/UDP/TLS), Gateway Load Balancer (L3 for inline virtual appliances), and the legacy Classic Load Balancer.
 
 ## TL;DR
+
 - **ALB** for HTTP / HTTPS / WebSocket / gRPC. Path-based routing, host-based routing, header / query rules, native ECS / EKS integration, native cognito / OIDC auth, native WAF, native Lambda target.
 - **NLB** for TCP / UDP / TLS. Sub-millisecond overhead, millions of RPS, static IPs (one per AZ), preserves client source IP. Right for non-HTTP, ultra-low-latency, or "give me a static IP" use cases.
 - **GWLB (Gateway Load Balancer)** routes traffic transparently through fleets of third-party virtual appliances (firewalls, IDS/IPS, packet inspection) at scale.
@@ -20,6 +21,7 @@
 | New work | Never CLB |
 
 ## When NOT to use ELB at all
+
 - For a single Region behind CloudFront serving cacheable HTTP — CloudFront → S3 may not need an LB at all.
 - For serverless HTTP — Lambda + API Gateway or Function URL is often simpler.
 - For service-to-service traffic inside one VPC — ECS Service Connect, App Mesh-replacement (VPC Lattice / ECS Service Connect), or direct NLB / ALB targets can be more direct.
@@ -27,6 +29,7 @@
 ## Key concepts
 
 ### Application Load Balancer (ALB)
+
 - **Layer 7** — terminates HTTP, can inspect headers, paths, query strings.
 - **Target groups** — per protocol/port; targets are EC2 instances, IP addresses, Lambda, ALB-as-target (chained).
 - **Listener rules** — route based on host, path, header, query string, source IP, HTTP method, or weighted-mix between target groups.
@@ -38,6 +41,7 @@
 - **Mutual TLS (mTLS) on the listener** — client certificate validation at the LB.
 
 ### Network Load Balancer (NLB)
+
 - **Layer 4** — TCP / UDP / TLS. Preserves client source IP.
 - **Static IPs** — one EIP per AZ; bring your own IP / public IP.
 - **TLS termination** at the LB (cert via ACM) or pass-through (TCP listener).
@@ -46,16 +50,19 @@
 - **PrivateLink endpoint service** — NLB is the canonical fronting LB when exposing your service to other accounts via PrivateLink.
 
 ### Gateway Load Balancer (GWLB)
+
 - **Layer 3 / 4** — transparent network insertion of third-party virtual appliances.
 - Uses **GENEVE** encapsulation to send traffic to a fleet of appliances and bring the inspected traffic back.
 - Sold to enterprises running Palo Alto, Check Point, Fortinet, etc. virtual firewalls in AWS at scale.
 
 ### Classic Load Balancer (CLB)
+
 - Legacy from EC2-Classic days. CLB was retired alongside EC2-Classic in 2022.
 - Existing CLBs continue to work; the console hides the option for new environments in Elastic Beanstalk and elsewhere.
 - **Migrate to ALB or NLB** — the migration is straightforward and unlocks newer features.
 
 ## Common to ALB / NLB
+
 - **Multi-AZ.** Spread targets and the LB across at least 2 AZs.
 - **Health checks.** HTTP path (ALB) or TCP probe (NLB). Set sensible thresholds; aggressive failure thresholds during deploys can mass-deregister healthy targets briefly.
 - **Connection draining (deregistration delay)** — the LB stops sending new connections to a target but waits up to N seconds for existing connections to drain.
@@ -91,6 +98,7 @@ NLBs are typically cheaper than ALBs for raw TCP forwarding; ALBs justify the co
 - **Public-facing NLB with no source-IP allow-list.** NLB preserves client IP; you can scope at the SG on the target. Use that.
 
 ## Pairs well with
+
 - [VPC](vpc.md) — the LB lives in subnets across AZs.
 - [Route 53](route53.md) — alias from a friendly name.
 - [CloudFront](cloudfront.md) — in front of ALB for caching + WAF + Shield.
@@ -100,6 +108,7 @@ NLBs are typically cheaper than ALBs for raw TCP forwarding; ALBs justify the co
 - **PrivateLink** — expose your service via NLB endpoint service.
 
 ## Further reading
+
 - [Elastic Load Balancing documentation](https://docs.aws.amazon.com/elasticloadbalancing/).
 - [Application Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/).
 - [Network Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/).

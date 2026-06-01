@@ -3,6 +3,7 @@
 > **One-line summary.** Two ways to scale reads: replicate the DB to more nodes (read replicas) or store frequently-fetched results in front (cache). Different problems, often used together.
 
 ## TL;DR
+
 - **Read replicas** answer "any query at a slightly stale point in time" — same schema as the writer, asynchronous replication, transparent to most query patterns.
 - **Caches** answer "this exact query I just asked has been asked recently" — denormalized, key-based, evicted by TTL / LRU, much higher hit rate for hot data.
 - Trade-offs: read replicas are operationally simple (they're just another DB) but bound by per-replica capacity and add per-replica cost. Caches are dramatically cheaper per request but introduce invalidation and stampede problems.
@@ -23,6 +24,7 @@
 ## How they work
 
 ### Read replicas
+
 ```mermaid
 flowchart LR
   Writes -->|sync or async| W[(Primary)]
@@ -40,6 +42,7 @@ flowchart LR
 - Failover: promote a replica to primary on failure.
 
 ### Cache (cache-aside example)
+
 ```mermaid
 flowchart LR
   Client --> App
@@ -94,6 +97,7 @@ For high-RPS read workloads, caching is dramatically cheaper.
 ## AWS-native implementations
 
 ### Read replicas
+
 - **RDS read replicas** — async replication; up to 15 per source (engine-dependent); promote-to-primary supported.
 - **Aurora replicas** — share the same storage layer; replica lag typically tens of ms; up to 15 readers.
 - **Aurora Multi-AZ DB cluster** — readable standbys (two), semi-synchronous, faster failover (~35 s).
@@ -101,6 +105,7 @@ For high-RPS read workloads, caching is dramatically cheaper.
 - **DynamoDB Global Tables** — multi-active under the hood; can be used as cross-Region read scale.
 
 ### Caches
+
 - **ElastiCache** — Valkey / Redis OSS / Memcached. Cache-aside, read-through, write-through patterns.
 - **MemoryDB** — Redis API + durable storage; for cache-that-must-not-lose-data scenarios.
 - **DAX** — transparent caching for DynamoDB; sits in front of the table, eventually consistent.
@@ -132,6 +137,7 @@ For high-RPS read workloads, caching is dramatically cheaper.
 - **Cache + replica + projection sprawl.** Three layers of caching all stale at different times produces customer support nightmares. Document the data flow; bound the staleness budget.
 
 ## Further reading
+
 - ["Caching challenges and strategies", Amazon Builders' Library](https://aws.amazon.com/builders-library/caching-challenges-and-strategies/).
 - *Designing Data-Intensive Applications*, Martin Kleppmann, Chapter 5 (Replication).
 - Related repo pages: [caching-strategies](caching-strategies.md), [CQRS](cqrs.md), [data-partitioning-sharding](data-partitioning-sharding.md).

@@ -3,6 +3,7 @@
 > **One-line summary.** Faster reads, lower database load, lower cost — at the price of consistency complexity and cache-invalidation pain.
 
 ## TL;DR
+
 - Three classic patterns: **cache-aside (lookaside)**, **read-through**, **write-through** / **write-behind**. Each handles a different read / write workload shape.
 - The two hard problems are **invalidation** (when to remove or update cached entries) and **cold-start / stampede** (what happens when many requests miss simultaneously).
 - TTL + jitter is the single highest-leverage safety net. It bounds staleness automatically and prevents synchronized eviction.
@@ -10,12 +11,14 @@
 - Cache only where measurement shows a benefit. A cache without metrics is a silent source of stale-data bugs.
 
 ## When to use it
+
 - Read-heavy workloads where the same data is fetched many times.
 - High-latency upstream stores (multi-Region DBs, third-party APIs).
 - Hot-key smoothing for write-heavy NoSQL tables.
 - HTTP / static-asset delivery via a CDN.
 
 ## When NOT to use it
+
 - Strictly consistent reads required on every request — cache adds eventual consistency you don't want.
 - Workloads with no read repetition (every request unique).
 - Tiny scale where the operational cost of the cache > the savings.
@@ -23,6 +26,7 @@
 ## How it works
 
 ### 1. Cache-aside (lookaside) — the default
+
 ```mermaid
 flowchart LR
   Client -->|GET key| App[Application]
@@ -36,15 +40,19 @@ flowchart LR
 App owns the cache logic — read cache, fall back to DB on miss, populate cache. Standard pattern for Redis / Valkey / Memcached.
 
 ### 2. Read-through
+
 The cache sits *in front of* the DB; misses are resolved by the cache itself (via a loader function). Simpler app code; less flexible. Common with embedded caches (Caffeine, Guava) and some managed caches.
 
 ### 3. Write-through
+
 Every write goes through the cache, which writes to the DB synchronously before responding. Cache always consistent with DB; writes are slower.
 
 ### 4. Write-behind (write-back)
+
 Writes hit the cache and acknowledge immediately; the cache flushes to the DB asynchronously. Fastest writes; risk of data loss on cache failure.
 
 ### 5. Refresh-ahead
+
 Cache proactively refreshes entries before TTL expiry. Used for predictable hot keys to avoid latency spikes when entries expire.
 
 ## Key concepts
@@ -52,6 +60,7 @@ Cache proactively refreshes entries before TTL expiry. Used for predictable hot 
 **TTL (Time To Live).** Every cached entry expires after N seconds. The simplest invalidation. Pair with **jitter** (random ±10%) to prevent synchronized expiry causing thundering herds.
 
 **Eviction policies.** When the cache is full, what gets removed?
+
 - **LRU** (Least Recently Used) — the default. Right for typical web workloads.
 - **LFU** (Least Frequently Used) — better for power-law distributions.
 - **TTL-based** — evict expired entries first.
@@ -62,12 +71,14 @@ Cache proactively refreshes entries before TTL expiry. Used for predictable hot 
 **Cache stampede / thundering herd.** When a hot key expires, every request misses simultaneously, hammering the DB.
 
 Mitigations:
+
 - **Request coalescing** — only one in-flight request per key fetches from DB; others wait.
 - **Probabilistic early expiration** — refresh "early" with increasing probability as TTL approaches.
 - **Staggered TTLs** with jitter.
 - **Warming** during deploy or via background refresh.
 
 **Invalidation strategies:**
+
 - **TTL** — accept staleness up to TTL.
 - **Write-through invalidation** — invalidate / update cache on every DB write.
 - **Event-driven invalidation** — DB change events (DynamoDB Streams, CDC) propagate to cache.
@@ -106,6 +117,7 @@ Mitigations:
 - **Cache vs precompute.** If the answer rarely changes, precompute and store the answer directly (materialized view, denormalized table) — no cache needed.
 
 ## Further reading
+
 - ["Caching challenges and strategies", Amazon Builders' Library](https://aws.amazon.com/builders-library/caching-challenges-and-strategies/).
 - *Designing Data-Intensive Applications*, Martin Kleppmann, Chapter 5 (Replication).
 - [ElastiCache best practices](https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/BestPractices.html).

@@ -3,6 +3,7 @@
 > **One-line summary.** Two static **anycast IPs** that map to your application across one or more Regions, routing traffic over the AWS backbone for predictable latency and fast Regional failover.
 
 ## TL;DR
+
 - For non-HTTP / non-cacheable traffic where you'd want CloudFront's "AWS backbone, edge entry" benefit. Game servers, IoT, TCP/UDP services, multi-Region active-active web stacks.
 - Two **fixed anycast IPs** that don't change — easier than juggling Route 53 for client allow-lists, firewall rules, and DNS-cache-busting.
 - Traffic enters AWS at the **nearest edge POP** (180+ POPs), then traverses the AWS backbone to the closest healthy endpoint. Lower jitter, lower tail latency than the public internet.
@@ -10,6 +11,7 @@
 - Costs more than DNS-only routing; the cost is justified when latency / reliability of non-HTTP traffic matters or when static IPs are a hard requirement.
 
 ## When to use it
+
 - Real-time games, video conferencing, voice — UDP / RTP / WebRTC that needs predictable latency.
 - IoT fleets that need a static IP for firmware / firewall reasons.
 - Multi-Region failover where DNS TTLs are too slow (seconds vs minutes).
@@ -17,6 +19,7 @@
 - "We need a static IP" — Global Accelerator gives you two anycast IPs that map to evolving backends.
 
 ## When NOT to use it
+
 - Plain HTTP that's cacheable — **CloudFront** is cheaper and adds caching.
 - Single-Region, low-volume workloads — Route 53 + ALB is fine and dramatically cheaper.
 - Workloads that only need same-Region routing — Global Accelerator's value is the AWS backbone + edge entry; it doesn't help a single-AZ deployment.
@@ -67,6 +70,7 @@ Global Accelerator isn't cheap — the per-GB premium is on top of standard AWS 
 - **Two-IP-list maintenance ignored.** Distributing the static anycast IPs to many client teams / firewalls and forgetting one of them creates "works for half the users" failures. Document and propagate both IPs everywhere they're allow-listed.
 
 ## Pairs well with
+
 - [CloudFront](cloudfront.md) — sibling service for HTTP; Global Accelerator is for non-HTTP and non-cacheable.
 - [Route 53](route53.md) — friendly name in front of the static anycast IPs.
 - [ELB](elb.md) — common endpoints (ALB / NLB) per Region.
@@ -74,9 +78,11 @@ Global Accelerator isn't cheap — the per-GB premium is on top of standard AWS 
 - **CloudWatch metrics** — `ProcessedBytes`, health-check pass/fail counts per endpoint group.
 
 ## Pairs well with these repo pages
+
 - `docs/02-patterns/multi-region-active-active.md` (forthcoming) — Global Accelerator is one of the AWS-native multi-Region routing primitives.
 
 ## Further reading
+
 - [AWS Global Accelerator documentation](https://docs.aws.amazon.com/global-accelerator/).
 - [Standard vs Custom Routing](https://docs.aws.amazon.com/global-accelerator/latest/dg/about-accelerator-types.html).
 - [Traffic dials and endpoint weights](https://docs.aws.amazon.com/global-accelerator/latest/dg/about-endpoint-groups-traffic-dial.html).

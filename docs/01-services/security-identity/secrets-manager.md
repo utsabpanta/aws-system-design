@@ -3,6 +3,7 @@
 > **One-line summary.** Managed storage and rotation of secrets — database passwords, API keys, OAuth tokens, third-party credentials. KMS-encrypted, IAM-controlled, optionally rotated by Lambda.
 
 ## TL;DR
+
 - The right place for secrets that need **rotation** or that are **sensitive enough to want explicit IAM-controlled access and audit per access**.
 - For mere config that *happens* to be sensitive (a non-rotated API key, an env-style value), **Parameter Store SecureString** is usually cheaper and sufficient.
 - Built-in rotation for RDS / Aurora / RDS Proxy / DocumentDB / Redshift / ElastiCache; custom rotation via Lambda for anything else.
@@ -10,6 +11,7 @@
 - Costs more than Parameter Store per secret per month, but the rotation, audit, and cross-account / cross-Region features justify it for the secrets that matter.
 
 ## When to use it
+
 - Database credentials (especially with managed rotation via RDS / Aurora).
 - API keys / tokens for third-party services where rotation is a real requirement.
 - OAuth client secrets.
@@ -17,6 +19,7 @@
 - Any secret you want CloudTrail-logged on every access.
 
 ## When NOT to use it
+
 - Plain configuration that isn't sensitive — Parameter Store String (free).
 - Sensitive config with no rotation need — Parameter Store SecureString (cheaper).
 - TLS certs for ALB / CloudFront — use ACM.
@@ -31,6 +34,7 @@
 **Resource policy.** Resource-based policy on the secret. The mechanism for cross-account access (account B can read the secret created in account A if both the secret's resource policy *and* B's IAM policy allow it).
 
 **Rotation.**
+
 - **Managed rotation** for supported AWS databases (RDS PostgreSQL/MySQL/SQL Server/Oracle/MariaDB/Db2, Aurora, DocumentDB, Redshift, ElastiCache). No Lambda for you to write.
 - **Custom rotation** via a Lambda function with four steps (`createSecret`, `setSecret`, `testSecret`, `finishSecret`).
 - Rotation can be scheduled (every N days / hours) or triggered manually.
@@ -71,6 +75,7 @@ Compared to Parameter Store SecureString, Secrets Manager is much more expensive
 - **Multi-Region replication off for production secrets.** Region-outage scenarios leave the secret unreachable. Replicate critical secrets.
 
 ## Pairs well with
+
 - [KMS](kms.md) — encryption layer.
 - [RDS](../database/rds.md) / [Aurora](../database/aurora.md) — managed rotation.
 - [Lambda](../compute/lambda.md) — custom rotation handlers; Parameters & Secrets extension for caching.
@@ -79,10 +84,12 @@ Compared to Parameter Store SecureString, Secrets Manager is much more expensive
 - **CloudTrail** — every access logged.
 
 ## Pairs well with these repo pages
+
 - [Parameter Store](parameter-store.md) — the cheaper alternative for non-rotated config.
 - [Security pillar](../../05-well-architected/security.md).
 
 ## Further reading
+
 - [AWS Secrets Manager documentation](https://docs.aws.amazon.com/secretsmanager/).
 - [Secrets Manager rotation](https://docs.aws.amazon.com/secretsmanager/latest/userguide/rotating-secrets.html).
 - [Cross-account access to secrets](https://docs.aws.amazon.com/secretsmanager/latest/userguide/auth-and-access_examples_cross.html).

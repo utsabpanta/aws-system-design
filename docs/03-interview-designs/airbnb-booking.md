@@ -3,6 +3,7 @@
 > **One-line summary.** Search for short-term rentals by location and date range, with dynamic pricing, no double-booking, host-guest messaging, and payment hold/release. The unique challenge is **availability + pricing search** across millions of listings with date-range constraints.
 
 ## TL;DR
+
 - Catalog of listings indexed in **OpenSearch** with geo + faceted filters; availability stored in **DynamoDB** as per-listing per-date rows.
 - **Search** is the hard part: "find listings in Paris available Jul 1-7 under $300/night sleeping 4." OpenSearch handles text + facets; availability join is expensive — typically pre-computed as a "minimum available price for next 30/60/90 days" rollup.
 - **Booking** is similar shape to [ticketmaster](ticketmaster.md): conditional write on each requested night, all-or-nothing transaction; pay → confirm → notify host.
@@ -11,6 +12,7 @@
 - The hardest parts: **availability search at scale** (joining text relevance with calendar availability), **no double-booking** (race conditions on popular listings during instant-book), and **per-host inventory management** (overlapping listings, blocking dates manually).
 
 ## Functional Requirements
+
 - Search listings by location, dates, guests, filters (price, amenities, type).
 - View listing detail (photos, description, calendar, reviews).
 - Book a listing for specific dates (instant book or request-to-book).
@@ -21,6 +23,7 @@
 - (Out of scope for v1): Experiences, Plus, long-term stays.
 
 ## Non-Functional Requirements
+
 - **Latency**: search p99 < 1 sec; listing page p99 < 500 ms; booking p99 < 3 sec.
 - **Throughput**: 500K searches/sec at peak; 10K bookings/sec at peak.
 - **Consistency**: never double-book; price quoted at booking time is what user pays.
@@ -28,6 +31,7 @@
 - **Scale**: 10M+ listings worldwide.
 
 ## Capacity Estimates
+
 - **Listings**: 10M × ~5 KB metadata = 50 GB (DynamoDB + OpenSearch).
 - **Availability**: 10M listings × 365 days = 3.65B date rows.
 - **Searches**: 500K/sec peak.
@@ -143,11 +147,13 @@ WebSocket events:
 ## Deep Dives
 
 ### 1. Availability search at scale
+
 "Listings in Paris available Jul 1-7 under $300/night sleeping 4."
 
 Naive: query OpenSearch for "Paris + 4 guests" → 100K listings → for each, query DynamoDB availability for 7 dates → too slow.
 
 **Pre-computed availability rollup**:
+
 - Background job (Lambda triggered by availability change) maintains `availability_rollup` per listing:
   - `days_avail_next_30`, `days_avail_next_60`, `days_avail_next_90`.
   - `min_price_next_30`, `min_price_next_60`, etc.
@@ -158,9 +164,11 @@ Naive: query OpenSearch for "Paris + 4 guests" → 100K listings → for each, q
 For arbitrary date ranges, the rollup doesn't help directly — fall back to per-listing availability check on the top N results. Acceptable when N is small after pre-filtering.
 
 ### 2. Booking transaction
+
 Multiple nights in one booking → all must be available.
 
 `TransactWriteItems` on DynamoDB:
+
 ```python
 items = [
     {
@@ -182,6 +190,7 @@ All-or-nothing: if any date is already booked, the whole transaction fails; clie
 DynamoDB transactions cap at 100 items → max ~100-night booking (more than enough).
 
 ### 3. Instant book vs request to book
+
 - **Instant book**: booking immediately reserves dates + charges payment.
 - **Request to book**: 24-hour window for host to accept. Dates held during the window; if host doesn't accept, dates released; if accepts, payment charges.
 
@@ -190,13 +199,16 @@ Both use the same state machine; instant book skips the host-approval state.
 For "request to book," dates are in `pending` status (not `available`, not `booked`) during the window — competing bookings see them as unavailable. If host declines, status reverts to `available`.
 
 ### 4. Dynamic pricing (host-side, not real-time)
+
 Hosts get pricing suggestions:
+
 - Per-day forecasted occupancy probability.
 - Local events (concerts, conferences) push prices up.
 - Day-of-week patterns.
 - Seasonal patterns.
 
 ML pipeline (offline):
+
 - Historical booking data → training data.
 - SageMaker model per region per listing type.
 - Predicts optimal price per (listing, date).
@@ -205,7 +217,9 @@ ML pipeline (offline):
 Not real-time per search query. Prices are set hours/days in advance.
 
 ### 5. Search ranking
+
 After filters, OpenSearch returns top N. Ranking signals:
+
 - **Personalization**: similar to listings user has viewed / liked.
 - **Quality**: rating, review count.
 - **Conversion**: historical conversion rate (clicks → bookings).
@@ -215,7 +229,9 @@ After filters, OpenSearch returns top N. Ranking signals:
 Trained ranker (SageMaker / Bedrock embeddings + re-ranker), invoked on candidates. See [recommendation-system](recommendation-system.md) for the broader pattern.
 
 ### 6. Cancellation policies and refunds
+
 Each listing has a cancellation policy (flexible / moderate / strict). On cancellation:
+
 1. Look up policy + booking date.
 2. Compute refund (e.g., full refund 7 days before; 50% within 7 days; no refund within 24 hours).
 3. Issue refund via [payment-system](payment-system.md).
@@ -225,7 +241,9 @@ Each listing has a cancellation policy (flexible / moderate / strict). On cancel
 Edge cases: extenuating circumstances (death, natural disaster) — manual override path for trust & safety team.
 
 ### 7. Host calendar sync
+
 Hosts often list on multiple platforms (Booking.com, VRBO). To prevent double-booking, support **iCal sync**:
+
 - Host configures Airbnb to push availability to external iCal URL.
 - Host configures Airbnb to import iCal URLs from other platforms.
 - Background sync job (hourly) reconciles.
@@ -233,9 +251,11 @@ Hosts often list on multiple platforms (Booking.com, VRBO). To prevent double-bo
 If a date is booked on Booking.com, Airbnb's calendar marks it `blocked` (different from `booked` — no booking_id, just unavailable).
 
 ### 8. Messaging
+
 Host-guest messaging is a thread per (host, guest, listing). Same shape as [whatsapp-chat](whatsapp-chat.md) but with fewer concurrent connections (most users aren't actively chatting).
 
 ## AWS Services Used
+
 - **CloudFront** — image / static delivery, search-result caching for popular queries.
 - **API Gateway** — REST + WebSocket.
 - **Lambda + ECS Fargate** — handlers (Fargate for sustained connections / heavy search).
@@ -252,18 +272,22 @@ Host-guest messaging is a thread per (host, guest, listing). Same shape as [what
 - **Cognito** — user auth.
 
 ## Cost Notes
+
 At Airbnb scale:
+
 - **OpenSearch** for search at 500K QPS: significant cluster cost.
 - **CloudFront** for photos: massive egress.
 - **DynamoDB** for availability table (3.65B rows): meaningful storage + read cost.
 - **SageMaker** for ranking endpoints: per-hour cost.
 
 Levers:
+
 - **Cache search results** in CloudFront for popular queries (Paris dates) with short TTL.
 - **Tier old availability data** (past dates) to S3 / cheaper storage.
 - **OpenSearch UltraWarm** for older review data.
 
 ## Failure Modes & DR
+
 - **OpenSearch lag during host update**: listing appears outdated in search briefly. Acceptable.
 - **DynamoDB transaction failure during booking**: client retries with different dates / re-checks; partial failure rolls back automatically.
 - **Payment gateway down**: booking remains `pending`; Step Functions retries; if persistent, alert host + guest.
@@ -271,6 +295,7 @@ Levers:
 - **Double-booking race**: prevented by transactional date-availability update.
 
 ## Trade-offs & Alternatives
+
 - **Pre-computed rollup vs full join**: rollup is fast but only for common windows (30/60/90). Full join is exact but slow.
 - **OpenSearch vs Postgres GIST for geo search**: OpenSearch scales better at high QPS; Postgres GIST works for smaller deployments.
 - **Real-time pricing vs batch suggestions**: real-time is too expensive per search; batch suggestions to hosts is the production pattern.
@@ -278,6 +303,7 @@ Levers:
 - **Strict / moderate / flexible cancellation policies vs per-listing custom**: standardized policies simplify the support burden; per-listing custom is more flexible but harder to communicate.
 
 ## Further Reading
+
 - [Airbnb engineering blog — many posts on search, payments, scale](https://medium.com/airbnb-engineering).
 - ["Designing Airbnb", System Design Primer](https://github.com/donnemartin/system-design-primer).
 - [OpenSearch geo queries](https://opensearch.org/docs/latest/query-dsl/geo-and-xy/).

@@ -3,6 +3,7 @@
 > **One-line summary.** Managed natural-language processing API. Entities, key phrases, sentiment, language detection, syntax, topic modeling, PII detection, document classification — pre-trained plus custom models.
 
 ## TL;DR
+
 - Pre-trained NLP API for the "I have a corpus of text and I need to extract structured signals" use cases.
 - Standard analyses: **entities** (people, places, orgs, dates), **key phrases**, **sentiment** (positive / negative / neutral / mixed), **language detection**, **PII detection / redaction**, **syntax** (POS tags), **events** (financial / clinical event extraction).
 - **Custom classification** and **custom entity recognition** for domain-specific tasks (label your own dataset, get a managed model).
@@ -10,6 +11,7 @@
 - For more open-ended language understanding (Q&A, summarization, complex reasoning), an LLM on **Bedrock** is usually the better choice in 2026. Comprehend remains useful for high-volume structured extraction where per-LLM-token pricing would be expensive.
 
 ## When to use it
+
 - Sentiment analysis on customer reviews / support tickets.
 - PII detection / redaction in document pipelines.
 - Topic modeling on large text corpora.
@@ -18,6 +20,7 @@
 - Clinical text extraction (Comprehend Medical).
 
 ## When NOT to use it
+
 - Workloads where you want generative outputs (summaries, paraphrasing, Q&A) — **Bedrock** is the right tool.
 - Tasks where a small fine-tuned LLM clearly beats per-task classification accuracy — Bedrock with fine-tuning.
 - Tiny one-off tasks where managing a Comprehend job is heavier than the work — sometimes a Lambda + small library is enough.
@@ -25,7 +28,9 @@
 ## Key concepts
 
 ### Pre-trained APIs
+
 **Single-document (real-time):**
+
 - `DetectDominantLanguage`
 - `DetectEntities` (people, places, orgs, dates, quantities, titles, events, locations)
 - `DetectKeyPhrases`
@@ -37,6 +42,7 @@
 **Batch (async, S3 input/output):** the same analyses on large document sets.
 
 ### Custom models
+
 - **Custom Classification** — train a multi-class or multi-label classifier on your labeled documents.
 - **Custom Entity Recognition** — train an NER model on your annotated entities.
 - **Topic Modeling** — unsupervised topic discovery over a document corpus (Latent Dirichlet Allocation under the hood).
@@ -44,12 +50,14 @@
 Custom models can be **endpoint-hosted** (low-latency real-time) or **async batch** (cheaper, no endpoint).
 
 ### Comprehend Medical
+
 - Separate API surface for medical text.
 - **Entities**: medications, conditions, anatomy, tests.
 - **ICD-10-CM** and **RxNorm** code linking.
 - **PHI detection** — HIPAA-relevant identifier extraction.
 
 ### Flywheels
+
 A managed mechanism to continuously retrain custom models as new data arrives — keeps the model fresh without you running pipelines yourself.
 
 ## Pricing model
@@ -79,6 +87,7 @@ For high-volume PII detection or sentiment analysis, Comprehend at per-unit pric
 - **Mixing Comprehend Medical with non-medical text.** It's tuned for clinical language; bad results on general text.
 
 ## Pairs well with
+
 - [S3](../storage/s3.md) — async batch input / output.
 - [Lambda](../compute/lambda.md), [Step Functions](../integration-messaging/step-functions.md) — pipeline orchestration.
 - [Kinesis Data Streams / Firehose](../analytics/kinesis.md) — stream into Comprehend.
@@ -86,9 +95,11 @@ For high-volume PII detection or sentiment analysis, Comprehend at per-unit pric
 - [Macie](../security-identity/macie.md) — adjacent PII discovery for S3-stored data.
 
 ## Pairs well with these repo pages
+
 - [Bedrock](bedrock.md), [Textract](textract.md), [Translate](translate.md).
 
 ## Further reading
+
 - [Amazon Comprehend documentation](https://docs.aws.amazon.com/comprehend/).
 - [Custom classification](https://docs.aws.amazon.com/comprehend/latest/dg/how-document-classification.html).
 - [Custom entity recognition](https://docs.aws.amazon.com/comprehend/latest/dg/custom-entity-recognition.html).

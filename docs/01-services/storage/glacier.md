@@ -3,6 +3,7 @@
 > **One-line summary.** The archive end of the S3 storage class spectrum — three tiers trading retrieval latency and price for the cheapest durable storage AWS sells.
 
 ## TL;DR
+
 - "Glacier" today is not a separate service; it's three S3 storage classes — **Instant Retrieval**, **Flexible Retrieval**, and **Deep Archive** — managed through normal S3 APIs and lifecycle policies.
 - Same eleven-nines durability as S3 Standard. The difference is retrieval latency (ms → minutes → hours) and per-GB cost (~$0.004 → ~$0.00099 per GB-month at the Deep Archive end).
 - Minimum storage durations and per-retrieval fees mean Glacier classes only make sense for **truly cold** data. Misuse can cost *more* than just leaving objects in Standard.
@@ -10,6 +11,7 @@
 - For compliance / regulatory holds, combine with **S3 Object Lock** (Compliance mode) for true WORM that even the root account can't delete until the retention period expires.
 
 ## When to use it
+
 - Long-term backups (RDS exports, application backups, on-prem tape replacements).
 - Compliance and audit logs that must be kept for years but rarely read.
 - Old log files that should outlive the warm-tier retention but might need to be queried under subpoena or investigation.
@@ -17,6 +19,7 @@
 - Anywhere "we'll need it once a year, if that, but we have to keep it for seven years."
 
 ## When NOT to use it
+
 - Data accessed more than ~once per quarter — Standard-IA or Intelligent-Tiering's automatic archive tier is usually cheaper.
 - Small objects (< 128 KB minimum billable size) at scale — the per-object overhead dominates the storage cost.
 - Workloads that need a guaranteed retrieval SLA in minutes — Flexible Retrieval is usually fast but not contractually guaranteed. Use Instant Retrieval if you need ms-scale.
@@ -37,6 +40,7 @@ The three tiers:
 **Lifecycle transitions.** The normal way to land data in Glacier is a lifecycle policy on a regular S3 bucket: `Standard → Standard-IA after 30 days → Glacier Flexible Retrieval after 90 days → Glacier Deep Archive after 365 days → expire after 7 years`. Don't manually `PUT` objects to a Glacier class for typical workloads — let lifecycle do it.
 
 **S3 Object Lock.** WORM retention. Two modes:
+
 - **Governance** — admins with `s3:BypassGovernanceRetention` can override.
 - **Compliance** — *no one*, including the root account, can delete until retention expires. Required for regulatory immutability (SEC 17a-4(f), FINRA, CFTC).
 
@@ -55,12 +59,14 @@ The three tiers:
 - **Minimum storage duration** — early deletion (or transition out) charges the full duration's storage.
 
 The whole-archive cost calculation:
+
 ```
 total = (GB stored × $/GB-month × months) +
         (retrieval frequency × GB retrieved × $/GB) +
         (request count × $/1000 requests) +
         (lifecycle transition count × $/1000 transitions)
 ```
+
 If retrieval is the dominant term, you've put the data in the wrong tier.
 
 ## Quotas & limits
@@ -82,6 +88,7 @@ If retrieval is the dominant term, you've put the data in the wrong tier.
 - **Skipping Object Lock for "important" archives.** Without it, a compromised root account can delete the archive. With Compliance mode, ransomware and rogue insiders can't.
 
 ## Pairs well with
+
 - [S3](s3.md) — Glacier classes are part of the S3 storage class spectrum.
 - **S3 lifecycle policies** — the right way to land data here.
 - **S3 Object Lock** — WORM retention.
@@ -90,9 +97,11 @@ If retrieval is the dominant term, you've put the data in the wrong tier.
 - **Athena** — queries archived data once restored, or directly on Glacier Instant Retrieval objects.
 
 ## Pairs well with these repo pages
+
 - [Backup](backup.md) — managed backups that often land in cold storage.
 
 ## Further reading
+
 - [S3 Storage Classes](https://aws.amazon.com/s3/storage-classes/).
 - [S3 Glacier classes for archival](https://aws.amazon.com/s3/storage-classes/glacier/).
 - [S3 Object Lock](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock-overview.html).

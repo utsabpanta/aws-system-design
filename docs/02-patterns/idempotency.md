@@ -3,6 +3,7 @@
 > **One-line summary.** Doing it twice has the same effect as doing it once. The single most important property in a system where messages get retried (i.e., every distributed system).
 
 ## TL;DR
+
 - If retries can cause duplicate side effects (charge a card twice, create two orders, send two notifications), the system isn't idempotent — and at-least-once messaging guarantees it *will* happen.
 - Three primary techniques: **idempotency keys** (client supplies a unique ID per logical operation), **conditional writes** (`IF NOT EXISTS`, `If-Match` on version), **at-least-once + dedup table** (consumer tracks processed message IDs).
 - AWS-native: **DynamoDB conditional writes** (the canonical idempotency primitive), **SQS FIFO deduplication windows** (5-minute), **Lambda Powertools idempotency utility**, **Step Functions exactly-once execution**.
@@ -10,6 +11,7 @@
 - Make idempotency a system requirement, not a per-handler decision. Every state-changing operation should be idempotent.
 
 ## When to use it
+
 - Every state-changing API where retries are possible (which is every API in a distributed system).
 - Webhook handlers (vendors retry until they get `2xx`).
 - Message consumers (SQS, Kinesis, EventBridge — all at-least-once by default).
@@ -18,6 +20,7 @@
 - Payment processing, order placement, account creation, anything financial / legal.
 
 ## When NOT to use it
+
 - Pure-read operations are already idempotent — no work needed.
 - Operations where duplicate execution genuinely doesn't matter (a counter that's eventually consistent and bounded).
 - Throwaway prototypes / one-off scripts.
@@ -25,6 +28,7 @@
 ## How it works
 
 ### 1. Idempotency key (the Stripe pattern)
+
 ```mermaid
 sequenceDiagram
   participant C as Client
@@ -46,17 +50,20 @@ sequenceDiagram
 Client generates a unique key per logical operation. Server stores `(key, result)` and replays the stored response on duplicate. Standard pattern; what Stripe / Square / most payment APIs use.
 
 Key properties:
+
 - **Client-supplied** — must be deterministic per logical operation (UUID per checkout attempt).
 - **Server-stored** with TTL (24 hours typical, longer for financial).
 - **Atomic** — write the result *with* the key, not separately.
 
 ### 2. Conditional writes (database-native)
+
 - DynamoDB: `PutItem` with `ConditionExpression: attribute_not_exists(pk)`.
 - RDBMS: `INSERT … ON CONFLICT DO NOTHING` (PostgreSQL), `INSERT IGNORE` (MySQL), or `MERGE`.
 - S3: `If-None-Match: *` (won't overwrite); `If-Match: <etag>` (optimistic concurrency on update).
 - Optimistic concurrency: track a `version` field; conditional update only succeeds at the expected version.
 
 ### 3. At-least-once + dedup table (consumer side)
+
 - Consumer tracks every processed message ID in a TTL'd store (DynamoDB, Redis).
 - On each message: check seen-set first; skip if seen.
 - The downside is the **dedup window** — beyond TTL, you can re-process.
@@ -88,6 +95,7 @@ Key properties:
 ## Lambda Powertools idempotency
 
 A wrapper that does most of the work:
+
 ```python
 from aws_lambda_powertools.utilities.idempotency import idempotent
 
@@ -96,6 +104,7 @@ def lambda_handler(event, context):
     # this handler runs at-most-once per (event idempotency key)
     process(event)
 ```
+
 Configures a DynamoDB table; the wrapper writes a record before the handler runs and atomically commits on success. Duplicates get the stored response.
 
 ## Common pitfalls
@@ -123,6 +132,7 @@ Configures a DynamoDB table; the wrapper writes a record before the handler runs
 - **"We'll add idempotency later."** It's much harder to add to a live system than to design in. Add to every state-changing operation from day one.
 
 ## Further reading
+
 - [Stripe's idempotency design](https://stripe.com/blog/idempotency).
 - ["Reliability, constant work, and a good cup of coffee", Amazon Builders' Library](https://aws.amazon.com/builders-library/reliability-and-constant-work/).
 - [AWS Lambda Powertools idempotency](https://docs.powertools.aws.dev/lambda/python/latest/utilities/idempotency/).

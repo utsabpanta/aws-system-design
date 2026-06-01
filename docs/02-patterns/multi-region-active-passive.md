@@ -3,6 +3,7 @@
 > **One-line summary.** Run the workload in one Region; replicate data continuously to a standby Region. On primary failure, fail over to the standby. Cheaper and simpler than active-active; higher RTO.
 
 ## TL;DR
+
 - "Active-passive": one Region is primary (serving traffic); one or more are passive (replicated data, scaled-down or zero compute). Failover converts the standby to primary.
 - Three sub-flavors by warmth: **backup-and-restore** (no standby — restore from backup), **pilot light** (standby DB replicated, compute scaled to zero), **warm standby** (standby full stack at reduced capacity). The "warm standby → hot standby → active-active" continuum.
 - AWS-native: **Aurora Global Database** (managed cross-Region async replication with planned-failover in ~1 min), **DynamoDB Global Tables** (multi-active under the hood, used active-passive), **S3 CRR**, **MGN / DRS** for server-level replication.
@@ -10,12 +11,14 @@
 - The right choice for most "we need DR" requirements where RTO is measured in minutes-to-hours, not seconds.
 
 ## When to use it
+
 - Workloads with strict RTO / RPO requirements that need cross-Region resilience.
 - Compliance environments mandating geographic DR.
 - Workloads where Region-level outage is rare enough that active-passive cost is acceptable.
 - Most general business apps where active-active complexity isn't warranted.
 
 ## When NOT to use it
+
 - Workloads needing seconds of RTO and sub-second user-impact globally — use **active-active**.
 - Workloads where single-Region with strong AZ-level HA satisfies the RTO — multi-Region adds cost / operational overhead.
 - Workloads where DR drills are never run — un-drilled DR is fiction.
@@ -54,6 +57,7 @@ flowchart LR
 ### Routing & orchestration
 
 **Route 53 ARC routing controls** — atomic, on/off controls hosted on a highly available cluster.
+
 - **Routing controls** = boolean ("Region A active"). Flip the control to fail over.
 - **Safety rules** = constraints ("only one Region active at a time" — prevents split-brain).
 - **Readiness checks** = continuous monitoring that the standby Region is actually capable of taking traffic (quotas, capacity, replication lag).
@@ -66,25 +70,30 @@ flowchart LR
 ### Data layer options
 
 **Aurora Global Database:**
+
 - One primary Region (writes), up to 5 secondary Regions (read-only).
 - Async replication; typical lag < 1 second.
 - **Managed planned failover**: ~1 minute, no data loss (waits for replication to catch up).
 - **Detach and promote** for unplanned failover: data loss = lag at the failure moment.
 
 **DynamoDB Global Tables:**
+
 - Multi-active under the hood, but typically used active-passive — direct writes to one Region.
 - Eventual consistency; MRSC for strong (3-Region commitment).
 
 **S3:**
+
 - **Cross-Region Replication (CRR)** for async object replication.
 - **S3 RTC** for 15-min RPO SLA.
 - **Multi-Region Access Points** for unified endpoint.
 
 **ElastiCache Global Datastore:**
+
 - Multi-Region Redis / Valkey replication.
 - Async; typical lag seconds.
 
 **MGN / AWS Elastic Disaster Recovery (DRS):**
+
 - Block-level continuous replication of EC2 instances to a target Region.
 - **DRS** is the dedicated DR-flavor; MGN is the migration-flavor (similar tech, different use case).
 
@@ -97,6 +106,7 @@ flowchart LR
 ### Failover procedure
 
 A typical orchestrated failover:
+
 1. **Detect** the primary is unhealthy (CloudWatch alarms, ARC readiness checks).
 2. **Decide** to fail over (automatic via ARC, or manual via runbook).
 3. **Flip the routing control** (ARC).
@@ -136,6 +146,7 @@ A planned failover (drill, maintenance) is the same procedure with steps 1-2 rep
 - **No post-failover runbook.** "We failed over; now what?" Define monitoring, reduced-capacity warnings, when to fail back.
 
 ## Further reading
+
 - [Disaster Recovery Strategies whitepaper, AWS](https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html).
 - [Aurora Global Database failover](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-global-database-disaster-recovery.html).
 - [Route 53 Application Recovery Controller](https://docs.aws.amazon.com/r53recovery/latest/dg/what-is-route53-recovery.html).

@@ -3,6 +3,7 @@
 > **One-line summary.** Managed automatic speech recognition (ASR). Convert audio / video to text — real-time streaming or async batch — across dozens of languages.
 
 ## TL;DR
+
 - The right service for speech-to-text on AWS. Real-time `StartStreamTranscription` (WebSocket / HTTP/2) and async S3-based `StartTranscriptionJob`.
 - **Custom vocabulary** + **custom language models** improve recognition for domain-specific terms (drug names, product names, jargon).
 - **Speaker diarization** (who said what), **channel identification**, **automatic language identification**, **PII redaction**, **toxicity detection**, **content filtering** — all built in.
@@ -10,6 +11,7 @@
 - **Transcribe Call Analytics** packages contact-center-specific features (sentiment, talk-time, categorization, summarization).
 
 ## When to use it
+
 - Meeting / call recording transcription.
 - Real-time captions for live streams.
 - Contact-center analytics (Call Analytics).
@@ -19,6 +21,7 @@
 - Voice search / commands.
 
 ## When NOT to use it
+
 - Music or non-speech audio (Transcribe is tuned for speech).
 - Extremely noisy / low-quality audio without preprocessing.
 - Workloads where you want full-stack voice AI (transcription + understanding + response) — sometimes a single voice-aware LLM agent fits better.
@@ -26,10 +29,12 @@
 ## Key concepts
 
 ### Modes
+
 - **Streaming (real-time)** — `StartStreamTranscription` via WebSocket or HTTP/2. Sub-second-to-second latency. Use for live captions / voice apps / real-time agent assist.
 - **Batch** — `StartTranscriptionJob` on S3 audio file. Higher accuracy in some configurations; async results.
 
 ### Features
+
 - **Speaker diarization** — labels speakers (`spk_0`, `spk_1`) when there are multiple voices.
 - **Channel identification** — for stereo recordings (one party per channel), associate text with channel.
 - **Automatic language identification** — Transcribe detects the language from the audio.
@@ -41,7 +46,9 @@
 - **Subtitle output** — VTT / SRT for video captions.
 
 ### Transcribe Call Analytics
+
 Contact-center-specific:
+
 - **Sentiment** per speaker over time.
 - **Talk-time / interruption metrics**.
 - **Categorization** — apply rules ("escalation requested", "refund mentioned").
@@ -49,11 +56,13 @@ Contact-center-specific:
 - **Real-time analytics** — same features in real time for agent assist.
 
 ### Transcribe Medical
+
 - Optimized for clinical dialogue (doctor-patient).
 - HIPAA-eligible.
 - Includes medical-specific vocabulary out of the box.
 
 ### Output format
+
 JSON with words, timestamps, confidence per word, speakers / channels, and optional alternative transcriptions.
 
 ## Pricing model
@@ -87,6 +96,7 @@ For high-volume meeting / call workloads, tiered volume discounts apply.
 - **Call Analytics for non-call workloads.** It's tuned for two-party conversations; multi-speaker meetings work better with standard Transcribe + diarization.
 
 ## Pairs well with
+
 - [Polly](polly.md) — round-trip voice apps.
 - [Translate](translate.md) — translate transcripts to other languages.
 - [Comprehend](comprehend.md) — sentiment / entities / classification on transcripts.
@@ -96,9 +106,11 @@ For high-volume meeting / call workloads, tiered volume discounts apply.
 - [Lambda](../compute/lambda.md), [Step Functions](../integration-messaging/step-functions.md) — pipeline orchestration.
 
 ## Pairs well with these repo pages
+
 - [Polly](polly.md), [Translate](translate.md), [Comprehend](comprehend.md), [Bedrock](bedrock.md), [Lex](lex.md).
 
 ## Further reading
+
 - [Amazon Transcribe documentation](https://docs.aws.amazon.com/transcribe/).
 - [Streaming transcription](https://docs.aws.amazon.com/transcribe/latest/dg/streaming.html).
 - [Custom Language Models](https://docs.aws.amazon.com/transcribe/latest/dg/custom-language-models.html).

@@ -3,6 +3,7 @@
 > **One-line summary.** Managed key storage and cryptographic operations. The encryption-at-rest substrate for nearly every other AWS service that encrypts your data.
 
 ## TL;DR
+
 - Store and use cryptographic keys without ever handling raw key material. Almost every other AWS service ("encrypt with KMS") uses KMS under the hood.
 - Three key types: **AWS-owned** (free, AWS-managed, you don't see them), **AWS-managed** (per-service `aws/<service>` keys, free), and **customer-managed (CMK)** (you control policy, rotation, grants — billed monthly + per use).
 - The big architectural lever: **one CMK per data classification / domain, not one per resource.** A KMS key sprawl problem destroys grant management and observability.
@@ -10,12 +11,14 @@
 - KMS calls have per-request charges and modest rate limits (in the low thousands per second per key); high-volume workloads should use **envelope encryption** with KMS-generated data keys rather than calling `Encrypt` / `Decrypt` per request.
 
 ## When to use it
+
 - Almost every AWS workload — every "encrypt with KMS" toggle on every service.
 - Application-level encryption (envelope-encrypted data, JWE, signed JWTs with KMS-asymmetric keys).
 - Cross-account key sharing for data shared across an Organization.
 - HMAC, sign/verify, and (since the last few years) **asymmetric keys** (RSA, ECC) for digital signatures and key wrapping.
 
 ## When NOT to use it
+
 - Storage of long secrets like API keys, passwords — those go in **Secrets Manager** (or Parameter Store SecureString). KMS encrypts *for* those services.
 - TLS private keys for ALB / CloudFront — use **ACM**.
 - Hardware-tied keys for FIPS 140-2 Level 3 compliance scenarios that require single-tenant HSMs — use **CloudHSM**.
@@ -25,15 +28,18 @@
 **KMS key (KMS-CMK).** A logical key with a key ID, ARN, alias (optional, recommended), description, key policy, and grants. Material lives on FIPS 140-2 Level 3 HSMs in the Region.
 
 **Key types:**
+
 - **Symmetric** (AES-256-GCM under the hood) — the default; used for envelope encryption and most `Encrypt`/`Decrypt` flows.
 - **Asymmetric RSA / ECC** — sign/verify, encrypt/decrypt (RSA), key agreement (ECC).
 - **HMAC** — generate/verify HMAC tags.
 
 **Symmetric key usage modes:**
+
 - **Encrypt / Decrypt** — direct, for small payloads (< 4 KB).
 - **Generate Data Key** — KMS returns a plaintext data key + an encrypted-by-KMS-CMK copy. App encrypts data with the plaintext key, stores the encrypted-key alongside, discards the plaintext key. **The right pattern for any meaningful data volume — KMS isn't called per object decrypt for years of stored data.**
 
 **Key origin:**
+
 - **AWS_KMS** — KMS generates and holds the material.
 - **EXTERNAL** — you import material (e.g., HSM-generated externally). Imported keys expire; you must re-import.
 - **AWS_CLOUDHSM** — material lives in a CloudHSM cluster you own.
@@ -83,6 +89,7 @@ The economic reason envelope encryption matters: a high-volume workload that cal
 - **Forgetting that KMS calls show up in CloudTrail.** That's a feature, not a bug — investigate suspicious `Decrypt` calls on sensitive keys.
 
 ## Pairs well with
+
 - [S3](../storage/s3.md), [EBS](../storage/ebs.md), [RDS](../database/rds.md), [DynamoDB](../database/dynamodb.md) — all use KMS for at-rest encryption.
 - [Secrets Manager](secrets-manager.md), [Parameter Store](parameter-store.md) — encrypted with KMS.
 - [CloudHSM](cloudhsm.md) — KMS XKS or `AWS_CLOUDHSM` origin can use HSMs you operate.
@@ -90,9 +97,11 @@ The economic reason envelope encryption matters: a high-volume workload that cal
 - **IAM Access Analyzer** — surfaces cross-account access through key policies.
 
 ## Pairs well with these repo pages
+
 - [Security pillar](../../05-well-architected/security.md) — "encrypt everything in transit and at rest."
 
 ## Further reading
+
 - [AWS KMS documentation](https://docs.aws.amazon.com/kms/).
 - [KMS concepts: keys, aliases, grants, key policies](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html).
 - [Envelope encryption](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#enveloping).

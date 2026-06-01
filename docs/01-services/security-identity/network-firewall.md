@@ -3,6 +3,7 @@
 > **One-line summary.** Managed L3–L7 firewall at the VPC level. Stateful traffic inspection, IDS/IPS, domain-name filtering, and TLS inspection — without you operating a virtual appliance fleet.
 
 ## TL;DR
+
 - VPC-attached firewall service. Sits in a dedicated firewall subnet; you route VPC traffic through it via route table changes.
 - **Stateful** (Suricata-compatible rules) + **stateless** rule groups. Domain-based filtering by SNI or HTTP host header. Deep packet inspection.
 - The **AWS-native alternative to running Palo Alto / Check Point / Fortinet virtual firewalls on EC2** (or behind Gateway Load Balancer). Less feature-rich than the major commercial NGFWs; far simpler operationally.
@@ -10,12 +11,14 @@
 - Pricing is per-endpoint-hour + per-GB processed — expensive at high throughput. Architect for what *needs* inspection vs what doesn't.
 
 ## When to use it
+
 - **Centralized egress** through a "security VPC" with a domain-name allow-list for outbound traffic.
 - **East-west segmentation** between VPCs / accounts via Transit Gateway + Network Firewall on a central inspection VPC.
 - **Compliance** that requires stateful inspection / IDS at the network layer.
 - Replacing self-managed firewall appliances on EC2 with an AWS-managed alternative when the commercial NGFW features aren't required.
 
 ## When NOT to use it
+
 - Workloads where security groups + NACLs + WAF cover the threat model — Network Firewall adds significant cost.
 - Public web app L7 filtering — that's **WAF**.
 - Workloads requiring features only commercial NGFWs offer (specific SD-WAN integration, advanced URL filtering categories) — Gateway Load Balancer + a commercial NGFW fleet is the alternative.
@@ -29,6 +32,7 @@
 **Stateless rule groups.** Per-packet evaluation. Match on 5-tuple (src/dst IP, port, protocol), TCP flags. Actions: pass, drop, forward to stateful engine.
 
 **Stateful rule groups.** Connection-aware. Three flavors:
+
 - **5-tuple stateful** — like stateless but tracks connection state.
 - **Domain-list** — match outbound traffic by HTTP host header or TLS SNI. The simplest way to allow-list / deny-list domains.
 - **Suricata-compatible rules** — full Suricata syntax including community rule sets (Emerging Threats, etc.). Includes IDS/IPS-style detection.
@@ -71,15 +75,18 @@ At high throughput, Network Firewall is meaningfully expensive. The architecture
 - **Single inspection VPC bottleneck.** A central security VPC with Network Firewall serving many spoke VPCs is a popular pattern; verify the firewall throughput against peak spoke traffic before committing.
 
 ## Pairs well with
+
 - [VPC](../networking/vpc.md), [Transit Gateway](../networking/transit-gateway.md) — host topology.
 - **AWS Firewall Manager** — org-wide policy.
 - [WAF](waf.md) — L7 HTTP filtering at the application boundary.
 - **Gateway Load Balancer** — for inserting commercial NGFW appliances; alternative pattern for the "I want NGFW features" case.
 
 ## Pairs well with these repo pages
+
 - [WAF](waf.md), [Shield](shield.md), [Transit Gateway](../networking/transit-gateway.md).
 
 ## Further reading
+
 - [AWS Network Firewall documentation](https://docs.aws.amazon.com/network-firewall/).
 - [Centralized egress with Network Firewall](https://docs.aws.amazon.com/whitepapers/latest/building-scalable-secure-multi-vpc-network-infrastructure/centralized-egress-to-internet.html).
 - [Suricata rules in Network Firewall](https://docs.aws.amazon.com/network-firewall/latest/developerguide/suricata-examples.html).

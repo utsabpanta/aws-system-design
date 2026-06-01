@@ -3,6 +3,7 @@
 > **One-line summary.** Managed L7 firewall for HTTP/HTTPS. Attach to CloudFront, ALB, API Gateway, App Runner, AppSync, or Verified Access. Enforce custom and managed rule groups.
 
 ## TL;DR
+
 - Rule-based filtering at L7 — block, allow, count, CAPTCHA, or challenge requests based on headers, paths, IPs, bodies, geographic origin, rate, or matched managed rule groups.
 - **AWS Managed Rule Groups** are the right default — out-of-the-box protection against OWASP Top 10, known bad bots, anonymous IPs, account-takeover patterns.
 - **Bot Control** and **Account Takeover Prevention (ATP)** are paid managed rule groups that catch most production attack patterns without you writing rules.
@@ -10,12 +11,14 @@
 - Pairs with **Shield Advanced** for DDoS protection at L7.
 
 ## When to use it
+
 - Any public web app or API. WAF on CloudFront is the canonical front-line filter.
 - APIs receiving customer requests where you want abuse / scraping / brute-force protection.
 - Compliance (PCI, SOC 2) auditors expecting a WAF in front of public endpoints.
 - Mitigating specific known threats (CVEs, bot scrapers, account takeover attempts) without code changes in your app.
 
 ## When NOT to use it
+
 - Internal services with no public exposure — no benefit, WAF only fires on requests that reach it.
 - L4 / non-HTTP traffic — WAF doesn't apply; use Network Firewall or AWS Shield Standard for L3/L4.
 - Workloads behind NLBs without an HTTP-aware tier — WAF doesn't attach to NLB.
@@ -25,11 +28,13 @@
 **Web ACL.** The top-level WAF resource. Contains an ordered list of rules + a default action (`ALLOW` or `BLOCK`). Each rule has a name, priority, condition, and action.
 
 **Rules:**
+
 - **Custom rules** — match on headers, paths, query strings, body, source IP, geographic origin, label-based (rules that set labels other rules can match on).
 - **Rate-based rules** — count requests per source IP (or per X-Forwarded-For value, etc.) in a 5-minute sliding window; trigger when count exceeds threshold.
 - **Managed rule groups (AWS-Managed and third-party Marketplace)** — pre-built rule bundles maintained by AWS or vendors.
 
 **Managed rule groups (AWS):**
+
 - **Core Rule Set (CRS)** — OWASP Top 10 baseline.
 - **Known Bad Inputs** — known exploitation payloads.
 - **SQL Injection / Linux / Windows / POSIX OS / PHP / WordPress / etc.** — pattern-specific rule sets.
@@ -39,6 +44,7 @@
 - **Account Creation Fraud Prevention** (paid).
 
 **Actions on a rule match:**
+
 - **ALLOW** / **BLOCK** — terminal.
 - **COUNT** — just count, useful for shadow / staging mode.
 - **CAPTCHA / Challenge** — present a JavaScript challenge or CAPTCHA; allow on pass.
@@ -80,15 +86,18 @@ WAF gets expensive on high-traffic CloudFront distributions, but the cost is usu
 - **CAPTCHA on every blocked rule.** UX falls off a cliff. Reserve CAPTCHA for suspicious-but-not-clearly-malicious patterns; BLOCK clear bots outright.
 
 ## Pairs well with
+
 - [CloudFront](../networking/cloudfront.md), [ELB](../networking/elb.md), [API Gateway](../networking/api-gateway.md) — common attachment points.
 - [Shield Advanced](shield.md) — adds DDoS protection + the DDoS response team; bundles unlimited WAF use on protected resources.
 - **AWS Firewall Manager** — org-wide WAF policy.
 - **CloudWatch Logs Insights** — query WAF logs for tuning.
 
 ## Pairs well with these repo pages
+
 - [CloudFront](../networking/cloudfront.md), [Shield](shield.md).
 
 ## Further reading
+
 - [AWS WAF documentation](https://docs.aws.amazon.com/waf/).
 - [AWS Managed Rules](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups.html).
 - [Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html).

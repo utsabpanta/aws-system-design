@@ -3,6 +3,7 @@
 > **One-line summary.** AWS's columnar petabyte-scale data warehouse. Postgres-compatible SQL surface; massively parallel execution under the hood.
 
 ## TL;DR
+
 - The right answer for "I have tens of TB to PB of structured data and I need fast SQL analytics over it." Not a transactional database.
 - Two compute models: **Provisioned clusters** (`ra3` instances with managed storage, separating compute from storage) and **Redshift Serverless** (capacity in **RPUs**, scales automatically, no node management).
 - **Spectrum** queries data sitting in S3 (Parquet, ORC, Iceberg, S3 Tables) without loading it — pay per TB scanned. **Zero-ETL** integrations pull data continuously from RDS, Aurora, DynamoDB, and SaaS sources without you running ETL jobs.
@@ -10,6 +11,7 @@
 - The most common mistake: treating Redshift as a transactional DB. It's not — small updates and deletes are slow; design for batch ingest + analytical query.
 
 ## When to use it
+
 - Data warehouse for BI tools (QuickSight, Tableau, Looker, Power BI).
 - Ad-hoc analytical SQL over many terabytes of historical data.
 - ETL output / curated marts for analytics.
@@ -17,6 +19,7 @@
 - Workloads where Postgres SQL semantics (CTEs, window functions, stored procedures) matter to the analyst team.
 
 ## When NOT to use it
+
 - Transactional OLTP — RDS / Aurora / DynamoDB.
 - Low-latency point lookups — too much overhead per query; warm a cache or use OpenSearch / DynamoDB instead.
 - Workloads where you'd rather pay per query and never run a cluster — **Athena over S3** with Parquet/Iceberg is much cheaper for occasional analytical queries.
@@ -29,6 +32,7 @@
 **Redshift Serverless.** No nodes. Capacity in **Redshift Processing Units (RPUs)** — set a base and max, auto-scales. Pay per RPU-second when queries run. Right for variable or unpredictable workloads.
 
 **Distribution and sort keys.**
+
 - **Distribution style** — `AUTO`, `KEY`, `EVEN`, `ALL`. `KEY` colocates rows sharing a distribution-key value on the same node (good for joins on that key). `ALL` replicates a small dimension table to every node (good for star joins).
 - **Sort key** — physical ordering of rows on disk. Compound sort keys serve range scans; **interleaved** sort keys are mostly legacy.
 - **AUTO** for both is the right default in 2026 — Redshift's auto-table-design improvements catch most cases.
@@ -84,6 +88,7 @@ The cost lever for serverless vs provisioned: **bursty / unpredictable workloads
 - **Public-access cluster.** Production clusters live in private subnets, reached via VPC peering / endpoints / Direct Connect, not via public endpoint.
 
 ## Pairs well with
+
 - **S3 + Glue Catalog + Iceberg / S3 Tables** — lake-first architecture, Redshift queries it via Spectrum.
 - **DMS, Zero-ETL** — continuous ingest from operational stores.
 - **QuickSight, Tableau, Looker, Power BI** — BI front-ends.
@@ -91,6 +96,7 @@ The cost lever for serverless vs provisioned: **bursty / unpredictable workloads
 - **AWS Backup** — vault-locked cross-Region retention.
 
 ## Pairs well with these repo pages
+
 - [S3](../storage/s3.md) — the data lake underneath Spectrum.
 - [DynamoDB](dynamodb.md) — Zero-ETL source.
 - [Aurora](aurora.md) / [RDS](rds.md) — Zero-ETL sources.
@@ -98,6 +104,7 @@ The cost lever for serverless vs provisioned: **bursty / unpredictable workloads
 - `docs/04-reference-architectures/data-lake-on-s3.md` (forthcoming).
 
 ## Further reading
+
 - [Amazon Redshift documentation](https://docs.aws.amazon.com/redshift/).
 - [Redshift Serverless](https://docs.aws.amazon.com/redshift/latest/mgmt/serverless-whatis.html).
 - [Redshift Spectrum](https://docs.aws.amazon.com/redshift/latest/dg/c-using-spectrum.html).

@@ -3,6 +3,7 @@
 > **One-line summary.** AWS's purpose-built relational engine — MySQL- and PostgreSQL-compatible — with a custom distributed storage layer that gives you 6-way multi-AZ replication, fast failover, and up to 15 readers off a single source of truth.
 
 ## TL;DR
+
 - A re-engineered storage layer + a familiar SQL engine. **Storage is logged to six copies across three AZs**; the database instance is just a compute node above it.
 - Failover is **single-digit seconds** (vs 30–120 s on RDS Multi-AZ). Up to **15 low-lag read replicas** share the same storage — no async replica lag.
 - **Aurora Global Database** replicates across Regions with typical RPO < 1 s, RTO ~1 min on planned failover; supports up to 5 secondary Regions.
@@ -10,12 +11,14 @@
 - Aurora Serverless is documented separately — see [`aurora-serverless.md`](aurora-serverless.md).
 
 ## When to use it
+
 - High-availability MySQL or PostgreSQL on AWS with read scale and fast failover.
 - Apps that want SQL semantics but expect to grow into multi-Region (Aurora Global Database).
 - Workloads that benefit from cheap point-in-time clones (zero-copy at first write).
 - Migrating from on-prem MySQL / PostgreSQL where the operational ceiling of vanilla RDS doesn't cut it.
 
 ## When NOT to use it
+
 - Engines other than MySQL / PostgreSQL — use RDS.
 - Workloads small enough that the Aurora premium isn't justified — RDS PostgreSQL with Multi-AZ DB cluster can be cheaper for small writers.
 - True horizontal-scale writes (shard-the-keyspace patterns) — Aurora is a single-writer cluster (with Global Database write forwarding as a limited workaround). For multi-writer global, you're looking at DynamoDB Global Tables MRSC or sharding above Aurora.
@@ -30,6 +33,7 @@
 **Replicas.** Up to 15 readers per cluster, replicating via the shared storage (not log shipping) — replica lag is typically tens of milliseconds, not seconds. Promotion of a reader to writer happens in seconds; reader instances are eligible promotion targets ordered by priority tier.
 
 **Storage classes:**
+
 - **Aurora Standard** — pay per GB-month + per I/O. Cheaper when I/O is light.
 - **Aurora I/O-Optimized** — flat per-instance pricing, no per-I/O charge. Cheaper above ~25% of total cost being I/O. The right default for analytical or write-heavy workloads.
 
@@ -77,6 +81,7 @@ Picking I/O-Optimized vs Standard is one of the biggest cost levers. Check the I
 - **Forgetting that some engine versions / extensions lag vanilla Postgres / MySQL.** Verify the extension and version availability before committing.
 
 ## Pairs well with
+
 - [RDS](rds.md) — the simpler choice when Aurora's features aren't needed.
 - [Aurora Serverless](aurora-serverless.md) — for spiky or low-utilization workloads.
 - **RDS Proxy** — connection pooling.
@@ -85,10 +90,12 @@ Picking I/O-Optimized vs Standard is one of the biggest cost levers. Check the I
 - **Performance Insights, Database Activity Streams** — observability and audit.
 
 ## Pairs well with these repo pages
+
 - [RDS](rds.md), [Aurora Serverless](aurora-serverless.md), [DynamoDB](dynamodb.md).
 - `docs/02-patterns/multi-region-active-passive.md` (forthcoming) — Aurora Global Database is the canonical AWS example.
 
 ## Further reading
+
 - [Amazon Aurora documentation](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/).
 - [Aurora storage and reliability](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.StorageReliability.html).
 - [Aurora I/O-Optimized vs Standard](https://aws.amazon.com/blogs/database/introducing-amazon-aurora-i-o-optimized-and-amazon-rds-optimized-reads/).

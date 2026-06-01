@@ -3,6 +3,7 @@
 > **One-line summary.** Store every state change as an append-only event. Derive current state by replaying events. The event log is the source of truth.
 
 ## TL;DR
+
 - Instead of "update the `account` row," append `MoneyDeposited(amount=100)` to the event log. Current balance = sum of all events.
 - Full audit log built in: every change is preserved, timestamped, attributed.
 - Pairs naturally with [CQRS](cqrs.md) (write side appends events; read side rebuilds projections), [saga](saga.md), and [outbox](outbox.md).
@@ -11,12 +12,14 @@
 - Don't event-source everything. Pick aggregates where audit / history / temporal queries actually matter (finance, healthcare, scheduling, inventory) and use CRUD for the rest.
 
 ## When to use it
+
 - Workloads needing a full audit log (financial transactions, healthcare records, compliance-heavy domains).
 - Domains where temporal queries are valuable ("what did the customer's account look like on 2024-03-15?").
 - Workloads where business rules change and you want to recompute past decisions with the new rules.
 - Complex domain models with rich behavior over time (the "DDD aggregates" sweet spot).
 
 ## When NOT to use it
+
 - Simple CRUD workloads — adds complexity for no benefit.
 - Workloads with mostly read traffic and limited domain modeling.
 - Teams new to distributed systems — event sourcing has real depth; start with simpler patterns.
@@ -41,6 +44,7 @@ flowchart LR
 5. Queries hit projections, not the event store directly.
 
 ### Reconstructing state
+
 ```python
 def current_balance(account_id):
     events = event_store.load_events(account_id)
@@ -52,6 +56,7 @@ def current_balance(account_id):
             balance -= event.amount
     return balance
 ```
+
 At scale, this is expensive — every read replays history. Solutions: **snapshots** (periodically save the state, replay only events since the snapshot), **projections** (a separate read model that's updated incrementally).
 
 ## Key concepts
@@ -67,6 +72,7 @@ At scale, this is expensive — every read replays history. Solutions: **snapsho
 **Snapshot.** Periodic state checkpoints (`account=42, balance=1500, last_event_seq=2401`). Avoid replaying from the beginning for every read; replay only from the latest snapshot.
 
 **Schema evolution.** Old events live forever. Solutions:
+
 - **Versioned events** — `OrderPlacedV1`, `OrderPlacedV2`. Handler logic supports both.
 - **Upcasters** — transform old events into new shapes at read time.
 - **Schema registries** — Glue Schema Registry / EventBridge Schema Registry with explicit version migrations.
@@ -78,22 +84,27 @@ At scale, this is expensive — every read replays history. Solutions: **snapsho
 ## AWS-native implementations
 
 ### Event store on DynamoDB
+
 The most common pattern:
+
 - **Table:** `(PK = aggregate_id, SK = sequence_number, payload = JSON event)`.
 - **Optimistic concurrency:** new event uses `sequence_number = last + 1` with conditional write `attribute_not_exists(SK)`. Two concurrent writers race; one wins, the other retries with the new last sequence.
 - **TransactWriteItems** to atomically append multiple events (e.g., `MoneyTransferred` decomposes into `MoneyWithdrawn(account_a)` + `MoneyDeposited(account_b)`).
 - **DynamoDB Streams** feed projections.
 
 ### Projections via DynamoDB Streams + Lambda
+
 - Stream-triggered Lambda reads new events and updates downstream projection tables (DynamoDB, OpenSearch, Aurora, S3 for analytics).
 - Track `last_sequence_processed` per projection to handle replays.
 
 ### Replayable global ordering via Kinesis / MSK
+
 - Aggregates write to an event store *and* publish to Kinesis / Kafka.
 - Subscribers replay from any offset for backfills, new projections, reanalysis.
 - Pair with the [outbox pattern](outbox.md) to keep the event store and downstream stream in sync.
 
 ### EventBridge Archive for retention
+
 - Archive all events on a bus to S3 for long-term storage.
 - Replay via EventBridge Replay when needed (debugging, new projection, audit).
 
@@ -123,6 +134,7 @@ The most common pattern:
 - **Treating events as integration contracts without versioning discipline.** Internal events are easier to evolve than integration events; be careful before publishing the same events both internally and to other services.
 
 ## Further reading
+
 - *Implementing Domain-Driven Design*, Vaughn Vernon — ES alongside DDD.
 - *Designing Data-Intensive Applications*, Martin Kleppmann, Chapter 11 (Stream Processing) and Chapter 12 (Future of Data Systems).
 - ["Event Sourcing", Martin Fowler](https://martinfowler.com/eaaDev/EventSourcing.html).

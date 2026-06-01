@@ -3,6 +3,7 @@
 > **One-line summary.** Managed security investigation service. Builds an entity graph from CloudTrail, VPC Flow Logs, EKS audit logs, GuardDuty findings, and Security Hub data — and lets you click through to see who did what when.
 
 ## TL;DR
+
 - The "investigation" side of AWS security tooling. **GuardDuty / Inspector / Macie** detect; Detective explains.
 - Auto-ingests **GuardDuty findings** (one-click pivot from a finding to the entity graph) and **CloudTrail / VPC Flow Logs / EKS audit logs / Security Hub findings**.
 - Pre-built **finding profiles** and **entity profiles** show timelines, related findings, related entities, and unusual behavior compared to baseline.
@@ -10,12 +11,14 @@
 - Pricing scales with the volume of data ingested; budget for it deliberately on high-volume accounts.
 
 ## When to use it
+
 - Security teams investigating GuardDuty or Security Hub findings.
 - Forensics during or after an incident — Detective's graph dramatically reduces investigation time vs raw CloudTrail queries.
 - Multi-account environments where the investigation has to span accounts (Detective aggregates from member accounts).
 - EKS clusters where audit-log forensics matter.
 
 ## When NOT to use it
+
 - Workloads with no security-investigation function (no one to do the work the graph enables).
 - Environments where a SIEM (Splunk / Datadog / Elastic) already does the investigation workflow well — Detective duplicates some of that value.
 - Very small AWS footprints — manual CloudTrail queries are fine at low scale.
@@ -23,9 +26,11 @@
 ## Key concepts
 
 ### Behavior graph
+
 Detective continuously builds an **entity graph** from ingested data sources. Nodes are entities (IAM users, roles, IP addresses, EC2 instances, S3 buckets, EKS pods, federated users, etc.); edges are relationships (this principal called this API on this resource at this time).
 
 ### Data sources
+
 - **AWS CloudTrail management events** — every API call.
 - **VPC Flow Logs** — network flows.
 - **GuardDuty findings** — auto-ingested; pivot from finding to graph.
@@ -35,19 +40,24 @@ Detective continuously builds an **entity graph** from ingested data sources. No
 Detective does the ingestion automatically when the source service is enabled in the account.
 
 ### Pivots
+
 The killer feature: starting from a GuardDuty finding, you can pivot to:
+
 - The principal that triggered it (recent activity timeline, related findings).
 - The target resource (who else accessed it recently?).
 - The IP address (other principals from this IP, geolocation, ASN).
 - The user agent / SDK version.
 
 ### Finding groups
+
 Detective clusters related findings into a **finding group** — multiple GuardDuty alerts that share an entity (e.g., the same compromised IAM user) become one investigative thread.
 
 ### Multi-account
+
 Enable as a delegated admin from a security account; member accounts' data ingests into the central behavior graph. Investigators see the whole org.
 
 ### Retention
+
 Detective retains data for up to 1 year by default; configurable shorter retention to manage cost.
 
 ## Pricing model
@@ -74,6 +84,7 @@ On a busy production account with lots of CloudTrail and VPC Flow Log volume, De
 - **No runbook from finding type to Detective pivot.** Document the investigation pattern for each common GuardDuty finding type — when an IAM credential exfiltration alert fires, the investigator should know exactly which Detective views to open.
 
 ## Pairs well with
+
 - [GuardDuty](guardduty.md) — primary finding source.
 - [Security Hub CSPM](security-hub.md) — broader finding feed.
 - [CloudTrail](../observability/cloudtrail.md) (forthcoming) — the underlying audit log.
@@ -81,10 +92,12 @@ On a busy production account with lots of CloudTrail and VPC Flow Log volume, De
 - **SIEM / SOAR** — Detective enriches; SIEM aggregates and automates.
 
 ## Pairs well with these repo pages
+
 - [GuardDuty](guardduty.md), [Security Hub CSPM](security-hub.md).
 - [Security pillar](../../05-well-architected/security.md).
 
 ## Further reading
+
 - [Amazon Detective documentation](https://docs.aws.amazon.com/detective/).
 - [Detective + GuardDuty integration](https://docs.aws.amazon.com/guardduty/latest/ug/detective-integration.html).
 - [Detective behavior graph](https://docs.aws.amazon.com/detective/latest/userguide/graph-data-about.html).

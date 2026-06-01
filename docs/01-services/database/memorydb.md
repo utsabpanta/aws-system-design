@@ -3,6 +3,7 @@
 > **One-line summary.** Redis- and Valkey-compatible in-memory database with **multi-AZ durability** — sub-millisecond reads, single-digit-ms writes, and *no risk of data loss on AZ failure*.
 
 ## TL;DR
+
 - Think of it as "ElastiCache, but the data is durable." Multi-AZ transaction log replicates writes to a quorum before ack.
 - Same Redis / Valkey API as ElastiCache; your client code doesn't change.
 - Right when you want Redis as the **system of record**, not just a cache — feature flag stores, leaderboards that must survive failure, real-time scoring, low-latency session stores where eventual loss is unacceptable.
@@ -10,6 +11,7 @@
 - Like ElastiCache, Valkey is the cost-and-feature default in 2026.
 
 ## When to use it
+
 - Feature flag / config stores where data loss isn't acceptable.
 - Real-time leaderboards, scoring systems, geofencing where Redis data structures are the right model and the data is the source of truth.
 - Low-latency session stores for apps where re-authenticating users on AZ failure is unacceptable.
@@ -17,6 +19,7 @@
 - Workloads that are *currently* on Redis-as-system-of-record (often a pattern from on-prem) where you don't want to refactor onto DynamoDB.
 
 ## When NOT to use it
+
 - Pure caching workloads — ElastiCache (Valkey/Redis OSS/Memcached) is much cheaper and sufficient.
 - Relational / SQL workloads — RDS, Aurora.
 - Document workloads at scale — DynamoDB.
@@ -69,16 +72,19 @@ MemoryDB is typically several times more expensive per GB than ElastiCache for t
 - **Treating it as Postgres.** It's still a key-value store at heart. Schema, query, and ops practices come from the Redis world, not SQL.
 
 ## Pairs well with
+
 - [ElastiCache](elasticache.md) — for cache workloads where MemoryDB would be overkill.
 - **Secrets Manager** — IAM auth tokens.
 - **AWS Backup** — managed snapshot retention.
 - **CloudWatch** — `EngineCPUUtilization`, `BytesUsedForMemory`, `Evictions`, replication-lag metrics.
 
 ## Pairs well with these repo pages
+
 - [ElastiCache](elasticache.md) — sibling service with different durability profile.
 - [DynamoDB](dynamodb.md) — the other "low-latency, durable" AWS database choice; different access model.
 
 ## Further reading
+
 - [Amazon MemoryDB documentation](https://docs.aws.amazon.com/memorydb/).
 - [MemoryDB for Valkey](https://aws.amazon.com/memorydb/valkey/).
 - [MemoryDB durability and replication](https://docs.aws.amazon.com/memorydb/latest/devguide/durability.html).

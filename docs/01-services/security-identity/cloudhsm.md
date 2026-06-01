@@ -3,6 +3,7 @@
 > **One-line summary.** Dedicated, single-tenant **FIPS 140-2 Level 3** HSMs in your VPC. You hold the keys; AWS holds the rack.
 
 ## TL;DR
+
 - For workloads where regulatory or contractual rules require **single-tenant HSMs you control**, with key material that *never* leaves the HSM under any circumstance.
 - Standard interfaces (PKCS#11, OpenSSL engine, JCE, KMIP) — your existing on-prem HSM integrations mostly port directly.
 - Significantly more expensive and more operationally complex than **KMS**. Use it only when the compliance requirement explicitly calls for "customer-managed HSM" (e.g., specific HIPAA / PCI / payment-processing scenarios, certain governmental rules).
@@ -10,12 +11,14 @@
 - Two big "no" defaults: don't reach for CloudHSM as the default; don't use it when KMS satisfies the same compliance bar.
 
 ## When to use it
+
 - Compliance regimes that explicitly require single-tenant HSMs you fully control.
 - Payment HSM workloads (issuer / acquirer card workloads) where standard CloudHSM mode is used alongside specialized PCI HSM products.
 - Code-signing or document-signing keys where you need a verifiable hardware boundary independent of AWS staff access.
 - Hybrid scenarios where you already operate Thales / nCipher / SafeNet HSMs on-prem and want a consistent operating model in AWS.
 
 ## When NOT to use it
+
 - "We want encryption" — that's **KMS**.
 - "We want our application secrets safer" — that's **Secrets Manager** / **Parameter Store** (which use KMS).
 - Workloads with low key usage and modest compliance asks — KMS is cheaper and far simpler.
@@ -65,16 +68,19 @@ There is no "free tier" or "scale to zero" mode. A CloudHSM cluster is always-on
 - **Ignoring throughput limits for HSM-bound workloads.** Some workloads (payment authorization) burn HSM throughput quickly. Size the cluster for peak, not average.
 
 ## Pairs well with
+
 - [KMS](kms.md) — KMS Custom Key Store can layer KMS API onto your HSM.
 - **PKCS#11 / JCE / OpenSSL engine** — standard library integrations.
 - **CloudWatch** — HSM health and throughput metrics.
 - **AWS Direct Connect** — predictable network path to the HSM cluster for hybrid scenarios.
 
 ## Pairs well with these repo pages
+
 - [KMS](kms.md) — the cheaper, simpler default for almost all encryption needs.
 - [Security pillar](../../05-well-architected/security.md).
 
 ## Further reading
+
 - [AWS CloudHSM documentation](https://docs.aws.amazon.com/cloudhsm/).
 - [CloudHSM cluster overview](https://docs.aws.amazon.com/cloudhsm/latest/userguide/clusters.html).
 - [KMS Custom Key Store with CloudHSM](https://docs.aws.amazon.com/kms/latest/developerguide/keystore-cloudhsm.html).

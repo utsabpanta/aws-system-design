@@ -3,6 +3,7 @@
 > **One-line summary.** Run the workload in multiple AWS Regions simultaneously, serving traffic from all of them. Highest availability, lowest user-latency globally, hardest to engineer.
 
 ## TL;DR
+
 - "Active-active" means every Region serves production traffic at the same time. Region failure → routing layer steers traffic to surviving Regions; user impact is bounded by failover detection time.
 - The hard problems are **data consistency across Regions** (writes happen in many places; conflicts are inevitable for traditional DBs), **session affinity** (a user mid-flow needs the same Region until they don't), and **cost** (you're paying for full capacity in every Region).
 - AWS-native data layers: **DynamoDB Global Tables** (eventual; MRSC for strong), **Aurora Global Database** (one writer + read replicas — *not* multi-active for writes), **S3 Cross-Region Replication**, **ElastiCache Global Datastore**.
@@ -10,12 +11,14 @@
 - **Use sparingly.** Active-passive ([see that page](multi-region-active-passive.md)) is dramatically cheaper and simpler; active-active is for workloads where seconds of unavailability is unacceptable globally.
 
 ## When to use it
+
 - Global products with strict latency SLOs for users worldwide (gaming, video, real-time finance).
 - Workloads where Region-level RTO is measured in seconds (not minutes).
 - Regulatory data-residency requirements where data must live in the user's Region.
 - High-traffic systems where one Region can't hold peak load.
 
 ## When NOT to use it
+
 - Single-Region workloads serving a single geography — active-active multi-Region adds complexity for no benefit.
 - Workloads where seconds-minutes of downtime is acceptable — **active-passive** is cheaper and simpler.
 - Workloads where cross-Region data consistency is a hard requirement and you can't accept the constraints of MRSC / Spanner-class systems.
@@ -57,10 +60,12 @@ flowchart LR
 - **Application Recovery Controller (ARC) routing controls** — manual or automated atomic-flip controls with safety rules; the recommended primitive for orchestrated failover.
 
 **Session affinity.** A user starts a transaction in Region A; mid-flow, the routing layer would send them to Region B. Problems:
+
 - User's session state (shopping cart) may not have replicated yet.
 - DB writes the user made may not be readable in B.
 
 Mitigations:
+
 - **Sticky routing** during sessions (cookie / token routes to the same Region).
 - **Read-your-writes** consistency via session-bound DB pointer.
 - **Centralized session store** (single-Region or replicated session DB).
@@ -79,12 +84,14 @@ Mitigations:
 ## AWS-native implementations
 
 ### DynamoDB-backed (the easiest path)
+
 - **DynamoDB Global Tables (Standard)** for eventually consistent multi-active.
 - **MRSC Global Tables** for strongly consistent global reads (3-Region commitment).
 - **Route 53 / Global Accelerator** for routing.
 - **CloudFront** for static / cacheable content.
 
 ### Aurora-backed with active-active writes (harder)
+
 - Aurora doesn't natively support multi-active writes.
 - Patterns:
   - **Per-Region Aurora cluster** + app-level dual-write with conflict reconciliation (complex).
@@ -92,11 +99,13 @@ Mitigations:
   - **DynamoDB for cross-Region transactional state** + Aurora for analytical / non-Region-critical data.
 
 ### S3 multi-Region
+
 - **S3 Multi-Region Access Points** — single global endpoint that routes requests to the nearest Region's bucket.
 - **Cross-Region Replication** — async copy to a target Region.
 - **S3 Replication Time Control (RTC)** for 15-min RPO SLA.
 
 ### Routing failover example
+
 - **Route 53 latency-based** with health checks per Region.
 - **ARC routing controls** for orchestrated multi-Region failover (manual flip during incidents, atomic, with safety rules).
 - **Route 53 ARC zonal shift / autoshift** for single-AZ failures within a Region.
@@ -127,6 +136,7 @@ Mitigations:
 - **Cross-Region cost not budgeted.** Replication bandwidth, request charges, additional storage. Multi-Region adds 30-50% on top of single-Region cost for most workloads.
 
 ## Further reading
+
 - [DynamoDB Global Tables MRSC](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/V2globaltables_HowItWorks.html).
 - [Aurora Global Database](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-global-database.html).
 - [Multi-Region failover (Route 53 ARC)](https://docs.aws.amazon.com/r53recovery/latest/dg/what-is-route53-recovery.html).

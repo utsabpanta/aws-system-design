@@ -3,6 +3,7 @@
 > **One-line summary.** Centralized **fine-grained permissions** on the Glue Data Catalog. Grant per-database / table / column / row / cell access without managing S3 bucket policies for every dataset.
 
 ## TL;DR
+
 - The right layer for "we have many people / teams / accounts querying a shared data lake; we need to govern access at the table / column / row level, not at the S3 path level."
 - Replaces per-bucket / per-prefix IAM gymnastics with a **catalog-centric** permission model.
 - Permissions flow into **Athena, Redshift Spectrum, EMR, Glue jobs, QuickSight, S3 Tables** — all the engines that query through the Glue Data Catalog honor Lake Formation.
@@ -10,12 +11,14 @@
 - Cross-account sharing via **Resource Links** + **AWS RAM** — the canonical pattern for a "central data lake account, consumer analytics accounts" topology.
 
 ## When to use it
+
 - Shared data lakes with multiple consumers (analyst teams, data scientists, downstream apps).
 - Multi-account analytics platforms with a central data-lake account.
 - Compliance that requires per-column / per-row access control (PCI, HIPAA, GDPR).
 - Cross-account data sharing without copying data.
 
 ## When NOT to use it
+
 - Single-team data lake with one engine — direct IAM + Glue / Athena permissions can be enough.
 - Workloads not going through Glue Data Catalog (e.g., direct-S3 access from non-catalog engines) — Lake Formation requires the catalog as the access boundary.
 - Tiny accounts where the operational complexity of LF outweighs the granular access benefit.
@@ -35,6 +38,7 @@
 **LF-Tags (tag-based access control).** Attach tags to catalog resources (database / table / column); grant permissions by tag rather than per-resource. Critical for large catalogs.
 
 **Cross-account sharing.**
+
 - **Direct grant** — grant a table to an external account; consumer creates a **Resource Link** in their catalog.
 - **AWS RAM** — share the catalog resource via Resource Access Manager.
 
@@ -74,6 +78,7 @@ The economic argument is operational, not direct cost: LF replaces hand-rolled I
 - **Hybrid: some access via direct S3 IAM, some via LF.** Bypass paths exist. Lock down S3 access so the only way to read managed data is through LF-aware engines.
 
 ## Pairs well with
+
 - [Glue](glue.md) — Data Catalog backbone.
 - [Athena](athena.md), [EMR](emr.md), [Redshift](../database/redshift.md) Spectrum — engines honoring LF permissions.
 - [QuickSight](quicksight.md) — downstream BI consumer.
@@ -81,10 +86,12 @@ The economic argument is operational, not direct cost: LF replaces hand-rolled I
 - [S3 Tables](../storage/s3.md) — newer table format that integrates with LF for permissions.
 
 ## Pairs well with these repo pages
+
 - [Glue](glue.md), [Athena](athena.md), [Redshift](../database/redshift.md), [S3](../storage/s3.md).
 - `docs/04-reference-architectures/data-lake-on-s3.md` (forthcoming).
 
 ## Further reading
+
 - [AWS Lake Formation documentation](https://docs.aws.amazon.com/lake-formation/).
 - [LF-Tags](https://docs.aws.amazon.com/lake-formation/latest/dg/tag-based-access-control.html).
 - [Row-level and cell-level security](https://docs.aws.amazon.com/lake-formation/latest/dg/data-filters-about.html).

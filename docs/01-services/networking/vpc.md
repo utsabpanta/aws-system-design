@@ -3,6 +3,7 @@
 > **One-line summary.** Your private network in AWS. CIDR-defined IP space partitioned into subnets across AZs, with route tables, security groups, NACLs, and gateways that decide who can talk to what.
 
 ## TL;DR
+
 - Every AWS workload runs in a VPC (the "default VPC" is one too, just an opinionated starter). Region-scoped — VPCs don't cross Regions.
 - Three subnet flavors that matter operationally: **public** (route to IGW), **private** (route to NAT for egress), **isolated** (no internet at all — databases, internal-only services).
 - **Security groups** are stateful instance-level firewalls. **NACLs** are stateless subnet-level firewalls. Default to SGs only; touch NACLs rarely.
@@ -10,9 +11,11 @@
 - **IPv6** is mature; **IPAM** (IP Address Manager) is the right way to govern address allocation across many VPCs and accounts.
 
 ## When to use it
+
 - Always. Every workload lives in a VPC.
 
 ## When NOT to use it
+
 - A few fully managed services (Lambda without VPC config, DynamoDB, S3, public-facing API Gateway) don't *require* a VPC. Adding one "for security" without a real reason adds overhead.
 
 ## Key concepts
@@ -20,6 +23,7 @@
 **CIDR block.** The IPv4 range your VPC owns. Typical: `10.0.0.0/16` (65,536 addresses). Up to **5 IPv4 CIDR blocks per VPC** (you can add ranges later). **IPv6** CIDR optional and free; allocated `/56` by AWS from its pool, or BYOIP.
 
 **Subnet.** A CIDR slice within the VPC, pinned to **one AZ**. Conventions:
+
 - **Public** subnet — has a route table entry `0.0.0.0/0 → IGW`. Resources here can be assigned public IPs and reach the internet directly.
 - **Private** subnet — `0.0.0.0/0 → NAT` (NAT Gateway or NAT instance). Resources have no public IPs; can initiate outbound, can't be reached directly from the internet.
 - **Isolated** subnet — no `0.0.0.0/0` route. Used for databases and internal-only services that should never have internet access in either direction.
@@ -90,12 +94,14 @@ The dominant networking cost on most bills isn't the gateway, it's **inter-AZ da
 - **Cross-AZ chatter.** Two services in different AZs chat freely → cross-AZ data transfer charges add up. Use topology-aware routing (ECS, EKS, Service Connect) where it matters.
 
 ## Pairs well with
+
 - [NAT Gateway](nat.md), [VPC Endpoints](vpc-endpoints.md), [Transit Gateway](transit-gateway.md), [Direct Connect](direct-connect.md), [VPN](vpn.md) — the connectivity surface.
 - **AWS PrivateLink** — service-to-service across accounts without public internet.
 - **AWS Network Firewall** — stateful, deep-inspection firewall at the VPC level.
 - **Reachability Analyzer + Network Access Analyzer** — diagnose connectivity and audit reachability against policy.
 
 ## Further reading
+
 - [Amazon VPC documentation](https://docs.aws.amazon.com/vpc/).
 - [VPC subnet design](https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html).
 - [Amazon VPC IP Address Manager](https://docs.aws.amazon.com/vpc/latest/ipam/).

@@ -3,6 +3,7 @@
 > **One-line summary.** Network-attached block storage for EC2. Persistent, snapshot-able, multi-AZ via snapshots, and the default place to put a database that needs durable disk.
 
 ## TL;DR
+
 - The "EC2 hard drive" — but on the other side of a fast network, so it survives the instance and can be detached/reattached.
 - **`gp3` is the default for everything in 2026.** A 2025 update bumped it to up to **80,000 IOPS** and **2,000 MiB/s**, closing most of the historical gap with io1/io2.
 - **`io2 Block Express`** for the workloads that genuinely need sub-ms latency, > 80k IOPS, or 99.999% durability — the highest in EBS.
@@ -10,12 +11,14 @@
 - Cost surprises: unattached volumes still bill (and accumulate from terminated instances), snapshots accumulate forever without a lifecycle policy.
 
 ## When to use it
+
 - The boot volume for any EC2 instance.
 - Single-instance databases (RDS uses EBS under the hood; self-managed Postgres / MySQL / Mongo on EC2 lives on EBS).
 - Application working storage that needs to outlive a single instance (queue persistence, cache snapshots, build artifacts).
 - Anywhere you'd reach for "a disk."
 
 ## When NOT to use it
+
 - Shared filesystem across many instances — use **EFS** (NFS) or **FSx**, not EBS Multi-Attach.
 - Object-shaped data — use **S3**; EBS is the wrong unit of access (and storage cost) for that.
 - Truly ephemeral high-perf scratch — **instance store** (NVMe local to the host) is faster and cheaper-per-GB if you don't need durability.
@@ -76,6 +79,7 @@
 - **Ignoring io2 Block Express for database tier-1.** If you're on io1 / io2 (non-BE), upgrade — it's typically a clear performance win on supported instances.
 
 ## Pairs well with
+
 - [EC2](../compute/ec2.md) — almost always the consumer.
 - **Data Lifecycle Manager (DLM)** — scheduled snapshots and retention.
 - **AWS Backup** — cross-Region / cross-account / vault-locked backups.
@@ -84,6 +88,7 @@
 - **CloudWatch + EBS metrics** — `VolumeReadOps`, `VolumeWriteOps`, `BurstBalance`, `VolumeQueueLength` are the load-bearing operational metrics.
 
 ## Further reading
+
 - [Amazon EBS documentation](https://docs.aws.amazon.com/ebs/).
 - [EBS volume types](https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html).
 - [gp3 vs gp2 migration](https://docs.aws.amazon.com/ebs/latest/userguide/ebs-modify-volume.html).

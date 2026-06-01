@@ -3,6 +3,7 @@
 > **One-line summary.** Virtual machines as a service — the lowest-level AWS compute primitive and the substrate most other services run on top of.
 
 ## TL;DR
+
 - The original AWS service. If a workload doesn't fit a higher-level primitive (Lambda, Fargate, RDS, …), it runs on EC2.
 - Pick the right *instance family* (compute-optimized, memory-optimized, storage-optimized, GPU) before tuning anything else. The family choice swamps any in-instance optimization.
 - **Graviton (ARM) instances are the default starting point in 2026.** M8g/C8g/R8g (Graviton4) deliver the best price/performance for most stateless workloads; M9g (Graviton5) is the newest.
@@ -10,12 +11,14 @@
 - The biggest operational gotcha isn't the instance — it's the EBS volume type (`gp3` is the right default), the AMI lifecycle, and the security group rules.
 
 ## When to use it
+
 - You need OS-level control (custom kernel, GPU drivers, kernel modules, niche package installs).
 - The workload is long-running and steady-state — Lambda or Fargate would cost more at sustained load.
 - You're running something AWS doesn't have a managed service for (self-hosted Kafka, exotic databases, ML training with custom CUDA setup).
 - Compliance demands single-tenant hardware (Dedicated Hosts, Dedicated Instances).
 
 ## When NOT to use it
+
 - The workload fits Lambda (<15 min, event-driven, stateless) — use Lambda.
 - The workload is a stateless container with HTTP ingress — use ECS+Fargate or App Runner / ECS Express Mode.
 - You'd be running an OS just to host a database AWS already manages (Postgres → RDS, Redis → ElastiCache).
@@ -26,6 +29,7 @@
 **Instance family + size** — `m8g.large`, `c7i.xlarge`, `r7gd.4xlarge`. The letter is the family (M general purpose, C compute, R memory, X high-mem, I/D storage, G/P GPU). The number is the generation (higher = newer / faster / cheaper). The suffix denotes processor or features: `g` = Graviton (ARM), `i` = Intel, `a` = AMD, `d` = NVMe instance store, `n` = network-optimized, `e` = extended memory, `b` = block storage optimized.
 
 **Generation cheat sheet (2026):**
+
 - General purpose: **M8g** (Graviton4) is the default. **M9g** (Graviton5) for newest workloads.
 - Compute-intensive: **C8g** / **C7i**.
 - Memory-intensive: **R8g** / **R7iz** (high-frequency).
@@ -58,6 +62,7 @@ EBS volumes billed per GB-month + per IOPS/throughput above the included baselin
 ## Quotas & limits
 
 The defaults bite hard for new accounts:
+
 - **vCPU quotas per family group** (e.g., "standard On-Demand" covers M/C/R/A/T/Z; 32 vCPUs for new accounts is common). [Service Quotas console](https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html) is the place to raise these.
 - **Spot vCPUs** — separate quota per family group, often lower than on-demand.
 - **Elastic IPs per Region** — defaults to 5.
@@ -77,6 +82,7 @@ Raise quotas *before* you need them; some increases take days of human review.
 - **Ignoring [Compute Optimizer](https://aws.amazon.com/compute-optimizer/) recommendations.** Most workloads are over-provisioned; Compute Optimizer surfaces it for free.
 
 ## Pairs well with
+
 - **Auto Scaling Groups + ALB/NLB** — the standard web-tier topology.
 - **EBS + RDS / ElastiCache** — durable state externalized off the instance.
 - **Systems Manager Session Manager** — shell access without inbound SSH.
@@ -84,6 +90,7 @@ Raise quotas *before* you need them; some increases take days of human review.
 - **EFS / FSx** — when multiple instances need shared filesystem state.
 
 ## Further reading
+
 - [Amazon EC2 documentation](https://docs.aws.amazon.com/ec2/).
 - [Instance types](https://aws.amazon.com/ec2/instance-types/) — the canonical (and lengthy) list.
 - [EC2 Spot best practices](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-best-practices.html).

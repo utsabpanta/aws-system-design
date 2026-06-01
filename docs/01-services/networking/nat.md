@@ -3,6 +3,7 @@
 > **One-line summary.** Managed network address translation. Lets private-subnet workloads initiate outbound internet traffic without exposing inbound. Also the line item that surprises everyone on the AWS bill.
 
 ## TL;DR
+
 - One per AZ for high availability — a NAT Gateway is per-AZ; cross-AZ traffic from a subnet to a NAT in another AZ both pays cross-AZ transfer *and* exposes you to AZ failure on that NAT.
 - Charges are **per hour** *and* **per GB processed**. The per-GB is what blows up: a busy workload can pay more for NAT than for the EC2 instances behind it.
 - Cut NAT cost by using **VPC Endpoints** for AWS service traffic (S3 Gateway endpoint is free; Interface endpoints are usually cheaper than NAT for meaningful traffic).
@@ -10,10 +11,12 @@
 - Public NAT vs **private NAT** — most NAT Gateways are public (egress to the internet). Private NAT Gateways exist for cross-VPC NAT use cases without internet exposure.
 
 ## When to use it
+
 - Workloads in private subnets that need to make outbound calls to the internet (package downloads, third-party API calls, OAuth flows to external IdPs).
 - Default egress for ECS / EKS / Lambda-in-VPC workloads talking to anything outside AWS.
 
 ## When NOT to use it
+
 - Workloads that only need to reach AWS services — use **VPC Endpoints** instead (cheaper and traffic stays on the AWS network).
 - Public-subnet workloads — they can use the IGW directly with their own public IP; NAT is for the private side.
 - Very-low-volume, dev/test workloads where the hourly cost dominates — a NAT instance (small EC2 with iptables-NAT) is much cheaper if you're OK operating it.
@@ -42,6 +45,7 @@
 - **EIPs** — free while attached; billed when detached.
 
 The per-GB processed fee is meaningful: at typical AWS rates and a busy workload, NAT data processing can easily exceed the rest of the VPC bill. **Two of the biggest cost optimizations on AWS bills involve NAT**:
+
 1. Use **VPC Endpoints** (Gateway for S3/DynamoDB are free; Interface endpoints for most other services) so AWS-service traffic doesn't traverse NAT.
 2. **Consolidate egress** through one well-placed NAT per AZ; don't run unnecessary parallel paths.
 
@@ -63,11 +67,13 @@ The per-GB processed fee is meaningful: at typical AWS rates and a busy workload
 - **Routing the wrong CIDR to NAT.** Sometimes a workload's "outbound to the internet" is actually traffic that should go cross-Region via Transit Gateway or to an on-prem network via Direct Connect — accidentally NAT'd, it bypasses your private path.
 
 ## Pairs well with
+
 - [VPC](vpc.md), [VPC Endpoints](vpc-endpoints.md) — the right way to reduce NAT traffic.
 - [Transit Gateway](transit-gateway.md) — central NAT serving many VPCs.
 - **AWS Network Firewall** — sits between subnets and NAT for outbound traffic filtering.
 
 ## Further reading
+
 - [NAT Gateway documentation](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html).
 - [NAT Gateway pricing](https://aws.amazon.com/vpc/pricing/).
 - [NAT Gateway use cases](https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateway-scenarios.html).

@@ -3,6 +3,7 @@
 > **One-line summary.** A fixed-price, pre-bundled cloud VPS with managed databases, containers, CDN, and load balancers. AWS's "easy mode" front door.
 
 ## TL;DR
+
 - Predictable monthly pricing for VMs (instances), databases, container services, load balancers, and CDN distributions. No EC2-style menu paralysis.
 - Right for personal projects, prototypes, WordPress sites, small SaaS, and the "I just want a Linux box" use case. Not right for anything that needs the full AWS control plane.
 - Lightsail resources live in their own simplified Region/AZ model; bridging them into a full VPC requires VPC peering (one click in the console) and isn't always seamless.
@@ -10,6 +11,7 @@
 - Migrate to EC2 / RDS / ECS once your needs outgrow the bundle structure (the in-console "upgrade to EC2" tool snapshots and exports).
 
 ## When to use it
+
 - Personal projects, hobby apps, small business sites, blogs, learning environments.
 - A simple WordPress, Ghost, or Nextcloud install — the blueprints take 60 seconds.
 - Small SaaS that needs a predictable monthly bill rather than per-second EC2 billing.
@@ -17,6 +19,7 @@
 - Quick HTTP services as Lightsail container services (a lightweight alternative to App Runner now that App Runner is closing).
 
 ## When NOT to use it
+
 - Production workloads needing full AWS integration (Security Hub, GuardDuty findings, fine-grained IAM, custom VPC topology, Direct Connect, etc.).
 - Anything that needs Auto Scaling Groups, custom AMIs, GPUs, or instance types beyond the limited Lightsail catalog.
 - Multi-Region or DR-grade designs — Lightsail's high-availability story is much narrower than EC2/RDS.
@@ -71,17 +74,20 @@ The bundling makes pricing predictable but breaks down at scale: a 32-vCPU Light
 - **DR through Lightsail.** Cross-Region replication and multi-Region failover are basically not first-class. If you need that, you're outgrowing Lightsail.
 
 ## Pairs well with
+
 - **Route 53** (hosted zones live there, even if you point them at Lightsail resources).
 - **CloudFront** — Lightsail CDN distributions are CloudFront under the hood; for advanced caching policies you can also point full CloudFront at a Lightsail instance origin.
 - **Lightsail Container Service** — for small containerized HTTP workloads.
 - **Backups + snapshots** — schedule them; Lightsail won't do it by default.
 
 ## Pairs well with these repo pages
+
 - [EC2](ec2.md) — the upgrade path when Lightsail's ceiling becomes a problem.
 - [App Runner](app-runner.md) — the AWS-managed container alternative (also a Lightsail-Container alternative, though App Runner is closing to new customers in 2026).
 - [ECS](ecs.md) — the right container destination at production scale.
 
 ## Further reading
+
 - [Amazon Lightsail documentation](https://docs.aws.amazon.com/lightsail/).
 - [Lightsail FAQs](https://aws.amazon.com/lightsail/faq/).
 - [Upgrade from Lightsail to EC2](https://docs.aws.amazon.com/lightsail/latest/userguide/amazon-lightsail-upgrading-to-amazon-ec2.html).

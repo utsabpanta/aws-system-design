@@ -18,6 +18,7 @@ labels: ["correction"]
 <!-- AWS docs link, re:Invent talk, official blog, etc. Required for non-trivial factual changes. -->
 
 ## Service status change?
+
 - [ ] AWS has deprecated this service
 - [ ] AWS has renamed this service
 - [ ] AWS has closed this service to new customers

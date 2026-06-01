@@ -3,6 +3,7 @@
 > **One-line summary.** Four AWS-managed streaming services that share a heritage. **Kinesis Data Streams** (raw streams), **Amazon Data Firehose** (managed delivery to S3 / Redshift / OpenSearch / Splunk), **Amazon Managed Service for Apache Flink** (formerly Kinesis Data Analytics — stream processing), and **Kinesis Video Streams** (media streams).
 
 ## TL;DR
+
 - The Kinesis family has been **renamed in pieces**:
   - **Kinesis Data Analytics → Amazon Managed Service for Apache Flink** (August 2023). The legacy **SQL-application flavor was discontinued on January 27, 2026** — migrate to Managed Apache Flink Studio.
   - **Kinesis Data Firehose → Amazon Data Firehose** (February 2024). Same service, broader brand to reflect non-Kinesis sources.
@@ -31,10 +32,12 @@
 **What it is:** ordered, partitioned, replayable streams. Producers `PutRecord(s)`; consumers read by shard. 24-hour default retention, extendable up to 365 days.
 
 **Capacity modes:**
+
 - **Provisioned** — pay per shard-hour. Each shard handles 1 MB/s in, 2 MB/s out (enhanced fan-out raises read).
 - **On-demand** — auto-scale, pay per GB written + read. Right for spiky / unknown traffic.
 
 **Consumers:**
+
 - **Shared throughput consumers** (classic) — multiple consumers share the 2 MB/s per shard.
 - **Enhanced fan-out (EFO) consumers** — dedicated 2 MB/s per consumer per shard, push-based. The right default for multiple downstream readers.
 - **Lambda event-source mapping** — managed poller; scales Lambda by shard count and batches.
@@ -55,6 +58,7 @@
 **Destinations:** S3, Redshift, OpenSearch Service / Serverless, Splunk, Datadog, Snowflake, generic HTTP endpoints, and more.
 
 **Transformations:**
+
 - **Lambda transformation** — run a Lambda on each record (or batch) to reshape before delivery.
 - **Format conversion** — JSON → Parquet / ORC at write time (with a Glue Catalog schema).
 - **Dynamic partitioning** — partition by record content (`/year/month/day/` from a field in each record).
@@ -74,6 +78,7 @@
 **What it is:** managed **Apache Flink** for stateful stream processing. Renamed from Kinesis Data Analytics in August 2023.
 
 **Three flavors:**
+
 - **Apache Flink applications** — your Flink JAR (Java / Scala / Python) on AWS-managed Flink. Recent Flink versions tracked.
 - **Apache Flink Studio** — managed Flink notebooks with Zeppelin; interactive development on streams. **Recommended migration target for the discontinued Kinesis Data Analytics for SQL.**
 - (Discontinued) **Kinesis Data Analytics for SQL** — separate SQL-only product. **Discontinued Jan 27, 2026.** New apps blocked since Oct 15, 2025; existing apps deleted at the discontinuation date.
@@ -93,6 +98,7 @@
 **What it is:** ingest, store, and process **video and time-series media** (audio, depth data, RADAR) from devices.
 
 **Two flavors:**
+
 - **Video Streams** — durable storage and time-indexed retrieval of recorded video.
 - **WebRTC ingestion** — low-latency peer-to-peer video signaling via WebRTC; the right shape for two-way video, security cameras, video doorbells.
 
@@ -125,6 +131,7 @@
 - **No retention plan (Video Streams).** Storage costs run away on high-resolution streams.
 
 ## Pairs well with
+
 - [S3](../storage/s3.md), [Redshift](../database/redshift.md), [OpenSearch](opensearch.md) — common Firehose destinations.
 - [Lambda](../compute/lambda.md) — Data Streams consumer and Firehose transformer.
 - [MSK](msk.md) — alternative streaming platform with Kafka semantics.
@@ -132,10 +139,12 @@
 - [Rekognition / SageMaker](../ml-ai/) (forthcoming) — ML on Video Streams.
 
 ## Pairs well with these repo pages
+
 - [MSK](msk.md), [Glue](glue.md), [Athena](athena.md), [Redshift](../database/redshift.md), [OpenSearch](opensearch.md).
 - `docs/04-reference-architectures/streaming-etl-kinesis.md` (forthcoming).
 
 ## Further reading
+
 - [Kinesis Data Streams documentation](https://docs.aws.amazon.com/streams/).
 - [Amazon Data Firehose documentation](https://docs.aws.amazon.com/firehose/).
 - [Amazon Managed Service for Apache Flink](https://docs.aws.amazon.com/managed-flink/).

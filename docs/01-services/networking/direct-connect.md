@@ -3,6 +3,7 @@
 > **One-line summary.** Dedicated, private fiber from your on-prem network to AWS. Predictable bandwidth, predictable latency, no public-internet path.
 
 ## TL;DR
+
 - The right answer for "we move a lot of data between on-prem and AWS, the internet path isn't predictable enough, and/or we don't want this traffic on the public internet."
 - Throughput options: **Dedicated Connection** (1, 10, 100, 400 Gbps physical port at a Direct Connect location) or **Hosted Connection** (50 Mbps – 25 Gbps from a Direct Connect Partner).
 - Connect into AWS via **Virtual Interfaces (VIFs)**: **Private VIF** (to a VPC), **Public VIF** (to AWS public services like S3 / DynamoDB without internet routing), **Transit VIF** (to a Direct Connect Gateway, fronting Transit Gateway / many VPCs).
@@ -10,6 +11,7 @@
 - A single Direct Connect is *not* HA. Use **two connections in two different DX locations** with BGP failover for production hybrid networks. AWS's **Direct Connect SLA** only applies to 99.99% configurations that meet the dual-location requirement.
 
 ## When to use it
+
 - High-volume data transfer between on-prem and AWS (>10 Gbps sustained, or terabytes per day).
 - Predictable latency requirements (financial trading, real-time control systems, latency-sensitive replication).
 - Compliance / contractual requirements that traffic not traverse the public internet.
@@ -17,6 +19,7 @@
 - Multi-Region hybrid via Direct Connect Gateway + Transit Gateway.
 
 ## When NOT to use it
+
 - Low-volume hybrid (Site-to-Site VPN over the internet is fine and dramatically cheaper).
 - New / unvalidated workloads (start on VPN; move to Direct Connect when scale justifies it).
 - Workloads that talk to AWS public services in a single Region with modest traffic — internet egress is often cheaper than DX after you factor port hours and provider costs.
@@ -30,6 +33,7 @@
 **Hosted Connection.** Partner provides a virtual circuit at 50 Mbps – 25 Gbps. Faster to provision, smaller throughput tiers, often cheaper at the low end.
 
 **Virtual Interface (VIF).** Logical interface on top of the connection:
+
 - **Private VIF** — BGP peering into one VPC's Virtual Private Gateway (VGW), or into a Direct Connect Gateway that fans out to many VGWs.
 - **Public VIF** — BGP peering into AWS's public range; reach S3 / DynamoDB / public service endpoints across all Regions without internet routing. AWS advertises public prefixes to you; you advertise yours.
 - **Transit VIF** — peers to a Direct Connect Gateway that's associated with one or more Transit Gateways. The standard pattern for hybrid with many VPCs.
@@ -73,16 +77,19 @@ The data-transfer-out savings vs internet egress is the main long-term economic 
 - **Forgetting LOA-CFA paperwork.** Provisioning a dedicated connection requires submitting a Letter of Authorization (LOA) to the colo. Plan for weeks.
 
 ## Pairs well with
+
 - [Transit Gateway](transit-gateway.md) — hybrid network with many VPCs.
 - [VPN](vpn.md) — backup path for DX.
 - **AWS Direct Connect Resiliency Toolkit** — guided wizard for HA configurations (dual locations).
 - **CloudWatch DX metrics** — `ConnectionBpsEgress/Ingress`, `ConnectionPpsEgress/Ingress`, `ConnectionLightLevelTx/Rx` (optical levels on the link).
 
 ## Pairs well with these repo pages
+
 - [VPN](vpn.md) — the cheaper hybrid alternative for low-volume workloads.
 - `docs/04-reference-architectures/hybrid-on-prem-vpn.md` (forthcoming) — hybrid network reference architectures.
 
 ## Further reading
+
 - [AWS Direct Connect documentation](https://docs.aws.amazon.com/directconnect/).
 - [Direct Connect Resiliency Toolkit](https://docs.aws.amazon.com/directconnect/latest/UserGuide/resiliency_toolkit.html).
 - [Direct Connect locations](https://aws.amazon.com/directconnect/locations/).

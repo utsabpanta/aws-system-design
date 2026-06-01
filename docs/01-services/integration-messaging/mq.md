@@ -3,6 +3,7 @@
 > **One-line summary.** Managed **ActiveMQ** and **RabbitMQ** brokers. Lift-and-shift target for workloads that depend on AMQP, MQTT, STOMP, OpenWire, or JMS protocols — without operating broker clusters yourself.
 
 ## TL;DR
+
 - The right service when you're migrating an existing app that uses ActiveMQ or RabbitMQ and you don't want to refactor onto SQS / SNS / Kafka.
 - Two engines: **ActiveMQ** (AMQP, MQTT, OpenWire, STOMP, JMS, WebSockets) and **RabbitMQ** (AMQP 0-9-1, MQTT, STOMP, RabbitMQ Streams).
 - Supports **single-instance** (dev/test) and **cluster** (production HA) deployments. Cross-AZ active/standby for ActiveMQ; multi-node cluster for RabbitMQ.
@@ -10,12 +11,14 @@
 - Patching, version upgrades, and broker config managed by AWS; you're still responsible for queue / exchange / topic configuration and message-level concerns.
 
 ## When to use it
+
 - Lifting and shifting apps that already use ActiveMQ or RabbitMQ to AWS.
 - Workloads that depend on broker features SQS / SNS lack: JMS, AMQP routing, transactional queues, complex exchange topologies, MQTT for IoT.
 - IoT scenarios where MQTT-on-AWS via **AWS IoT Core** doesn't fit (e.g., custom broker / client topology).
 - Integrations with third-party systems that speak STOMP / OpenWire.
 
 ## When NOT to use it
+
 - Greenfield event-driven on AWS — **SQS + SNS + EventBridge** is cheaper, more scalable, and more integrated.
 - High-volume Kafka-style streaming — use **MSK** or **MSK Serverless**.
 - MQTT for IoT at scale — use **AWS IoT Core**, which has device-management and policy features MQ lacks.
@@ -23,27 +26,34 @@
 ## Key concepts
 
 ### ActiveMQ flavors
+
 - **Single-instance** — one broker; outage on AZ failure. Dev/test only.
 - **Active/standby (multi-AZ)** — synchronous replication to a standby in another AZ; automatic failover. Production-grade ActiveMQ pattern.
 
 ### RabbitMQ
+
 - **Cluster mode** — multi-node RabbitMQ cluster, with quorum queues for HA. AWS-managed cluster sizing and failover.
 
 ### Protocols
+
 **ActiveMQ:** AMQP 1.0, MQTT, OpenWire (Java-native), STOMP, WebSockets.
 
 **RabbitMQ:** AMQP 0-9-1 (the primary RabbitMQ protocol), MQTT, STOMP, RabbitMQ Streams.
 
 ### Networking
+
 Brokers live in your VPC; reach them via standard NLB / endpoint discovery. Optional public accessibility (rarely the right choice for production).
 
 ### Encryption and auth
+
 TLS in transit (mandatory). LDAP or LDAP-via-AD for auth (ActiveMQ); native users + virtual hosts (RabbitMQ). KMS encryption at rest.
 
 ### CloudWatch integration
+
 Broker metrics (queue depth, connection count, consumer lag) published to CloudWatch. Logs to CloudWatch Logs.
 
 ### Maintenance windows
+
 AWS applies minor version patches during a configured weekly window. Major version upgrades require explicit action (blue/green clone, replay, cut over).
 
 ## Pricing model
@@ -74,6 +84,7 @@ MQ broker hours are real money — at production HA scale, comparable to running
 - **No DR plan.** Multi-Region MQ requires app-level replication (republish messages to a broker in the secondary Region) — there's no managed cross-Region replication for MQ.
 
 ## Pairs well with
+
 - **AWS Backup** — broker backups.
 - **Secrets Manager** — broker credentials.
 - **CloudWatch Logs / Metrics** — observability.
@@ -81,10 +92,12 @@ MQ broker hours are real money — at production HA scale, comparable to running
 - [EventBridge Pipes](pipes.md) — MQ is a supported source; bridge MQ-bound apps to AWS-native targets.
 
 ## Pairs well with these repo pages
+
 - [SQS](sqs.md), [SNS](sns.md), [EventBridge](eventbridge.md) — the AWS-native alternatives for new workloads.
 - **AWS IoT Core** (forthcoming) — for MQTT at IoT scale.
 
 ## Further reading
+
 - [Amazon MQ documentation](https://docs.aws.amazon.com/amazon-mq/).
 - [Amazon MQ for ActiveMQ](https://docs.aws.amazon.com/amazon-mq/latest/developer-guide/activemq.html).
 - [Amazon MQ for RabbitMQ](https://docs.aws.amazon.com/amazon-mq/latest/developer-guide/rabbitmq.html).

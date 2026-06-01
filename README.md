@@ -6,11 +6,13 @@
 An open-source, version-controlled reference for **learning AWS services and system design**. Every page is markdown, every diagram is generated from source code, and the whole thing renders directly on GitHub — no build step, no hosted site, no signup.
 
 **Who it's for**
+
 - Engineers and students who want to learn AWS services in depth — what each service does, when to reach for it, and the trade-offs that come with the choice.
 - Anyone studying for system design interviews who wants concrete AWS-mapped answers backed by reasoning, not memorization.
 - Self-taught learners building intuition for how real systems are designed: the patterns that show up everywhere, the failure modes that matter, and the AWS primitives that implement them.
 
 **What it is not**
+
 - An AWS certification cram sheet — explanations go deeper than exam dumps and don't optimize for question banks.
 - A code-tutorial repo — minimal CDK/Terraform/CLI snippets only, as illustration. The repo is design-first.
 - A vendor comparison — this is AWS-focused; "AWS vs GCP" pages are out of scope.
@@ -44,6 +46,7 @@ Every page has the same shape: **TL;DR → when to use / when NOT to use → det
 This repo is actively maintained. Most of the content is in place; a couple of polish passes are still in flight.
 
 **What's in the repo today**
+
 - 3 getting-started pages + 6 [Well-Architected](docs/05-well-architected/) pillar deep-dives.
 - **132 AWS service pages** across 12 categories — compute, storage, database, networking, security & identity, integration & messaging, analytics, ML / AI, DevOps, observability, edge, migration & transfer.
 - **16 system design patterns** (caching, sharding, idempotency, sagas, CQRS, event sourcing, multi-region, …).
@@ -52,6 +55,7 @@ This repo is actively maintained. Most of the content is in place; a couple of p
 - Code-rendered architecture diagrams for every design and reference architecture (Python [`diagrams`](https://github.com/mingrammer/diagrams) + Mermaid).
 
 **What's still being added**
+
 - More reference architectures (multi-region active-passive, ML inference, batch processing, IoT ingest, hybrid landing zones, …).
 - Cross-linking pass so every service page lists the patterns and architectures that use it, and vice versa.
 - A "🟢 New" badge convention to flag pages added in the last 30 days.

@@ -3,6 +3,7 @@
 > **One-line summary.** AWS's global content delivery network. Caches at hundreds of edge POPs, terminates TLS, runs lightweight logic at the edge, and shields origins from load.
 
 ## TL;DR
+
 - Sits in front of any HTTP / WebSocket / gRPC origin (S3, ALB, EC2, API Gateway, MediaPackage, or arbitrary URL). Caches what's cacheable, forwards what isn't.
 - **Anything user-facing belongs behind CloudFront**, even single-Region origins — TLS termination at the edge is faster, the AWS backbone is more reliable than the public internet, and origin egress to CloudFront is free (unlike egress straight to the user).
 - Two flavors of edge compute: **CloudFront Functions** (microsecond JavaScript at the edge, for simple header / URL manipulations) and **Lambda@Edge** (full Lambda at four select POPs, for richer logic that's OK with millisecond-scale latency).
@@ -10,6 +11,7 @@
 - **Signed URLs / signed cookies** for private content; **field-level encryption** for PCI-style data; **WAF + Shield Advanced** integrate natively.
 
 ## When to use it
+
 - Any public web app, API, or media delivery.
 - Cache static assets (S3 + CloudFront is the canonical static-site stack).
 - Reduce origin load and per-GB egress cost — outbound from S3 / EC2 to CloudFront is free.
@@ -18,6 +20,7 @@
 - Video streaming, large file downloads, software updates.
 
 ## When NOT to use it
+
 - Strictly private internal services that never serve external users — CloudFront is an internet-facing edge.
 - Workloads where per-request edge compute latency *and* cost is unwanted (a CloudFront distribution per micro-app is fine; ten layers of edge logic per request is not).
 - Workloads with extreme bandwidth-cost sensitivity at a single Region — sometimes serving directly from an in-Region cluster is cheaper than CloudFront's per-GB rates, though that's rare once you factor TLS, AWS Shield, and operational simplification.
@@ -27,6 +30,7 @@
 **Distribution.** The CloudFront resource. Has one or more **origins** (where to fetch from), **behaviors** (path patterns and per-path cache / security / origin config), and a **default behavior** as the fall-through.
 
 **Origin types.**
+
 - **S3 bucket** (with **OAC** — Origin Access Control — for private buckets).
 - **ALB / NLB / EC2** — HTTP origin.
 - **API Gateway** — REST or HTTP API behind CloudFront.
@@ -41,6 +45,7 @@
 **Cache key.** Defines what makes a cache hit unique. Includes the URL by default; **Cache Policies** let you include selected headers, query strings, or cookies in the key. **Origin Request Policies** decide what to forward to the origin (which can be a superset of the cache key).
 
 **Edge compute:**
+
 - **CloudFront Functions** — JavaScript, sub-millisecond, runs at every edge POP. Limited runtime (~1 ms CPU, no network calls); for header manipulation, URL rewrites, simple auth, cache key normalization.
 - **Lambda@Edge** — full Lambda runtime, Node.js / Python, runs at the four nearest Regional Edge Caches. Millisecond-scale latency; can make network calls. For richer logic (token introspection, dynamic content assembly).
 
@@ -90,6 +95,7 @@ The economic case is straightforward: **CloudFront egress is cheaper than direct
 - **Continuous Deployment unused.** Rolling distribution config changes globally is risky. Use the staging distribution + traffic split.
 
 ## Pairs well with
+
 - [S3](../storage/s3.md) — the canonical static-content origin.
 - [API Gateway](api-gateway.md) — CloudFront in front of HTTP API / REST API.
 - [Route 53](route53.md) — DNS alias to the distribution.
@@ -99,10 +105,12 @@ The economic case is straightforward: **CloudFront egress is cheaper than direct
 - **Lambda@Edge / CloudFront Functions** — edge logic.
 
 ## Pairs well with these repo pages
+
 - [Global Accelerator](global-accelerator.md) — non-HTTP global routing.
 - `docs/04-reference-architectures/static-website-s3-cloudfront.md` (forthcoming).
 
 ## Further reading
+
 - [Amazon CloudFront documentation](https://docs.aws.amazon.com/cloudfront/).
 - [Origin Access Control (OAC)](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html).
 - [CloudFront Functions vs Lambda@Edge](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/edge-functions.html).

@@ -6,6 +6,7 @@ labels: ["content", "design"]
 ---
 
 ## Kind
+
 - [ ] Pattern (`docs/02-patterns/`)
 - [ ] Interview design (`docs/03-interview-designs/`)
 - [ ] Reference architecture (`docs/04-reference-architectures/`)
@@ -26,6 +27,7 @@ labels: ["content", "design"]
 <!-- Rough list — you can refine in the PR. -->
 
 ## Diagram plan
+
 - [ ] High-level architecture diagram (`diagrams` Python)
 - [ ] Sequence diagram (Mermaid) — if relevant
 - [ ] Data model ERD (Mermaid `erDiagram`)

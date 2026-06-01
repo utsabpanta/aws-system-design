@@ -3,6 +3,7 @@
 > **One-line summary.** Managed configuration and (optionally KMS-encrypted) secret store inside AWS Systems Manager. Free for the **Standard** tier; cheap and convenient for plain configuration.
 
 ## TL;DR
+
 - The right place for **config** that doesn't need rotation — environment-style settings, feature flags, third-party-service URLs, IDs of dependent resources.
 - **SecureString** parameters are KMS-encrypted; cheap-and-cheerful secret storage when rotation isn't needed.
 - **Standard tier is free** (up to 10,000 parameters per account per Region, 4 KB each); **Advanced tier** raises limits to 100,000 parameters, 8 KB each, and adds parameter policies (TTL, notifications).
@@ -10,12 +11,14 @@
 - For secrets that need rotation, cross-account / cross-Region replication, or fine-grained per-access audit, use **Secrets Manager**.
 
 ## When to use it
+
 - Configuration (URLs, flags, IDs, region-specific values) shared across services.
 - Non-rotated secrets where Secrets Manager pricing is overkill.
 - Bootstrapping containers / Lambdas with config at startup.
 - Resolving cross-stack references (a CDK output landed in Parameter Store for another stack to read).
 
 ## When NOT to use it
+
 - Secrets requiring rotation, cross-account / cross-Region replication, or per-call audit — use **Secrets Manager**.
 - Very large configuration blobs > 8 KB — store in **S3** with a Parameter Store entry pointing to it.
 - Anything that needs strong consistency across concurrent writers — Parameter Store is eventually-consistent across the rare same-name same-second writes.
@@ -25,10 +28,12 @@
 **Parameter.** A named value with optional description, tier (Standard / Advanced), and type (`String`, `StringList`, `SecureString`).
 
 **Hierarchy.** Names are paths (`/app/prod/db/host`, `/app/prod/db/password`). The `/`-separated structure enables:
+
 - **Get-by-path** (`GetParametersByPath('/app/prod/', recursive=true)`) — fetch a whole subtree.
 - **Path-based IAM** (`Resource: arn:aws:ssm:*:*:parameter/app/prod/*`).
 
 **Tiers:**
+
 - **Standard** — free, 4 KB value, 10,000 parameters per account per Region.
 - **Advanced** — per-parameter monthly fee, 8 KB value, 100,000 parameters, supports parameter policies (expiration, notification of upcoming expiration, no-change notification).
 
@@ -41,6 +46,7 @@
 **Versioning.** Every update creates a new version; you can reference a specific version (`/app/prod/db/host:5`) or the latest.
 
 **Parameter policies (Advanced tier only).**
+
 - **Expiration** — auto-delete after a timestamp.
 - **ExpirationNotification** — EventBridge event before expiration.
 - **NoChangeNotification** — alert if parameter hasn't changed in N days.
@@ -76,6 +82,7 @@ Parameter Store is almost free for typical use. Standard tier is the default sta
 - **Versioning ignored.** New parameter values land as a new version, but consumers still resolve `latest` — a typo / bad update propagates immediately. Pin versions in deployment manifests when you need strict change control.
 
 ## Pairs well with
+
 - [Secrets Manager](secrets-manager.md) — for secrets that need rotation / cross-account / cross-Region.
 - [KMS](kms.md) — encryption for SecureString.
 - [Lambda](../compute/lambda.md), [ECS](../compute/ecs.md), [EKS](../compute/eks.md) — workload consumers.
@@ -83,9 +90,11 @@ Parameter Store is almost free for typical use. Standard tier is the default sta
 - **AppConfig** — for feature flags and runtime config with safer rollout (validation, gradual deployment).
 
 ## Pairs well with these repo pages
+
 - [Secrets Manager](secrets-manager.md), [KMS](kms.md).
 
 ## Further reading
+
 - [Parameter Store documentation](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html).
 - [Standard vs Advanced parameters](https://docs.aws.amazon.com/systems-manager/latest/userguide/parameter-store-advanced-parameters.html).
 - [Parameter policies](https://docs.aws.amazon.com/systems-manager/latest/userguide/parameter-store-policies.html).

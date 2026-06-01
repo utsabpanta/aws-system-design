@@ -3,6 +3,7 @@
 > **One-line summary.** Isolate resources (thread pools, connection pools, queues) per dependency so one slow / failing dependency can't starve the whole service. The "watertight compartment" of distributed systems.
 
 ## TL;DR
+
 - Borrowed from ship design: a leak in one compartment doesn't sink the ship.
 - Per-dependency thread pools / connection pools / semaphores: a slow downstream's blocked threads stay in *its* pool, not the global pool.
 - Per-tenant / per-customer resource caps in multi-tenant systems: one tenant can't starve others.
@@ -10,12 +11,14 @@
 - The single most-overlooked pattern in production incidents — "we had circuit breakers" rarely saves a service whose connection pool is already exhausted by the time the breaker trips.
 
 ## When to use it
+
 - Services calling multiple downstreams with different reliability profiles.
 - Multi-tenant systems where one tenant's bad behavior must not affect others.
 - Services with shared queues / thread pools / connection pools that could starve.
 - ECS / EKS workloads where one container shouldn't be able to exhaust node-level shared resources.
 
 ## When NOT to use it
+
 - Single-dependency services — there's nothing to isolate from.
 - Trivially-parallel workloads with no shared resources.
 - Tiny throughput services where the additional configuration outweighs the benefit.
@@ -23,6 +26,7 @@
 ## How it works
 
 ### Per-dependency thread pools
+
 ```mermaid
 flowchart LR
   Req[Inbound request] --> H[Handler]
@@ -30,14 +34,17 @@ flowchart LR
   H -->|thread pool B| DepB[Dependency B: flaky]
   H -->|thread pool C| DepC[Dependency C: third-party]
 ```
+
 If Dependency B becomes slow / unresponsive, pool B fills with stuck calls. **Pool A and C are unaffected.** Pool B's exhaustion just means calls to B fail fast (or queue); other dependencies remain reachable.
 
 Without bulkheads, all three calls share the global pool. B's slowness exhausts the pool; A and C calls can't get a thread.
 
 ### Per-tenant resource caps
+
 A multi-tenant SaaS reads from a shared DB. Cap concurrent queries per tenant (per-tenant connection pool, per-tenant rate limit). One tenant's heavy load can't starve others.
 
 ### Process / instance isolation
+
 The strongest bulkhead: separate processes / pods / accounts entirely. AWS account-per-environment, ECS task-per-tenant, namespace-per-team in EKS.
 
 ## Key concepts
@@ -45,6 +52,7 @@ The strongest bulkhead: separate processes / pods / accounts entirely. AWS accou
 **Bulkhead size.** Each pool / quota has a fixed size. Too small: legitimate load is throttled even when the dependency is healthy. Too big: pool exhaustion still possible. Size pools based on **dependency latency × expected concurrency × safety margin** (Little's Law).
 
 **Failure mode when bulkhead exhausts.** Two options:
+
 - **Reject** — fail fast (default for bounded queues / semaphores).
 - **Queue with timeout** — wait briefly, then fail.
 
@@ -71,6 +79,7 @@ Reject is usually right; queueing inside a bulkhead defeats its fail-fast purpos
 | Per-tenant DynamoDB | Per-tenant table partitions (sharding); on-demand capacity to prevent one tenant's throttle from affecting another |
 
 ### Lambda reserved concurrency as bulkhead
+
 Without reserved concurrency, all functions share the account concurrency pool (default 1,000). One runaway function uses all 1,000 → other functions throttle. Setting **reserved concurrency** per function carves out a guaranteed slice. **Setting reserved concurrency to 0** is also a kill switch — disables the function entirely.
 
 ## Common pitfalls
@@ -98,6 +107,7 @@ Without reserved concurrency, all functions share the account concurrency pool (
 - **Bulkheads added after the incident.** Like circuit breakers, the failure mode that requires them happens before they're built. Build them proactively.
 
 ## Further reading
+
 - *Release It!*, Michael Nygard — original framing of the bulkhead pattern in distributed systems.
 - ["Caching challenges and strategies", Amazon Builders' Library](https://aws.amazon.com/builders-library/caching-challenges-and-strategies/) — bulkheads are mentioned in the cache-protection sections.
 - [Resilience4j Bulkhead](https://resilience4j.readme.io/docs/bulkhead).

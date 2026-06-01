@@ -3,6 +3,7 @@
 > **One-line summary.** Managed Redis OSS, Valkey, and Memcached clusters. The default in-memory cache layer on AWS.
 
 ## TL;DR
+
 - Three engines: **Valkey** (open-source Redis fork, the new cost-and-feature default), **Redis OSS** (legacy), and **Memcached** (simpler, multi-threaded, no persistence or replication).
 - **Valkey is the cost winner in 2026** — roughly **20% cheaper on node-based clusters and 33% cheaper on Serverless** than Redis OSS, with API compatibility and managed in-place upgrades. Real production migrations (Snap, Pinterest, MaiCoin) have shown 60%+ cost reductions.
 - **ElastiCache Serverless** scales capacity per request without you picking node sizes — best for spiky / unpredictable workloads. Pay per ECPU and per GB-stored.
@@ -10,6 +11,7 @@
 - The biggest operational mistakes are using ElastiCache as a primary datastore (it's a cache), not setting eviction policy correctly, and ignoring memory-pressure metrics until the cluster OOMs.
 
 ## When to use it
+
 - Application-level caching in front of databases (DynamoDB, RDS, Aurora, OpenSearch).
 - Session storage for web apps.
 - Rate limiting, leaderboards, counters, geo queries (Redis data structures).
@@ -17,6 +19,7 @@
 - Anywhere "in-memory key-value with optional persistence" is the right shape.
 
 ## When NOT to use it
+
 - Durable system-of-record storage — even with Redis AOF persistence, treat ElastiCache as a cache, not a primary database. For durable Redis, use **MemoryDB** (see [`memorydb.md`](memorydb.md)).
 - Workloads needing sub-millisecond latency *and* durability — MemoryDB is the answer.
 - Multi-cloud / portability requirements — Valkey is open-source-friendly, but if you need to run the same store on-prem too, factor that in.
@@ -25,11 +28,13 @@
 ## Key concepts
 
 **Engines.**
+
 - **Valkey** — open-source BSD-licensed Redis fork led by Linux Foundation (Linux, AWS, Google, Oracle, others). API-compatible with Redis 7.x; community now adds features faster than Redis OSS. AWS's recommended default for new caches in 2026.
 - **Redis OSS** — Redis Labs' open-source distribution. AWS still supports it; Extended Support is paid for older versions.
 - **Memcached** — multi-threaded, partitioned, no replication, no persistence. Right when you specifically want simple, sharded, in-memory cache with no replication overhead.
 
 **Deployment models.**
+
 - **Cluster mode disabled (CME-disabled)** — one shard, optional replicas. Up to 5 read replicas. Capped at one shard's memory.
 - **Cluster mode enabled (CME)** — multiple shards (up to 500), each with optional replicas. Horizontal scale. Client must be cluster-aware.
 - **Serverless** — opaque capacity; pay per ECPU (request) and per GB-stored. Auto-scales storage and throughput. No node sizing decisions.
@@ -80,6 +85,7 @@ The big 2026 economic story: at small scale, **Valkey Serverless** is cheaper th
 - **Serverless for predictable steady-state load.** Node-based + RIs is cheaper above ~50% steady utilization.
 
 ## Pairs well with
+
 - [DynamoDB](dynamodb.md) — cache layer in front of DynamoDB tables.
 - [RDS](rds.md) / [Aurora](aurora.md) — read-through cache for read-heavy SQL workloads.
 - **AWS Backup** — managed snapshots.
@@ -87,10 +93,12 @@ The big 2026 economic story: at small scale, **Valkey Serverless** is cheaper th
 - **CloudWatch Metrics** — `DatabaseMemoryUsagePercentage`, `Evictions`, `CacheHitRate`.
 
 ## Pairs well with these repo pages
+
 - [MemoryDB](memorydb.md) — for the same Redis API with multi-AZ durability.
 - `docs/02-patterns/caching-strategies.md` (forthcoming) — how to design cache invalidation that doesn't lie.
 
 ## Further reading
+
 - [Amazon ElastiCache documentation](https://docs.aws.amazon.com/elasticache/).
 - [Valkey on ElastiCache](https://aws.amazon.com/elasticache/valkey/).
 - [Migrating from Redis OSS to Valkey](https://aws.amazon.com/blogs/database/maicoin-case-study-blue-green-upgrade-from-amazon-elasticache-redis-to-valkey/).

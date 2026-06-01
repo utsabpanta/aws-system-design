@@ -3,6 +3,7 @@
 > **One-line summary.** Use compute, storage, network, and data resources efficiently — and keep using them efficiently as demand and technology change.
 
 ## TL;DR
+
 - Measure first. The slow part is almost never the part you'd guess. Profile before optimizing.
 - Pick the right primitive for the workload (compute family, storage class, database engine). The wrong primitive can't be tuned around.
 - Caching and CDNs are the highest-leverage performance tools in the AWS toolkit — they offload work entirely rather than make it faster.
@@ -26,6 +27,7 @@ It overlaps heavily with [Cost Optimization](cost-optimization.md) — usually "
 ## Key practices
 
 ### Compute selection
+
 - **Instance families.** General purpose (M), Compute (C), Memory (R/X), Storage (I/D), GPU (P/G). Match the family to the bottleneck.
 - **Graviton (ARM) first** for most stateless workloads. ~20% better price/performance than x86 with no real downside other than the rebuild step.
 - **Right-sizing.** Use Compute Optimizer recommendations rather than guessing. The default "we picked m5.xlarge because that's what we've always used" is the most common source of over-provisioning.
@@ -33,6 +35,7 @@ It overlaps heavily with [Cost Optimization](cost-optimization.md) — usually "
 - **Spot for fault-tolerant batch.** EMR, Glue, EKS data plane, ECS — Spot can be 60–90% cheaper than on-demand, with the trade-off of 2-minute reclaim notices.
 
 ### Storage selection
+
 The right storage primitive saves an order of magnitude:
 
 - **S3** — object store for anything from images to logs to data lake tables. Storage classes (Standard / Intelligent-Tiering / IA / Glacier) match access pattern to cost.
@@ -42,6 +45,7 @@ The right storage primitive saves an order of magnitude:
 - **Instance store** — local NVMe attached to specific EC2 families (i, d, im, is). Microsecond latency, ephemeral. Use for cache or scratch, never for durable data.
 
 ### Database selection
+
 The biggest performance lever in most systems:
 
 - **Relational, transactional, < a few TB.** RDS or Aurora (Aurora for higher availability and read scale).
@@ -56,6 +60,7 @@ The biggest performance lever in most systems:
 The mismatch is the killer: doing search in a SQL DB with `LIKE '%foo%'`, doing time-series in DynamoDB, doing analytics on the OLTP primary. Pick the right primitive.
 
 ### Network performance
+
 - **CloudFront** for any user-facing content. Edge TLS termination + cache offload reduces both latency and origin load.
 - **Global Accelerator** when you need the AWS backbone but not caching (anycast IPs, TCP/UDP, regional failover).
 - **VPC Endpoints** for AWS services in private subnets — avoids NAT egress, lower latency, traffic stays on the AWS network.
@@ -63,6 +68,7 @@ The mismatch is the killer: doing search in a SQL DB with `LIKE '%foo%'`, doing 
 - **Enhanced Networking (SR-IOV) / Elastic Fabric Adapter** for HPC and tightly-coupled distributed workloads.
 
 ### Caching layers
+
 The fastest request is the one you don't serve. Layered caches typical of any production system:
 
 1. **Browser cache** (HTTP `Cache-Control`).
@@ -74,11 +80,13 @@ The fastest request is the one you don't serve. Layered caches typical of any pr
 See [`docs/02-patterns/caching-strategies.md`](../02-patterns/caching-strategies.md) for cache patterns and invalidation strategies.
 
 ### Async, batch, prefetch
+
 - **Async over sync.** A 200 ms HTTP request that enqueues to SQS and ACKs feels instant; the 30-second background job is invisible. Use SQS, Step Functions, EventBridge for fire-and-forget work.
 - **Batch over per-item.** DynamoDB `BatchWriteItem`, S3 `ListObjectsV2` paginated, Kinesis `PutRecords`. Per-request overhead dominates per-item cost; batches amortize it.
 - **Prefetch on read patterns.** If you'll need objects A, B, C in sequence, fetch them in parallel.
 
 ### Observability for performance
+
 - **CloudWatch Metrics** for system-level (CPU, memory, queue depth, IOPS).
 - **CloudWatch Logs Insights** for log-derived metrics (p99 of a custom log field).
 - **X-Ray / OpenTelemetry** for distributed traces — where time actually goes across services.
@@ -111,11 +119,13 @@ Performance work without a profile is guessing. Profile first.
 - **Ignoring the tail.** A median latency of 20 ms with a p99 of 5 seconds will feel broken under load even though "the average is fine."
 
 ## Pairs well with
+
 - [Cost Optimization](cost-optimization.md) — same underlying tools, different lens.
 - [Reliability](reliability.md) — performance regressions are reliability events when they breach SLOs.
 - `docs/02-patterns/caching-strategies.md`, `read-replicas-vs-caching.md`, `data-partitioning-sharding.md`.
 
 ## Further reading
+
 - AWS Well-Architected Framework — Performance Efficiency pillar whitepaper.
 - *Systems Performance: Enterprise and the Cloud*, Brendan Gregg — definitive book on measuring and tuning system performance.
 - *The Datacenter as a Computer*, Barroso, Hölzle, Ranganathan — Google's classic on warehouse-scale efficiency.

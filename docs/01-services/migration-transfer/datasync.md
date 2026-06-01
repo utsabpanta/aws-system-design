@@ -3,6 +3,7 @@
 > **One-line summary.** Managed file / object transfer between on-prem (NFS / SMB / HDFS / S3-compatible) and AWS (S3 / EFS / FSx), or between AWS services. Faster, simpler, and more reliable than rolling your own `rsync` / scripts at scale.
 
 ## TL;DR
+
 - The right service for **bulk and ongoing file movement** — initial dataset transfers, periodic sync from on-prem NAS, EFS-to-EFS replication, S3-to-S3 cross-account / cross-Region copy, HDFS-to-S3 dump.
 - Built-in **incremental sync** (only changed files), **bandwidth throttling**, **task scheduling**, **encryption in transit** (TLS 1.2), **data validation** (per-file hash check), and **detailed reporting**.
 - **Online transfer up to multi-GB/s** depending on source bandwidth and DataSync agent sizing — for sites with reasonable internet, DataSync usually beats Snowball Edge on simplicity and turnaround.
@@ -10,6 +11,7 @@
 - **DataSync Discovery** assesses on-prem NFS / SMB storage and recommends AWS targets (often the prelude to a DataSync migration).
 
 ## When to use it
+
 - Bulk one-time data transfer from on-prem to AWS (TB to PB at reasonable bandwidth).
 - Periodic / continuous sync between on-prem NAS and S3 / EFS / FSx.
 - EFS-to-EFS replication across Regions / accounts.
@@ -18,6 +20,7 @@
 - AWS Snowball Edge data, post-ingestion, syncing back to a different bucket.
 
 ## When NOT to use it
+
 - Database migrations — use **DMS**.
 - Server migrations — use **MGN**.
 - Truly disconnected / very-low-bandwidth scenarios — **Snowball Edge** (DataSync still requires reasonable internet).
@@ -26,7 +29,9 @@
 ## Key concepts
 
 ### Locations
+
 DataSync abstracts source / target as **locations**:
+
 - **On-prem NFS** (v3 / v4 / v4.1).
 - **On-prem SMB** (v2 / v3).
 - **HDFS** (Hadoop FS).
@@ -37,11 +42,13 @@ DataSync abstracts source / target as **locations**:
 - **AWS Snowcone** (legacy device — note Snowcone is discontinued).
 
 ### Agents
+
 - **DataSync agent** is a small VM (VMware / Hyper-V / KVM / EC2) installed at the source.
 - Required for on-prem sources; the agent reads / writes to the on-prem source and ships to AWS over TLS.
 - **No agent needed for AWS-to-AWS transfers**.
 
 ### Tasks
+
 - A **task** ties a source location to a destination location with a sync configuration.
 - **Schedule** — one-time or recurring (cron).
 - **Filters** — include / exclude patterns.
@@ -50,19 +57,23 @@ DataSync abstracts source / target as **locations**:
 - **Bandwidth limit** — cap throughput per task.
 
 ### DataSync Discovery
+
 - Read-only assessment of on-prem NFS / SMB storage clusters.
 - Recommends AWS targets (S3 vs EFS vs FSx flavor) based on access patterns and capacity.
 - Generates a migration plan; pairs with DataSync tasks for execution.
 
 ### Reports
+
 - Per-task reports of files transferred / skipped / failed with reasons.
 - Sent to S3 in CSV / JSON.
 
 ### Multi-region / multi-account
+
 - Supports cross-Region S3 / EFS / FSx as source or destination.
 - Cross-account via IAM role chaining + permissions on the target location.
 
 ### Encryption
+
 - TLS 1.2 in transit.
 - At-rest encryption inherits the destination's (S3 SSE, EFS KMS, FSx KMS).
 
@@ -96,6 +107,7 @@ For multi-PB migrations, the per-GB cost adds up. Compare to **Snowball Edge** f
 - **Forgetting Snowball Edge for genuinely huge / disconnected transfers.** For 100 TB+ from a remote site with slow internet, Snowball Edge is faster end-to-end.
 
 ## Pairs well with
+
 - [S3](../storage/s3.md), [EFS](../storage/efs.md), [FSx](../storage/fsx.md) — AWS destinations.
 - [Storage Gateway](../storage/storage-gateway.md) — for ongoing file-share access (different problem).
 - [Snowball Edge](../edge/snow-family.md) — for genuinely disconnected / huge migrations.
@@ -104,9 +116,11 @@ For multi-PB migrations, the per-GB cost adds up. Compare to **Snowball Edge** f
 - [Direct Connect](../networking/direct-connect.md) — predictable high-bandwidth path for large transfers.
 
 ## Pairs well with these repo pages
+
 - [DMS](dms.md), [MGN](mgn.md), [Storage Gateway](../storage/storage-gateway.md), [Snowball Edge](../edge/snow-family.md).
 
 ## Further reading
+
 - [AWS DataSync documentation](https://docs.aws.amazon.com/datasync/).
 - [DataSync Discovery](https://docs.aws.amazon.com/datasync/latest/userguide/understanding-your-storage-environment.html).
 - [Supported locations](https://docs.aws.amazon.com/datasync/latest/userguide/working-with-locations.html).

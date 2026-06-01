@@ -3,6 +3,7 @@
 > **One-line summary.** Run code in response to events without provisioning or managing servers. Pay per millisecond of execution.
 
 ## TL;DR
+
 - The serverless compute primitive. Scales 0-to-N automatically; pay only when code is running.
 - Right for event-driven, short (< 15 min), stateless work. Wrong for long-running, latency-critical, or steady high-RPS workloads where Fargate/EC2 is cheaper at scale.
 - **SnapStart** dramatically reduces Java/Python/.NET cold starts (Node.js is not supported). Use it for any latency-sensitive synchronous Lambda.
@@ -10,6 +11,7 @@
 - Memory and CPU are coupled — sometimes 2× memory makes the function 3× faster *and* net-cheaper. Use [AWS Lambda Power Tuning](https://github.com/alexcasalboni/aws-lambda-power-tuning) to find the sweet spot.
 
 ## When to use it
+
 - HTTP APIs via API Gateway or Lambda Function URLs.
 - Reacting to events: S3 uploads, DynamoDB Streams, SQS/SNS messages, EventBridge rules, Kinesis records.
 - Cron-style scheduled work (EventBridge Scheduler).
@@ -18,6 +20,7 @@
 - Edge logic via Lambda@Edge / CloudFront Functions for latency-sensitive request transformation.
 
 ## When NOT to use it
+
 - Long-running jobs (> 15 minutes). Use Fargate, Batch, or Step Functions Distributed Map.
 - Sustained high RPS with predictable load — Fargate or EC2 with Savings Plans wins on cost at scale.
 - Workloads that need persistent connections (WebSocket servers, gaming relays). Use Fargate or EC2.
@@ -47,6 +50,7 @@
 ## Pricing model
 
 Three components, billed per invocation:
+
 1. **Requests** — $0.20 per 1M (Standard); free tier covers first 1M/month per account.
 2. **Compute** — GB-seconds (memory × duration). $0.0000166667 per GB-second on x86 (Graviton ~20% cheaper). Per-millisecond billing.
 3. **Optional**: provisioned concurrency (charged per GB-second the warm pool is active), SnapStart cache/restore (Python/.NET only), data transfer.
@@ -76,6 +80,7 @@ The breakeven vs Fargate: at ~70%+ utilization on long-running workloads, Fargat
 - **No SnapStart on Java/Python/.NET latency-sensitive functions.** Free (for Java) or cheap (for Python/.NET) and dramatically reduces cold-start tail.
 
 ## Pairs well with
+
 - **API Gateway / ALB / Function URLs** — HTTP-facing functions.
 - **SQS / SNS / EventBridge / Kinesis** — async event sources with retries and DLQs built in.
 - **Step Functions** — orchestrate multiple Lambdas with retries, parallelism, and human-in-the-loop.
@@ -83,6 +88,7 @@ The breakeven vs Fargate: at ~70%+ utilization on long-running workloads, Fargat
 - **Powertools for AWS Lambda** ([Python](https://docs.powertools.aws.dev/lambda/python/), Node, Java, .NET) — observability, idempotency, parameter handling primitives.
 
 ## Further reading
+
 - [AWS Lambda documentation](https://docs.aws.amazon.com/lambda/).
 - [Lambda runtime support policy](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html).
 - [SnapStart](https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html).

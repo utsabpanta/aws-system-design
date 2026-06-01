@@ -3,6 +3,7 @@
 > **One-line summary.** A full e-commerce platform: catalog of millions of products, search + recommendations, cart, checkout, payment, inventory, fulfillment, and order tracking. Multiple sub-systems tied together.
 
 ## TL;DR
+
 - Many of the components are their own interview designs — borrow heavily from [search-autocomplete](search-autocomplete.md), [recommendation-system](recommendation-system.md), [payment-system](payment-system.md), [ticketmaster](ticketmaster.md) (inventory consistency).
 - The unique parts are **catalog scale** (1B products), **cart durability**, **order workflow** (place → pay → reserve inventory → fulfill → ship → deliver), and **inventory** (don't oversell, especially during flash sales).
 - **Service decomposition** matters more than any one component — Amazon famously runs hundreds of services. Architect as a system-of-systems with clear contracts.
@@ -10,6 +11,7 @@
 - The hardest parts: **inventory under flash-sale concurrency**, **order saga reliability** (a failed payment must release inventory), **catalog freshness vs cost** (1B products × frequent updates), and **multi-Region active-active for revenue continuity**.
 
 ## Functional Requirements
+
 - Browse / search catalog.
 - Product detail page (price, inventory, reviews, recommendations).
 - Add to cart.
@@ -20,6 +22,7 @@
 - Reviews and ratings.
 
 ## Non-Functional Requirements
+
 - **Latency**: product detail page p99 < 500 ms; checkout end-to-end < 5 sec.
 - **Throughput**: 100M+ DAU; 10K+ orders/sec at peak (Prime Day).
 - **Availability**: 99.99%; downtime during peak = millions in lost revenue.
@@ -27,6 +30,7 @@
 - **Scale**: 1B products, 1B orders/year, billions of page views/day.
 
 ## Capacity Estimates
+
 - **Catalog**: 1B products × ~5 KB metadata = 5 TB. Stored in DynamoDB; cached in CloudFront + ElastiCache.
 - **Orders**: 1B/year = ~30/sec average, ~10K/sec peak.
 - **Cart**: 100M active carts × ~20 items × ~200 bytes = ~400 GB hot.
@@ -138,6 +142,7 @@ POST /v1/products/:id/reviews
 ## Deep Dives
 
 ### 1. Catalog at scale
+
 1B products × frequent updates = a hard read/write workload. Patterns:
 
 - **DynamoDB** with single-table design for product metadata. PK = `product_id`.
@@ -149,18 +154,22 @@ POST /v1/products/:id/reviews
 Aurora is used for admin / reporting workloads where joins matter (sales by category by month).
 
 ### 2. Inventory consistency
+
 A flash sale: 1000 units, 100K buyers click "buy" simultaneously.
 
 Same problem as [ticketmaster](ticketmaster.md):
+
 - **DynamoDB conditional update**: `UPDATE inventory SET available_qty = available_qty - 1 WHERE available_qty >= 1`.
 - **Multiple fulfillment centers**: try each in proximity order; first match wins.
 - **Soft reserve** when added to cart? Usually no for e-commerce (cart abandonment too high — would lock unfulfilled inventory). Reserve at "place order" time, not at "add to cart."
 
 For high-contention SKUs:
+
 - **Per-warehouse partitioning** spreads contention.
 - **Approximate-then-confirm**: cart shows "in stock" if any warehouse has > threshold; at order time, do the conditional update.
 
 ### 3. Place-order saga
+
 Multi-step distributed transaction. Use [saga pattern](../02-patterns/saga.md) with Step Functions:
 
 ```
@@ -184,7 +193,9 @@ Compensations:
 Each step is idempotent (see [idempotency](../02-patterns/idempotency.md)). Compensations handle failures in reverse order.
 
 ### 4. Cart service
+
 Durable, fast, per-user.
+
 - DynamoDB PK = `user_id`. Cart is a list; updates are full-replace or per-item.
 - Anonymous users (no `user_id`) — use a browser cookie ID; merge on login.
 - TTL: 90 days inactivity → cart auto-deleted.
@@ -193,7 +204,9 @@ Durable, fast, per-user.
 For very large carts (B2B with 100s of items), paginate the API and use cursor-based fetches.
 
 ### 5. Search and discovery
+
 **OpenSearch** indexes products:
+
 - Title, description, attributes, categories.
 - Synonyms, multilingual support.
 - Faceted search (filter by brand / price range / rating).
@@ -204,7 +217,9 @@ Indexed from DynamoDB Streams (product updates → OpenSearch upserts).
 For trending searches and search recommendations, see [search-autocomplete](search-autocomplete.md).
 
 ### 6. Personalization
+
 **Recommendations** integrated throughout:
+
 - Homepage: "recommended for you."
 - Product detail: "frequently bought together," "customers who viewed this also viewed."
 - Cart: "complete the look."
@@ -213,6 +228,7 @@ For trending searches and search recommendations, see [search-autocomplete](sear
 See [recommendation-system](recommendation-system.md) for the deep-dive.
 
 ### 7. Reviews
+
 - Write-heavy at product launch + sale spikes; read-heavy on the product detail page.
 - DynamoDB for storage (PK = `product_id`, SK = `review_id`).
 - Pre-aggregated `(avg_rating, review_count)` in the product table; updated via DynamoDB Streams + Lambda counter (see [distributed-counter](distributed-counter.md)).
@@ -220,7 +236,9 @@ See [recommendation-system](recommendation-system.md) for the deep-dive.
 - Reviewer authenticity (verified purchase badge): cross-reference orders table.
 
 ### 8. Multi-Region active-active for revenue continuity
+
 Amazon doesn't have downtime during Prime Day. Multi-Region active-active:
+
 - DynamoDB Global Tables for cart, inventory, orders.
 - Aurora Global Database for billing-grade order data.
 - Route 53 latency-based routing.
@@ -230,13 +248,16 @@ Amazon doesn't have downtime during Prime Day. Multi-Region active-active:
 See [multi-region-active-active pattern](../02-patterns/multi-region-active-active.md).
 
 ### 9. Pricing and promotions
+
 - **Price** changes constantly (sales, dynamic pricing). Cached in Valkey with short TTL (~1 minute).
 - **Promotion rules engine** evaluates discounts at checkout (BOGO, percentage off, coupons).
 - **Price freeze** at "add to cart" — but display the current price; validate at checkout.
 - Audit log: every price seen by a user at each step (for dispute resolution).
 
 ## AWS Services Used
+
 Almost the entire AWS catalog at production scale. Selected highlights:
+
 - **CloudFront** — every page, every image, every API.
 - **API Gateway / ALB** — public endpoints.
 - **Lambda + ECS + EKS** — compute (microservices fleet).
@@ -255,19 +276,23 @@ Almost the entire AWS catalog at production scale. Selected highlights:
 - **Cognito** — user auth.
 
 ## Cost Notes
+
 At Amazon scale, costs are dominated by:
+
 - **CloudFront egress** (massive).
 - **DynamoDB + Aurora** for the OLTP layer.
 - **OpenSearch** for search.
 - **Compute** (Lambda + EKS + Fargate).
 
 Levers:
+
 - **Reserved capacity / Savings Plans** for steady-state baseline.
 - **Tier old data to Glacier**.
 - **Cache hit ratio** at every layer (CloudFront, DAX, ElastiCache).
 - **Per-Region cost optimization** — different traffic shapes per Region get different sizing.
 
 ## Failure Modes & DR
+
 - **Inventory hot SKU during flash sale**: pre-partition per warehouse; rate-limit per SKU; "in stock" displays may briefly lie before being corrected.
 - **Payment processor outage**: queue retries; multi-processor for redundancy.
 - **Service A down**: services degrade gracefully (e.g., recommendations down → show generic popular items, not error).
@@ -275,6 +300,7 @@ Levers:
 - **DDoS during Prime Day**: WAF + Shield Advanced.
 
 ## Trade-offs & Alternatives
+
 - **Microservices vs monolith**: at Amazon scale, microservices. For small e-commerce (Shopify-scale), a well-organized monolith on Aurora + good caching is way simpler.
 - **DynamoDB vs Aurora for orders**: Aurora wins for transactional integrity (the order + ledger relationship). DynamoDB for the high-throughput summary.
 - **Per-warehouse inventory partitioning vs global SKU**: per-warehouse parallelism better for flash sales; global SKU simpler for low-contention.
@@ -282,6 +308,7 @@ Levers:
 - **CDN-cached product pages vs server-rendered**: CDN is dramatically cheaper / faster for popular products. Server-rendered for personalized / authenticated views.
 
 ## Further Reading
+
 - ["Designing Amazon", System Design Primer-style](https://github.com/donnemartin/system-design-primer).
 - ["A Decade of Dynamo: Powering the next wave of high-performance, internet-scale applications" (Amazon paper)](https://www.allthingsdistributed.com/2017/10/a-decade-of-dynamo.html).
 - ["Amazon's Distributed Computing Manifesto"](https://www.allthingsdistributed.com/2022/11/amazon-1998-distributed-computing-manifesto.html).
