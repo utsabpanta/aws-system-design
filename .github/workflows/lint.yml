@@ -33,7 +33,7 @@ jobs:
       - name: Install cspell
         run: npm install -g cspell@8.17.1
       - name: Run cspell
-        run: cspell --config .cspell.json --no-progress --no-summary "**/*.md"
+        run: cspell --config .cspell.json --gitignore --no-progress --no-summary "**/*.md"
 
   lychee:
     name: lychee link check

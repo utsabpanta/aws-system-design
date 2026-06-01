@@ -11,7 +11,8 @@ max_retries = 3
 retry_wait_time = 2
 
 # Treat these HTTP codes as success — some doc hosts return them for HEAD requests.
-accept = [200, 203, 206, 301, 302, 304, 307, 308, 429]
+# 403/406 cover engineering blogs (Medium, Uber) that bot-block CI but work for readers.
+accept = [200, 203, 206, 301, 302, 304, 307, 308, 403, 406, 429]
 
 # Don't error on transient failures of well-known stable hosts.
 exclude = [
@@ -20,6 +21,11 @@ exclude = [
   "^https://aws\\.amazon\\.com/.*",
   # GitHub raw links can be flaky in CI.
   "^https://raw\\.githubusercontent\\.com/.*",
+  # Legitimate engineering blogs / sites whose TLS chain fails in CI but is fine in browsers.
+  "^https://netflixtechblog\\.com/.*",
+  "^https://instagram-engineering\\.com/.*",
+  "^https://www\\.fixtrading\\.org/.*",
+  "^https://www\\.thepollyproject\\.org/.*",
 ]
 
 # Files and directories to skip.
