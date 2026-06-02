@@ -73,7 +73,7 @@ erDiagram
   }
   INVENTORY {
     string product_id PK
-    string fulfillment_center_id SK
+    string fulfillment_center_id "SK"
     int    available_qty
     int    reserved_qty
     int    threshold
@@ -100,7 +100,7 @@ erDiagram
   }
   REVIEW {
     string product_id PK
-    string review_id SK
+    string review_id "SK"
     string user_id
     int    rating
     string text

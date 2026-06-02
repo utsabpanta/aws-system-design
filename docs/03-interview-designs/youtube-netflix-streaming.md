@@ -65,7 +65,7 @@ erDiagram
   }
   VARIANT {
     string video_id PK
-    string variant_key SK "1080p_h264, 720p_hevc, audio_only"
+    string variant_key "SK: 1080p_h264, 720p_hevc, audio_only"
     string s3_prefix
     int    bitrate_kbps
     int    width

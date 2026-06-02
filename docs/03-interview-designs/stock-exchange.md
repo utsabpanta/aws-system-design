@@ -84,20 +84,20 @@ erDiagram
   }
   ORDER_BOOK {
     string symbol PK
-    "in-memory only"
-    "two sides: bids (price desc), asks (price asc)"
-    "each level: price -> queue of orders (time priority)"
+    string storage "in-memory only"
+    string sides "bids (price desc), asks (price asc)"
+    string levels "price -> queue of orders (time priority)"
   }
   EVENT_LOG {
     string symbol PK
-    bigint sequence_num SK
+    bigint sequence_num "SK"
     string event_type "new_order - cancel - modify - match"
     blob   payload
     timestamp persisted_at
   }
   RISK_LIMIT {
     string broker_id PK
-    string symbol SK
+    string symbol "SK"
     bigint position_limit
     decimal exposure_limit
     decimal current_exposure

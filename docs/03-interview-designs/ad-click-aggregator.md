@@ -68,14 +68,14 @@ erDiagram
   }
   REALTIME_AGG {
     string ad_id PK
-    string window_key SK "1min - 5min - hour - day"
+    string window_key "SK: 1min - 5min - hour - day"
     int    impressions
     int    clicks
     timestamp last_updated
   }
   DAILY_REPORT {
     string ad_id PK
-    string date SK "YYYY-MM-DD"
+    string date "SK: YYYY-MM-DD"
     int    impressions
     int    clicks
     decimal spend

@@ -51,7 +51,7 @@ erDiagram
   }
   SCORE {
     string player_id PK
-    string scope SK "global - daily-2026-05-18 - region-na - friends-of-X"
+    string scope "SK: global - daily-2026-05-18 - region-na - friends-of-X"
     bigint score
     timestamp updated_at
     int    version

@@ -27,8 +27,8 @@ jobs:
       - name: Extract and validate Mermaid blocks
         run: bash scripts/validate_mermaid.sh $(git ls-files '*.md')
 
-  python-diagrams-sync:
-    name: Re-render Python diagrams and verify images are committed
+  python-diagrams-render:
+    name: Re-render Python diagrams (verify sources render)
     runs-on: ubuntu-latest
     # Skip unless someone touched a Python diagram source or an image.
     if: |
@@ -45,12 +45,25 @@ jobs:
       - name: Install Python deps
         run: pip install -r diagrams/python/requirements.txt
       - name: Re-render all diagrams
+        # Confirms every diagram source renders without error. We intentionally
+        # do NOT byte-compare against committed PNGs: graphviz output is not
+        # reproducible across platforms/versions (a macOS contributor and the
+        # CI Linux runner produce different bytes from identical source), so a
+        # byte diff is noise, not signal. A render failure here means a broken
+        # diagram source, which is what we actually want to catch.
         run: bash scripts/render_diagrams.sh
-      - name: Fail if rendered images differ from committed
+      - name: Confirm an image was produced for every source
         run: |
-          if ! git diff --quiet -- images/; then
-            echo "::error::Rendered images differ from what is committed."
-            echo "Run ./scripts/render_diagrams.sh locally and commit the result."
-            git diff --stat -- images/
-            exit 1
-          fi
+          missing=0
+          while IFS= read -r src; do
+            case "$src" in
+              diagrams/python/_shared/*|*/__init__.py) continue ;;
+            esac
+            rel="${src#diagrams/python/}"
+            out="images/${rel%/*}/$(basename "${rel}" .py).png"
+            if [[ ! -s "$out" ]]; then
+              echo "::error::No rendered image for $src (expected $out)"
+              missing=1
+            fi
+          done < <(find diagrams/python -type f -name '*.py' | sort)
+          exit "$missing"

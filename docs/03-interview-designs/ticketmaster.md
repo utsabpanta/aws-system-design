@@ -63,7 +63,7 @@ erDiagram
   }
   SEAT {
     string event_id PK
-    string seat_id SK "section-row-num"
+    string seat_id "SK: section-row-num"
     string status "available - on_hold - sold"
     string hold_id "uuid - null if available"
     timestamp hold_expires_at
@@ -81,7 +81,7 @@ erDiagram
   }
   WAITING_ROOM_ENTRY {
     string event_id PK
-    string user_id SK
+    string user_id "SK"
     int    position
     timestamp entered_at
   }

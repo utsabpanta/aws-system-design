@@ -67,7 +67,7 @@ erDiagram
   }
   FILE_VERSION {
     string file_id PK
-    int    version SK
+    int    version "SK"
     list   chunk_hashes
     int    size_bytes
     timestamp created_at
@@ -81,7 +81,7 @@ erDiagram
   }
   ACL {
     string file_id PK
-    string user_id SK
+    string user_id "SK"
     string permission "read - write - owner"
     timestamp granted_at
   }

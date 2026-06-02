@@ -62,7 +62,7 @@ erDiagram
   }
   PERSONAL_HISTORY {
     string user_id PK
-    timestamp ts SK
+    timestamp ts "SK"
     string query
     int    ttl
   }

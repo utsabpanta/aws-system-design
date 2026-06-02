@@ -72,23 +72,23 @@ erDiagram
   }
   FOLLOW {
     string follower_id PK
-    string followee_id SK
+    string followee_id "SK"
     timestamp followed_at
   }
   HOME_TIMELINE {
     string user_id PK
-    timestamp tweet_ts SK
+    timestamp tweet_ts "SK"
     string tweet_id
     string author_id
   }
   USER_TIMELINE {
     string author_id PK
-    timestamp tweet_ts SK
+    timestamp tweet_ts "SK"
     string tweet_id
   }
   HASHTAG {
     string tag PK
-    timestamp hour_bucket SK
+    timestamp hour_bucket "SK"
     int    count
     list   sample_tweet_ids
   }

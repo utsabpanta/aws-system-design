@@ -61,7 +61,7 @@ erDiagram
   }
   CONNECTION {
     string user_id PK
-    string connection_id SK
+    string connection_id "SK"
     string device_id
     timestamp connected_at
     timestamp last_seen
@@ -77,7 +77,7 @@ erDiagram
   }
   MESSAGE {
     string conversation_id PK
-    timestamp message_ts SK
+    timestamp message_ts "SK"
     string message_id "ulid"
     string sender_id
     string ciphertext

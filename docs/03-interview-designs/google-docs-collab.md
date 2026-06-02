@@ -60,7 +60,7 @@ erDiagram
   }
   OP_LOG {
     string doc_id PK
-    int    op_seq SK
+    int    op_seq "SK"
     string user_id
     string op_type "insert - delete - format"
     int    position
@@ -70,7 +70,7 @@ erDiagram
   }
   SESSION {
     string doc_id PK
-    string user_id SK
+    string user_id "SK"
     string connection_id
     string cursor_position
     string display_name
@@ -79,12 +79,12 @@ erDiagram
   }
   PERMISSION {
     string doc_id PK
-    string user_id SK
+    string user_id "SK"
     string role "owner - editor - commenter - viewer"
   }
   COMMENT {
     string doc_id PK
-    string comment_id SK
+    string comment_id "SK"
     string author_id
     int    anchor_position
     string text
@@ -93,7 +93,7 @@ erDiagram
   }
   SNAPSHOT {
     string doc_id PK
-    int    op_seq SK
+    int    op_seq "SK"
     string s3_key
     timestamp created_at
   }

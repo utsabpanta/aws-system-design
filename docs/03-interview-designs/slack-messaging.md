@@ -70,7 +70,7 @@ erDiagram
   }
   CHANNEL {
     string workspace_id PK
-    string channel_id SK
+    string channel_id "SK"
     string name
     string type "public - private - dm - group_dm"
     list   member_ids
@@ -78,7 +78,7 @@ erDiagram
   }
   MESSAGE {
     string channel_id PK
-    timestamp message_ts SK
+    timestamp message_ts "SK"
     string message_id "ulid"
     string sender_id
     string text
@@ -90,13 +90,13 @@ erDiagram
   }
   CONNECTION {
     string user_id PK
-    string connection_id SK
+    string connection_id "SK"
     list   subscribed_channels
     timestamp last_seen
   }
   READ_STATE {
     string user_id PK
-    string channel_id SK
+    string channel_id "SK"
     timestamp last_read_ts
     int    unread_count
   }

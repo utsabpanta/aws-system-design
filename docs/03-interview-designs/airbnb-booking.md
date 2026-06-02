@@ -71,7 +71,7 @@ erDiagram
   }
   AVAILABILITY {
     string listing_id PK
-    string date SK "YYYY-MM-DD"
+    string date "SK: YYYY-MM-DD"
     string status "available - booked - blocked"
     decimal price_override
     string booking_id "if booked"
@@ -97,13 +97,13 @@ erDiagram
   }
   MESSAGE {
     string thread_id PK "host_id + guest_id + listing_id hash"
-    timestamp ts SK
+    timestamp ts "SK"
     string sender_id
     string text
   }
   REVIEW {
     string listing_id PK
-    string review_id SK
+    string review_id "SK"
     string guest_id
     int    rating
     string text

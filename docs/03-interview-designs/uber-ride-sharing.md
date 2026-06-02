@@ -71,7 +71,7 @@ erDiagram
   }
   GEO_INDEX {
     string geohash_prefix PK "5-char"
-    string driver_id SK
+    string driver_id "SK"
     string current_geohash "8-char"
     timestamp last_update
   }

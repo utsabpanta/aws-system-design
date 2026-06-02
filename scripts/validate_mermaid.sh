@@ -21,22 +21,34 @@ fi
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
+# Headless Chrome can't use its sandbox in most CI containers; point mmdc at a
+# puppeteer config that launches with --no-sandbox. Repo-local file wins, but a
+# caller can override with PUPPETEER_CONFIG.
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+puppeteer_config="${PUPPETEER_CONFIG:-$repo_root/.puppeteer.json}"
+mmdc_args=()
+if [[ -f "$puppeteer_config" ]]; then
+  mmdc_args+=(--puppeteerConfigFile "$puppeteer_config")
+fi
+
 fail=0
 for md in "$@"; do
   [[ -f "$md" ]] || continue
   # Skip files that have no mermaid blocks.
   grep -q '^```mermaid' "$md" || continue
 
-  awk -v src="$md" -v out="$tmp_dir" '
-    /^```mermaid/ { in_block=1; block_idx++; file=sprintf("%s/%s.%d.mmd", out, gensub(/[\/]/, "_", "g", src), block_idx); next }
+  safe_src="${md//\//_}"
+  awk -v out="$tmp_dir" -v safe="$safe_src" '
+    /^```mermaid/ { in_block=1; block_idx++; file=sprintf("%s/%s.%d.mmd", out, safe, block_idx); next }
     /^```/ && in_block { in_block=0; next }
     in_block { print > file }
   ' "$md"
 
   for mmd in "$tmp_dir/$(printf '%s' "$md" | sed 's,/,_,g')".*.mmd; do
     [[ -f "$mmd" ]] || continue
-    if ! mmdc --input "$mmd" --output "${mmd%.mmd}.svg" --quiet >/dev/null 2>&1; then
+    if ! err="$(mmdc "${mmdc_args[@]}" --input "$mmd" --output "${mmd%.mmd}.svg" --quiet 2>&1)"; then
       echo "::error file=$md::Mermaid block failed to render. Re-run locally with: mmdc -i $mmd -o out.svg" >&2
+      echo "$err" >&2
       fail=1
     fi
   done

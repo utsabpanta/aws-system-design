@@ -48,7 +48,7 @@ Writers call **API Gateway / Lambda** which writes to a **DynamoDB counters** ta
 erDiagram
   COUNTER_SHARD {
     string counter_id PK
-    int    shard_id SK "0 .. N-1"
+    int    shard_id "SK: 0 .. N-1"
     bigint count
     timestamp updated_at
   }

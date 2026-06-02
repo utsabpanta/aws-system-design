@@ -82,17 +82,17 @@ erDiagram
   }
   FOLLOW {
     string follower_id PK
-    string followee_id SK
+    string followee_id "SK"
     timestamp followed_at
   }
   FEED {
     string user_id PK
-    timestamp post_ts SK
+    timestamp post_ts "SK"
     string post_id
   }
   LIKE {
     string post_id PK
-    string user_id SK
+    string user_id "SK"
     timestamp ts
   }
 ```
